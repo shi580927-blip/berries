@@ -544,6 +544,7 @@ function install(){
     if(this.fx&&!this.fx.__juicyV12){
       this.fx.__juicyV12=true;
       this.fx.pop=(chain=1)=>{
+        if(this.fx.sample('sfx_berry_pop',.50))return;
         if(!this.fx.can?.('berry_pop',30))return;
         const ctx=this.sound?.context;if(!ctx||this.fx.muted)return;
         if(ctx.state==='suspended')ctx.resume().catch(()=>{});
