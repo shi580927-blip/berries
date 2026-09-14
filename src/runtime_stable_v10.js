@@ -311,10 +311,10 @@ function install(){
   p.hud=function hudDesigned(){
     // Board stays in its proven position; only the visual shell is rebuilt.
     const frame=this.add.graphics().setDepth(1);
-    frame.fillStyle(0x243424,.76);frame.fillRoundedRect(BX-20,BY-20,C*CELL+40,R*CELL+40,28);
+    frame.fillStyle(0xfff5e6,.62);frame.fillRoundedRect(BX-20,BY-20,C*CELL+40,R*CELL+40,28);
     frame.lineStyle(5,0xd5aa62,.82);frame.strokeRoundedRect(BX-20,BY-20,C*CELL+40,R*CELL+40,28);
     for(let r=0;r<R;r++)for(let c=0;c<C;c++){
-      frame.fillStyle((r+c)%2?0x496d3f:0x557b46,.72);
+      frame.fillStyle((r+c)%2?0xf3e6d2:0xfffaf0,.42);
       frame.fillRoundedRect(BX+c*CELL+5,BY+r*CELL+5,CELL-10,CELL-10,15);
     }
 
@@ -323,7 +323,6 @@ function install(){
     // Back button is always visible and separate from counters.
     const backBg=this.add.circle(78,66,43,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(19).setInteractive({useHandCursor:true});
     const backIcon=fit(this.add.image(78,66,'ui_back'),54,54).setDepth(20).setInteractive({useHandCursor:true});
-    this.add.text(128,66,'КАРТА',{fontFamily:FONT,fontSize:'21px',fontStyle:'bold',color:'#fff0bd',stroke:'#552914',strokeThickness:5}).setOrigin(0,.5).setDepth(20);
     const goMap=()=>{this.fx.click();window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')};
     backBg.on('pointerdown',goMap);backIcon.on('pointerdown',goMap);
 
@@ -344,35 +343,56 @@ function install(){
     plaque(1695,66,210,98);
     fit(this.add.image(1658,66,'ui_coin'),42,42).setDepth(20);
     this.add.text(1717,66,String(save.coins||0),{fontFamily:FONT,fontSize:'24px',fontStyle:'bold',color:'#fff4c9',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
-    const settingsBg=this.add.circle(1872,66,38,0x244a31,.92).setStrokeStyle(3,0xd9ae62,.85).setDepth(19);
+    const settingsBg=this.add.circle(1872,66,38,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(19);
     const settings=fit(this.add.image(1872,66,'ui_settings'),49,49).setDepth(20).setInteractive({useHandCursor:true});
     settings.on('pointerdown',()=>{
       if(this._soundMenu?.active){this._soundMenu.destroy();this._soundMenu=null;return}
-      const box=this.add.container(1540,135).setDepth(29);
-      box.add(fit(this.add.image(0,0,'btn'),430,120));
-      const label=this.add.text(0,0,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff4c9',stroke:'#552914',strokeThickness:4}).setOrigin(.5);
-      const update=()=>label.setText(this.fx.muted?'ЗВУК: ВЫКЛ':'ЗВУК: ВКЛ');
-      update();box.add(label);
-      const hit=this.add.zone(0,0,400,100).setInteractive({useHandCursor:true});
-      hit.on('pointerdown',()=>{this.fx.muted=!this.fx.muted;update()});box.add(hit);this._soundMenu=box;
+      const box=this.add.container(1640,265).setDepth(40);
+      const bg=this.add.graphics();
+      bg.fillStyle(0xfff7e9,.95);bg.fillRoundedRect(-235,-145,470,290,24);
+      bg.lineStyle(3,0xcda36a,1);bg.strokeRoundedRect(-235,-145,470,290,24);
+      box.add(bg);
+      const blocker=this.add.zone(0,0,470,290).setInteractive();
+      box.add(blocker);
+      const text=(x,y,value,size=26)=>this.add.text(x,y,value,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color:'#543922',align:'center'}).setOrigin(.5);
+      box.add(text(0,-100,'НАСТРОЙКИ',30));
+      const close=text(200,-108,'×',34).setInteractive({useHandCursor:true});
+      close.on('pointerdown',()=>{box.destroy();this._soundMenu=null});box.add(close);
+      const row=(y,title,bus)=>{
+        box.add(text(-112,y,title));
+        const button=fit(this.add.image(106,y,'btn'),170,65).setInteractive({useHandCursor:true});
+        const label=text(106,y,'',22);label.setColor('#fff5da').setStroke('#59331c',3);
+        const update=()=>label.setText(bus?.muted?'ВЫКЛ':'ВКЛ');
+        button.on('pointerdown',()=>{
+          if(!bus)return;bus.muted=!bus.muted;
+          if(bus===this.music){
+            if(bus.muted)bus.stop();
+            else bus.play(this.no>=21?'music_gameplay_magic':'music_gameplay_calm');
+          }
+          update();
+        });
+        update();box.add([button,label]);
+      };
+      row(-22,'ЗВУК',this.fx);row(70,'МУЗЫКА',this.music);
+      this._soundMenu=box;
     });
 
     // Goals: smaller panel with visual target icons, no giant empty card.
-    const goalsPanel=fit(this.add.image(270,430,'pgoals'),450,590).setDepth(3);
+    const goalsPanel=fit(this.add.image(212.4,430,'pgoals'),495,649).setDepth(3);
     const goalCount=Math.max(1,this.goals.length),gap=goalCount===1?0:Math.min(115,280/(goalCount-1));
     const firstY=430-(goalCount-1)*gap/2;
     this.gt=this.goals.map((goal,index)=>{
       const y=firstY+index*gap;
       const key=goal.type==='berry'?'b_'+goal.id:goal.type==='ice'?'ice1':goal.type==='acorn'?'acorn':goal.type==='roots'?'roots':null;
-      if(key&&this.textures.exists(key))fit(this.add.image(215,y,key),80,80).setDepth(5);
-      return this.add.text(key?315:270,y,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',align:'center',color:'#49331f',stroke:'#fff4dc',strokeThickness:2,wordWrap:{width:key?160:260}}).setOrigin(.5).setDepth(6);
+      if(key&&this.textures.exists(key))fit(this.add.image(157.4,y,key),80,80).setDepth(5);
+      return this.add.text(key?257.4:212.4,y,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',align:'center',color:'#49331f',stroke:'#fff4dc',strokeThickness:2,wordWrap:{width:key?160:260}}).setOrigin(.5).setDepth(6);
     });
 
     // Boosters aligned to the three painted slots.
     const boostersPanel=fit(this.add.image(1640,370,'pboost'),400,480).setDepth(3);
     this.boosterButtons={};
     [['hammer',1640,269],['shuffle',1640,371],['fan',1640,473]].forEach(([id,x,y])=>{
-      const im=fit(this.add.image(x,y,id),72,72).setDepth(5).setInteractive({useHandCursor:true});
+      const im=fit(this.add.image(x,y+H*.01,id),72,72).setDepth(5).setInteractive({useHandCursor:true});
       fit(this.add.image(1744,y,'btn'),82,52).setDepth(5);
       const tx=this.add.text(1744,y,'',{fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff4ca',stroke:'#4b2915',strokeThickness:4}).setOrigin(.5).setDepth(6);
       im.on('pointerdown',()=>this.pickBooster(id));this.boosterButtons[id]={im,tx};
