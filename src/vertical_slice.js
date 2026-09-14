@@ -123,6 +123,7 @@ class Boot extends Phaser.Scene{
     this.load.audio('music_combo_accent','audio/music/accents/combo.mp3');
     this.load.audio('music_victory_accent','audio/music/accents/victory.mp3');
     const I=(k,p)=>this.load.image(k,p);
+    I('wood_flat','assets/ui/panels/panel_3.png');I('wood_button','assets/ui/panels/panel_buttom1.png');I('popup_shop','assets/ui/popups/popup_shop_main.png');
     I('title','assets/backgrounds/background_title_forest.jpg');I('gamebg','assets/backgrounds/background_game_forest.jpg');I('mapbg','assets/map/map_forest_background.jpg');I('logo','assets/ui/panels/logo_main.png');I('plevel','assets/ui/panels/panel_level_title.png');I('pgoals','assets/ui/panels/panel_goals.png');I('pboost','assets/ui/panels/panel_boosters.png');I('pboard','assets/ui/panels/board_frame_forest.png');I('pprogress','assets/ui/panels/panel_progress.png');I('pchamp','assets/ui/panels/panel_championat.png');I('plives','assets/ui/panels/panel_lives.png');I('pcoins','assets/ui/panels/panel_coins.png');I('btn','assets/ui/buttons/button_wood.png');I('btnblue','assets/ui/buttons/button_blue.png');
     I('popup_win','assets/ui/popups/popup_level_win.png');I('popup_lose','assets/ui/popups/popup_level_lose.png');
     I('map_header_levels','assets/map/map_header_levels.png');['normal','current','completed','locked'].forEach(x=>I('lvl_'+x,'assets/map/level_'+x+'.png'));['idle','point','celebrate','sad'].forEach(x=>I('king_'+x,'assets/characters/king/king_'+x+'.png'));
