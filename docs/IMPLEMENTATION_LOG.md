@@ -1,0 +1,63 @@
+# IMPLEMENTATION LOG — «Безумные ягодки: Лесное королевство»
+
+## 2026-09-14 — Vertical Slice v0.2
+
+Начат второй проход рабочего прототипа.
+
+### Добавлено в runtime
+- Yandex Games SDK adapter: `src/sdk/yandex.js`;
+- безопасный standalone fallback вне Яндекс Игр;
+- `LoadingAPI.ready()` после загрузки ресурсов;
+- `GameplayAPI.start()` при старте уровня;
+- `GameplayAPI.stop()` при завершении уровня, уходе в меню, скрытии вкладки и показе рекламы;
+- rewarded-video adapter через `ysdk.adv.showRewardedVideo()`;
+- тестовый режим rewarded вне Яндекс Игр: `?mockAds=1`;
+- rewarded continue: +5 ходов, максимум один раз за попытку;
+- cloud save hooks через Player API + localStorage fallback;
+- Hammer runtime;
+- Shuffle runtime;
+- Fan runtime: очистка выбранного ряда;
+- T/L пересечение создаёт bomb special;
+- line / bomb / rainbow activation;
+- программные FX для specials;
+- procedural ASMR runtime расширен: swap, pop, crack, wood, sparkle, whoosh, bomb, reward, win/lose;
+- voice cooldown для часто повторяемых SFX;
+- booster panel и тестовый инвентарь `2/2/2` на вертикальный срез;
+- mobile/desktop landscape остаётся 1920×1080 FIT.
+
+### Музыка
+Архитектура `MusicBus` добавлена. Финальные лицензированные mp3 ещё не помещены в репозиторий, поэтому runtime не пытается грузить отсутствующие файлы.
+
+Фавориты для будущего подключения:
+- `Morning` — menu/map;
+- `Devonshire Waltz Moderato` — calm gameplay;
+- `Magic Escape Room` — magic/hard gameplay;
+- `Adventures in Adventureland` — active/event.
+
+Источники и обязательные кредиты: `docs/LICENSES_AUDIO.md`.
+
+### Яндекс Игры — официальные точки интеграции
+- SDK connection: `https://yandex.com/dev/games/doc/en/sdk/sdk-about`
+- Game Ready / Gameplay API: `https://yandex.com/dev/games/doc/en/sdk/sdk-game-events`
+- Rewarded ads: `https://yandex.com/dev/games/doc/en/sdk/sdk-adv`
+
+### Что проверить вручную следующим тестом
+1. заставка → карта → уровень;
+2. обычные swap/cascade;
+3. создание line / rainbow / T-L bomb;
+4. Hammer на ягоде, льду, жёлуде, roots;
+5. Fan по ряду;
+6. Shuffle;
+7. проигрыш → `+5 ходов` с `?mockAds=1` вне Яндекса;
+8. завершение контрольных уровней 1 / 6 / 11 / 16 / 21 / 30;
+9. landscape на телефоне;
+10. отсутствие клиппинга/звуковой каши при каскадах.
+
+### Известные временные ограничения
+- финальные внешние mp3/SFX ещё не загружены;
+- экономический инвентарь бустеров пока тестовый, без магазина;
+- Player API cloud save подключён как hook, но требует теста внутри среды Яндекс Игр;
+- payments и premium pack ещё не интегрированы;
+- полные 30 уровней ещё не перенесены в runtime JSON;
+- production RU/EN popups ещё не разделены на фон + динамический текст;
+- special+special combinations будут расширены после QA базового ядра.
