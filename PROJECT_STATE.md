@@ -1,8 +1,8 @@
 # PROJECT_STATE — «Безумные ягодки: Лесное королевство»
 
-**Версия:** 0.4  
+**Версия:** 1.0  
 **Дата:** 2026-09-14  
-**Статус:** разработка идёт; vertical slice v0.2 собран  
+**Статус:** stable vertical slice v1.0 собран; начат системный browser QA  
 **Репозиторий:** `shi580927-blip/berries`
 
 Главный источник состояния проекта — этот файл. Подробности:
@@ -201,7 +201,8 @@ Runtime procedural слой сейчас включает:
 - `index.html`;
 - `styles.css`;
 - `src/vertical_slice.js`;
-- `src/sdk/yandex.js`.
+- `src/sdk/yandex.js`;
+- `src/runtime_stable_v10.js` — единый стабилизирующий runtime; старые `runtime_fixes_v04–v09` больше не загружаются.
 
 Ранний `src/main.js` не является активным runtime.
 
@@ -227,7 +228,7 @@ Runtime procedural слой сейчас включает:
 
 ## 12. БЛИЖАЙШИЙ ПОРЯДОК
 
-1. browser QA vertical slice v0.2;
+1. browser QA stable vertical slice v1.0 на уровнях 1 / 6 / 11 / 16 / 21 / 30;
 2. исправить runtime-баги;
 3. подключить реальные аудиофайлы и финальный mix;
 4. lives + coins + runtime economy;
@@ -267,3 +268,14 @@ Runtime procedural слой сейчас включает:
 
 ### 2026-09-13 — v0.1
 - создан мастер-файл и утверждён концепт.
+
+
+### 2026-09-14 — v1.0 stable runtime
+- цепочка runtime_fixes_v04–v09 исключена из index.html;
+- активен один src/runtime_stable_v10.js;
+- gravity/refill ждёт завершения всех обязательных tween-анимаций;
+- удалён ранний выход Promise.race и принудительная разблокировка busy посреди каскада;
+- после refill/resolve проверяется целостность board/spr;
+- при исключении выполняется безопасный restart уровня, а не продолжение повреждённого состояния;
+- direct activation line/bomb стабилизирована;
+- добавлена координатная QA-сетка: ?debugGrid=1, переключение клавишей G.
