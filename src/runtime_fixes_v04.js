@@ -111,10 +111,12 @@
                   duration: 190 + distance * 90,
                   ease: 'Cubic.in',
                   onComplete: () => {
+                    const sx = s.getData('sx') || s.scaleX;
+                    const sy = s.getData('sy') || s.scaleY;
                     this.tweens.add({
                       targets: s,
-                      scaleX: (s.getData('sx') || s.scaleX) * 1.04,
-                      scaleY: (s.getData('sy') || s.scaleY) * 0.94,
+                      scaleX: sx * 1.04,
+                      scaleY: sy * 0.94,
                       duration: 70,
                       yoyo: true,
                       ease: 'Sine.inOut',
@@ -172,9 +174,10 @@
       box.add(art);
 
       const addButton = (x, y, label, cb, blue = false, w = 330) => {
-        const im = fit(this.add.image(x, y, blue ? 'btnblue' : 'btn'), w, 112)
+        const group = this.add.container(x, y);
+        const im = fit(this.add.image(0, 0, blue ? 'btnblue' : 'btn'), w, 112)
           .setInteractive({ useHandCursor: true });
-        const tx = this.add.text(x, y, label, {
+        const tx = this.add.text(0, 0, label, {
           fontSize: label.length > 15 ? '25px' : '29px',
           fontStyle: 'bold',
           color: '#fff1bb',
@@ -182,11 +185,12 @@
           strokeThickness: 6,
           align: 'center',
         }).setOrigin(.5);
-        box.add([im, tx]);
+        group.add([im, tx]);
+        box.add(group);
         im.on('pointerdown', () => {
           this.fx.click();
           this.tweens.add({
-            targets: [im, tx],
+            targets: group,
             scaleX: .96,
             scaleY: .96,
             duration: 70,
@@ -194,7 +198,7 @@
             onComplete: cb,
           });
         });
-        return { im, tx };
+        return { group, im, tx };
       };
 
       if (win) {
