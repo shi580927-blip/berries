@@ -254,22 +254,16 @@ function install(){
   };
 
   p.hideHint=function hideHintStable(){
-    clearTimeout(this.hintCleanupTimer);
+    clearTimeout(this.hintTimer);clearTimeout(this.hintCleanupTimer);
+    // Only hint-owned objects: berry tweens complete the pending game operation.
     for(const obj of this.hintObjs||[]){
       try{this.tweens.killTweensOf(obj);obj.destroy?.()}catch{}
     }
     this.hintObjs=[];
-    for(let r=0;r<R;r++)for(let c=0;c<C;c++){
-      const sprite=this.spr?.[r]?.[c];if(!sprite)continue;
-      sprite.setAlpha(1);
-      if(this.sel?.r===r&&this.sel?.c===c)continue;
-      const sx=sprite.getData?.('sx'),sy=sprite.getData?.('sy'),angle=sprite.getData?.('ang');
-      if(sx&&sy){this.tweens.killTweensOf(sprite);sprite.setScale(sx,sy)}
-      if(Number.isFinite(angle))sprite.setAngle(angle);
-    }
   };
 
   p.showHint=function showHintStable(){
+    if(this.busy||this.boosterMode||!this.scene?.isActive?.())return;
     const move=this.findHintMove?.();if(!move)return;
     this.hideHint();this.hintObjs=[];
     move.forEach((q,index)=>{
@@ -374,6 +368,17 @@ function install(){
         update();box.add([button,label]);
       };
       row(-22,'ЗВУК',this.fx);row(70,'МУЗЫКА',this.music);
+      const credits=text(0,122,'О музыке',18).setInteractive({useHandCursor:true});
+      credits.on('pointerdown',()=>{
+        if(this._musicCredits?.active){this._musicCredits.destroy();return}
+        const card=this.add.container(960,540).setDepth(60);
+        card.add(this.add.rectangle(0,0,1080,430,0xfff7e9,.98).setStrokeStyle(3,0xcda36a).setInteractive());
+        const copy='Музыка: Kevin MacLeod (incompetech.com)\nMorning • Devonshire Waltz Moderato\nMagic Escape Room • Adventures in Adventureland\nLicensed under Creative Commons: By Attribution 4.0\nhttps://creativecommons.org/licenses/by/4.0/';
+        card.add(text(0,-20,copy,26));
+        const exit=text(0,155,'ЗАКРЫТЬ',26).setInteractive({useHandCursor:true});
+        exit.on('pointerdown',()=>card.destroy());card.add(exit);this._musicCredits=card;
+      });
+      box.add(credits);
       this._soundMenu=box;
     });
 
@@ -533,6 +538,7 @@ function install(){
   const baseCreate=p.create;
   p.create=function createPolished(){
     baseCreate.call(this);
+    this.events.once('shutdown',()=>{clearTimeout(this.hintTimer);clearTimeout(this.hintCleanupTimer);clearTimeout(this.specialInfoTimer)});
     this.input.keyboard?.on('keydown-G',()=>this.toggleDebugGrid());
     if(new URLSearchParams(location.search).get('debugGrid')==='1')this.time.delayedCall(50,()=>this.toggleDebugGrid(true));
     if(this.fx&&!this.fx.__juicyV12){
@@ -578,6 +584,7 @@ function install(){
   if(mapProto&&!mapProto.__berriesMapV11){
     mapProto.__berriesMapV11=true;
     mapProto.create=function createMapWithEditor(){
+      this.music=new window.BerriesMusicBus(this);
       window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();
       this.add.image(W/2,H/2,'mapbg').setDisplaySize(W,H);
       fit(this.add.image(W/2,100,'map_header_levels'),560,175).setDepth(8);
