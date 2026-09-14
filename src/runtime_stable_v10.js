@@ -464,41 +464,48 @@ function install(){
     mapProto.__berriesMapV11=true;
     mapProto.create=function createMapPolished(){
       window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();
-      this.fx=new (window.__BerriesSfxClass||class{click(){}})(this);
       this.add.image(W/2,H/2,'mapbg').setDisplaySize(W,H);
-      this.add.rectangle(W/2,58,760,116,0x163d24,.20).setDepth(1);
-      fit(this.add.image(W/2,92,'logo'),620,245).setDepth(3);
+
+      // Keep the complete logo inside the quiet upper area; never crop it.
+      fit(this.add.image(W/2,105,'logo'),440,155).setDepth(8);
 
       let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
       const done=new Set(save.done||[]);
-      const anchors=[
-        {n:1,x:330,y:790},{n:6,x:585,y:610},{n:11,x:820,y:760},
-        {n:16,x:1080,y:548},{n:21,x:1355,y:684},{n:26,x:1530,y:500},{n:30,x:1660,y:335}
+      const highest=Math.max(0,...done);
+      // Hand-placed route following the visible forest paths, using the original
+      // six approved control positions as fixed waypoints.
+      const route=[
+        [360,760],[402,735],[445,705],[490,668],[535,635],[610,610],
+        [655,622],[700,648],[744,684],[800,720],[860,735],
+        [910,714],[955,680],[1000,634],[1050,582],[1110,545],
+        [1160,555],[1212,582],[1265,620],[1320,655],[1370,670],
+        [1412,653],[1448,625],[1475,588],[1498,548],[1515,508],
+        [1530,474],[1548,446],[1565,425],[1580,410]
       ];
-      const pointFor=n=>{
-        for(let i=0;i<anchors.length-1;i++){
-          const a=anchors[i],b=anchors[i+1];
-          if(n>=a.n&&n<=b.n){
-            const t=(n-a.n)/(b.n-a.n);
-            return{x:Phaser.Math.Linear(a.x,b.x,t),y:Phaser.Math.Linear(a.y,b.y,t)+Math.sin(t*Math.PI)*(i%2?58:-58)};
-          }
-        }
-        return anchors[anchors.length-1];
-      };
-      const highest=Math.max(1,...done);
-      for(let n=1;n<=30;n++){
-        const q=pointFor(n),completed=done.has(n),unlocked=n<=Math.max(2,highest+1);
+
+      route.forEach(([x,y],index)=>{
+        const n=index+1,completed=done.has(n),unlocked=n===1||completed||n<=highest+1;
         const key=completed?'lvl_completed':unlocked?'lvl_current':'lvl_locked';
-        const size=n%5===0?102:78;
-        const button=fit(this.add.image(q.x,q.y,key),size,size).setDepth(5);
+        const major=n%5===0||n===1||n===30;
+        const size=major?76:58;
+        const button=fit(this.add.image(x,y,key),size,size).setDepth(5);
         if(unlocked)button.setInteractive({useHandCursor:true}).on('pointerdown',()=>{
-          button.disableInteractive();this.tweens.add({targets:button,scaleX:button.scaleX*.9,scaleY:button.scaleY*.9,duration:80,yoyo:true,onComplete:()=>this.scene.start('Play',{n})});
+          button.disableInteractive();
+          this.tweens.add({targets:button,scaleX:button.scaleX*.90,scaleY:button.scaleY*.90,duration:75,yoyo:true,onComplete:()=>this.scene.start('Play',{n})});
         });
-        this.add.text(q.x,q.y,String(n),{fontFamily:FONT,fontSize:n%5===0?'27px':'21px',fontStyle:'bold',color:unlocked?'#fff7d5':'#b9aa92',stroke:'#542a15',strokeThickness:5}).setOrigin(.5).setDepth(6);
-        if(n===highest+1||n===1&&!done.size)this.tweens.add({targets:button,y:q.y-7,duration:950,yoyo:true,repeat:-1,ease:'Sine.inOut'});
-      }
-      const king=fit(this.add.image(1740,785,'king_point'),285,285).setDepth(4);
-      this.tweens.add({targets:king,y:770,angle:{from:-2,to:2},duration:1250,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+        this.add.text(x,y,String(n),{
+          fontFamily:FONT,fontSize:major?'21px':'16px',fontStyle:'bold',
+          color:unlocked?'#fff8dc':'#c2b49d',stroke:'#512814',strokeThickness:major?4:3
+        }).setOrigin(.5).setDepth(6);
+        if(unlocked&&!completed&&(n===1||n===highest+1)){
+          this.tweens.add({targets:button,scaleX:button.scaleX*1.08,scaleY:button.scaleY*1.08,duration:850,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+          const glow=this.add.circle(x,y,size*.48,0xffe68a,.04).setStrokeStyle(3,0xffef9d,.72).setDepth(4);
+          this.tweens.add({targets:glow,scale:1.18,alpha:{from:.8,to:.12},duration:900,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+        }
+      });
+
+      const king=fit(this.add.image(1715,790,'king_point'),265,265).setDepth(4);
+      this.tweens.add({targets:king,y:778,angle:{from:-1.5,to:1.5},duration:1350,yoyo:true,repeat:-1,ease:'Sine.inOut'});
     };
   }
 
