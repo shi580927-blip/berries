@@ -38,7 +38,43 @@ class Sfx{
   win(){[523,659,784,1046].forEach((f,i)=>this.tone(f,.15,.020,'sine',100,i*.075))}
   lose(){[392,330,262].forEach((f,i)=>this.tone(f,.15,.017,'sine',-18,i*.085))}
 }
-class MusicBus{constructor(scene){this.s=scene;this.current=null;this.muted=false;this.volume=.30}play(key){if(this.muted||this.current===key)return;this.stop();if(!this.s.cache.audio.exists(key))return;this.current=key;this.s.sound.play(key,{loop:true,volume:this.volume})}stop(){if(this.current){this.s.sound.stopByKey(this.current);this.current=null}}pause(v){if(v)this.s.sound.pauseAll();else this.s.sound.resumeAll()}}
+const MUSIC_TRACKS={
+music_menu:'audio/music/music_menu_morning.mp3',
+music_gameplay_calm:'audio/music/music_gameplay_calm_devonshire_moderato.mp3',
+music_gameplay_magic:'audio/music/music_gameplay_magic_escape_room.mp3',
+music_event:'audio/music/music_event_adventureland.mp3'
+};
+class MusicBus{
+constructor(scene){
+this.s=scene;this.current=null;this.sound=null;this.volume=.30;this.closed=false;
+try{this._muted=localStorage.getItem('berries_music_muted')==='1'}catch{this._muted=false}
+this.onVisibility=()=>this.applyPause();
+document.addEventListener('visibilitychange',this.onVisibility);
+scene.events.once('shutdown',()=>{this.closed=true;this.stop();document.removeEventListener('visibilitychange',this.onVisibility)});
+this.play(scene.sys.settings.key==='Play'?(scene.no>=21?'music_gameplay_magic':'music_gameplay_calm'):'music_menu');
+window.__berriesPauseAudio=v=>this.pause(v);
+}
+get muted(){return this._muted}
+set muted(v){this._muted=!!v;try{localStorage.setItem('berries_music_muted',v?'1':'0')}catch{}if(v)this.stop()}
+play(key){
+this.wanted=key;
+if(this.closed||this.muted||this.current===key)return;
+this.stop();
+if(!this.s.cache.audio.exists(key)){
+if(!MUSIC_TRACKS[key]||this.loading===key)return;
+this.loading=key;
+this.s.load.once('filecomplete-audio-'+key,()=>{this.loading=null;if(!this.closed&&!this.muted&&this.wanted===key)this.play(key)});
+this.s.load.audio(key,MUSIC_TRACKS[key]);
+if(!this.s.load.isLoading())this.s.load.start();
+return;
+}
+this.current=key;this.sound=this.s.sound.add(key,{loop:true,volume:this.volume});this.sound.play();this.applyPause();
+}
+stop(){if(this.sound){this.sound.destroy();this.sound=null}this.current=null}
+applyPause(){if(!this.sound)return;if(this.paused||document.hidden)this.sound.pause();else if(!this.muted&&this.sound.isPaused)this.sound.resume()}
+pause(v){this.paused=!!v;this.applyPause()}
+}
+window.BerriesMusicBus=MusicBus;
 
 class Boot extends Phaser.Scene{
   constructor(){super('Boot')}
@@ -94,7 +130,7 @@ class Play extends Phaser.Scene{
   tap(r,c){if(this.busy)return;this.resetHint();if(this.boosterMode){this.useBoosterAt(r,c);return}if(this.cell[r][c].block||this.cell[r][c].ice||!this.board[r][c]){if(this.cell[r][c].ice)this.fx.crack();return}this.fx.click();if(!this.sel){this.select(r,c);return}if(this.sel.r===r&&this.sel.c===c){this.unselect();return}if(Math.abs(this.sel.r-r)+Math.abs(this.sel.c-c)!==1){this.unselect();this.select(r,c);return}const a={...this.sel};this.unselect();this.swap(a,{r,c})}
   select(r,c){this.sel={r,c};const s=this.spr[r][c],sx=s.getData('sx'),sy=s.getData('sy');s.setTint(0xfff4c2);this.tweens.add({targets:s,scaleX:sx*1.08,scaleY:sy*1.08,duration:130,yoyo:true,repeat:-1,ease:'Sine.inOut'})}
   unselect(){if(!this.sel)return;const s=this.spr[this.sel.r]?.[this.sel.c];if(s){this.tweens.killTweensOf(s);s.clearTint();s.setScale(s.getData('sx'),s.getData('sy')).setAngle(s.getData('ang')||0)}this.sel=null}
-  async swap(a,b){this.busy=true;this.hideHint();this.last=b;this.fx.swap();const A=this.spr[a.r][a.c],B=this.spr[b.r][b.c];await Promise.all([this.move(A,b),this.move(B,a)]);this.swapData(a,b);const rainbow=this.board[a.r][a.c]?.sp==='rainbow'||this.board[b.r][b.c]?.sp==='rainbow';if(rainbow){this.moves--;const target=this.board[a.r][a.c]?.sp==='rainbow'?this.board[b.r][b.c]:this.board[a.r][a.c],set=new Set();for(let r=0;r<R;r++)for(let c=0;c<C;c++)if(this.board[r][c]?.id===target?.id)set.add(`${r},${c}`);set.add(`${a.r},${a.c}`);set.add(`${b.r},${b.c}`);this.rainbowFx();await this.clearCells(set,1);await this.fallRefill();await this.resolve();this.busy=false;this.updateHud();this.endCheck();this.scheduleHint();return}const ok=this.groups().length>0;if(!ok){this.fx.bad();await Promise.all([this.move(A,a),this.move(B,b)]);this.swapData(a,b);this.busy=false;this.scheduleHint();return}this.moves--;const t=this.spr[a.r][a.c];this.spr[a.r][a.c]=this.spr[b.r][b.c];this.spr[b.r][b.c]=t;await this.resolve();this.busy=false;this.updateHud();this.endCheck();this.scheduleHint()}
+  async swap(a,b){this.busy=true;this.hideHint();this.last=b;this.fx.swap();const A=this.spr[a.r][a.c],B=this.spr[b.r][b.c];await Promise.all([this.move(A,b),this.move(B,a)]);this.swapData(a,b);const rainbow=this.board[a.r][a.c]?.sp==='rainbow'||this.board[b.r][b.c]?.sp==='rainbow';if(rainbow){this.spr[a.r][a.c]=B;this.spr[b.r][b.c]=A;this.moves--;const target=this.board[a.r][a.c]?.sp==='rainbow'?this.board[b.r][b.c]:this.board[a.r][a.c],set=new Set();for(let r=0;r<R;r++)for(let c=0;c<C;c++)if(this.board[r][c]?.id===target?.id)set.add(`${r},${c}`);set.add(`${a.r},${a.c}`);set.add(`${b.r},${b.c}`);this.rainbowFx();await this.clearCells(set,1);await this.fallRefill();await this.resolve();this.busy=false;this.updateHud();this.endCheck();this.scheduleHint();return}const ok=this.groups().length>0;if(!ok){this.fx.bad();await Promise.all([this.move(A,a),this.move(B,b)]);this.swapData(a,b);this.busy=false;this.scheduleHint();return}this.moves--;const t=this.spr[a.r][a.c];this.spr[a.r][a.c]=this.spr[b.r][b.c];this.spr[b.r][b.c]=t;await this.resolve();this.busy=false;this.updateHud();this.endCheck();this.scheduleHint()}
   move(s,p){if(!s)return Promise.resolve();const q=this.pos(p.r,p.c);return new Promise(z=>this.tweens.add({targets:s,x:q.x,y:q.y,duration:210,ease:'Sine.inOut',onComplete:z}))}
   swapData(a,b){const t=this.board[a.r][a.c];this.board[a.r][a.c]=this.board[b.r][b.c];this.board[b.r][b.c]=t}
   groups(){let out=[];for(let r=0;r<R;r++){let c=0;while(c<C){const x=this.board[r][c];if(!x){c++;continue}let e=c+1;while(e<C&&this.board[r][e]?.id===x.id)e++;if(e-c>=3)out.push({id:x.id,dir:'h',p:Array.from({length:e-c},(_,i)=>({r,c:c+i}))});c=e}}for(let c=0;c<C;c++){let r=0;while(r<R){const x=this.board[r][c];if(!x){r++;continue}let e=r+1;while(e<R&&this.board[e][c]?.id===x.id)e++;if(e-r>=3)out.push({id:x.id,dir:'v',p:Array.from({length:e-r},(_,i)=>({r:r+i,c}))});r=e}}return out}
