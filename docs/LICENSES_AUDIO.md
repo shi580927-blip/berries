@@ -29,34 +29,104 @@
    - Возможная роль: меню / спокойная карта / пауза.
    - Статус: кандидат, не финально выбран.
 
-### SFX — отобранные безопасные кандидаты
+### SFX — основной отобранный пул
+
+Все позиции ниже имеют отдельную страницу Pixabay с пометкой `Free for use under the Pixabay Content License`. До production используем только после фактического скачивания с этой страницы и записи имени локального файла.
 
 1. `Soft UI Click` — Universfield
    - Источник: https://pixabay.com/sound-effects/film-special-effects-soft-ui-click-147352/
-   - Лицензия: Pixabay Content License.
    - Роль: обычные UI-кнопки.
+   - Предлагаемый файл: `audio/sfx/ui_click.mp3`.
 
 2. `Magic Button Click` — humordome
    - Источник: https://pixabay.com/sound-effects/technology-magic-button-click-453255/
-   - Лицензия: Pixabay Content License.
-   - Роль: магическая/важная кнопка, магазин, premium.
+   - Роль: special / premium / важная кнопка.
+   - Предлагаемый файл: `audio/sfx/ui_magic_click.mp3`.
 
-3. `Shattering Ice` — DRAGON-STUDIO
+3. `Clean Minimal Pop` — DRAGON-STUDIO
+   - Источник: https://pixabay.com/sound-effects/clean-minimal-pop-467466/
+   - Роль: мягкий juicy/ASMR pop для match, выбора ягоды, лёгкого попадания.
+   - Предлагаемый файл: `audio/sfx/match_pop_01.mp3`.
+
+4. `soft subtle ui pop sfx` — abhicreates
+   - Источник: https://pixabay.com/sound-effects/film-special-effects-soft-subtle-ui-pop-sfx-348820/
+   - Роль: второй более тихий pop; вариация обычного match.
+   - Предлагаемый файл: `audio/sfx/match_pop_02.mp3`.
+
+5. `Fairy Sparkle` — humordome
+   - Источник: https://pixabay.com/sound-effects/fairy-sparkle-451414/
+   - Роль: верхний sparkle-слой для cascade, rainbow, acorn collect и магических наград.
+   - Предлагаемый файл: `audio/sfx/fairy_sparkle.mp3`.
+
+6. `Glitter Chime` — humordome
+   - Источник: https://pixabay.com/sound-effects/glitter-chime-451420/
+   - Роль: короткий блестящий accent для cascade x3+, награды или завершения цели.
+   - Предлагаемый файл: `audio/sfx/glitter_chime.mp3`.
+
+7. `Magical Sparkle Whoosh` — DJARTMUSIC
+   - Источник: https://pixabay.com/sound-effects/film-special-effects-magical-sparkle-whoosh-298750/
+   - Роль: rainbow activation / сильный magic sweep / переход.
+   - Предлагаемый файл: `audio/sfx/rainbow_whoosh.mp3`.
+
+8. `Glass Cracking` — DRAGON-STUDIO
+   - Источник: https://pixabay.com/sound-effects/household-glass-cracking-511310/
+   - Роль: короткий первый hit по льду.
+   - Предлагаемый файл: `audio/sfx/ice_crack.mp3`.
+
+9. `Shattering Ice` — DRAGON-STUDIO
    - Источник: https://pixabay.com/sound-effects/shattering-ice-454251/
-   - Лицензия: Pixabay Content License.
-   - Роль: разрушение льда.
+   - Роль: полное разрушение льда.
+   - Предлагаемый файл: `audio/sfx/ice_break.mp3`.
 
-4. `Game Bonus 03` — Universfield
-   - Источник: https://pixabay.com/sound-effects/technology-game-bonus-03-487857/
-   - Лицензия: Pixabay Content License.
-   - Роль: монета, награда, маленький бонус.
+10. `Wood Crack 1` — utsuru / freesound_community
+    - Источник: https://pixabay.com/sound-effects/film-special-effects-wood-crack-1-105890/
+    - Роль: разрушение корней / веток.
+    - Предлагаемый файл: `audio/sfx/roots_break.mp3`.
 
-5. `Success Videogame SFX @MRSTOKES302` — Mrstokes302
-   - Источник: https://pixabay.com/sound-effects/success-videogame-sfx-mrstokes302-423626/
-   - Лицензия: Pixabay Content License.
-   - Роль: победа / завершение уровня.
+11. `UI Error Pop` — SoundShelfStudio
+    - Источник: https://pixabay.com/sound-effects/film-special-effects-ui-error-pop-515668/
+    - Роль: invalid swap / недоступное действие; использовать очень тихо и без раздражения.
+    - Предлагаемый файл: `audio/sfx/invalid_swap.mp3`.
 
-Дополнительные SFX (swap, invalid swap, match variants, bomb, line, rainbow, acorn, roots, lose) подбираются только с отдельной страницей источника и после прослушивания в игровом контексте.
+12. `UI Success Chime` — SoundShelfStudio
+    - Источник: https://pixabay.com/sound-effects/technology-ui-success-chime-513565/
+    - Роль: выполненная цель / мини-успех.
+    - Предлагаемый файл: `audio/sfx/goal_complete.mp3`.
+
+13. `UI Mission Complete Chime` — SoundShelfStudio
+    - Источник: https://pixabay.com/sound-effects/film-special-effects-ui-mission-complete-chime-527522/
+    - Роль: короткий pre-win accent или завершение сложной цели.
+    - Предлагаемый файл: `audio/sfx/mission_complete.mp3`.
+
+14. `UI Notification Bell` — SoundShelfStudio
+    - Источник: https://pixabay.com/sound-effects/film-special-effects-ui-notification-bell-515080/
+    - Роль: жизнь восстановлена / ненавязчивое уведомление.
+    - Предлагаемый файл: `audio/sfx/life_gain.mp3`.
+
+15. `Game Bonus 03` — Universfield
+    - Источник: https://pixabay.com/sound-effects/technology-game-bonus-03-487857/
+    - Роль: монета, маленький бонус, reward tick.
+    - Предлагаемый файл: `audio/sfx/coin_reward.mp3`.
+
+16. `Success Videogame SFX @MRSTOKES302` — Mrstokes302
+    - Источник: https://pixabay.com/sound-effects/success-videogame-sfx-mrstokes302-423626/
+    - Роль: победа / завершение уровня.
+    - Предлагаемый файл: `audio/sfx/level_win.mp3`.
+
+### SFX, которые ещё выбираются после прослушивания
+
+Нужно подобрать финальные варианты для:
+- `swap` — мягкое скольжение/короткий whoosh, без резкого свиста;
+- `match_pop_03` — третья вариация сочного pop;
+- `special_line` — быстрый airy/slicing sweep;
+- `special_bomb` — короткий мягкий low-pop/impact без агрессивного взрыва;
+- `acorn_collect` — маленький woody/plop + sparkle;
+- `booster_hammer` — приятный cartoon tap/wood hit;
+- `booster_shuffle` — несколько тихих swish/card-like движений;
+- `booster_fan` — мягкий воздушный sweep;
+- `level_lose` — короткий мягкий descending cue, без наказующего buzzer.
+
+Если один внешний SFX получается слишком резким, разрешено собирать итоговый игровой звук из 2–3 лицензированных слоёв: например `soft pop + sparkle`, с нормализацией и fade. Исходные лицензии всех слоёв всё равно фиксируются здесь.
 
 ## 2. Incompetech / Kevin MacLeod
 
@@ -92,7 +162,26 @@
    - Возможная роль: спокойный gameplay / лесная магия.
    - Статус: кандидат.
 
-## 3. Content ID и доказательства лицензии
+## 3. ASMR / tactile sound rule
+
+Для «Безумных ягодок» звук является частью game-feel, а не просто уведомлением.
+
+Цель:
+- juicy, мягкий, «сочный» feedback;
+- небольшое ASMR-ощущение от pops, crackles, tiny chimes и мягких swishes;
+- без громких ударов, пищалок, резких buzzer и частого high-frequency звона.
+
+Правило слоя:
+- обычный match: 1 короткий pop, иногда + очень тихий sparkle;
+- каскады: тот же pop с небольшим pitch variation; на 3+ каскаде добавлять короткий chime;
+- лёд: сначала хруст/трещина, только на полном разрушении shatter;
+- корни: сухой маленький crack, не «ломаем дерево» на полной громкости;
+- rainbow/specials: whoosh + sparkle, но длительность эффекта должна оставаться короткой;
+- награды: chime/coin layer без казино-подобного звона.
+
+Запрещено запускать много одинаковых SFX одновременно. Для каскада применяется throttling/voice limit и небольшой random pitch, чтобы звуковая каша не разрушала ASMR-эффект.
+
+## 4. Content ID и доказательства лицензии
 
 Для Pixabay и Incompetech возможны автоматические Content ID claims на YouTube/других видеоплатформах, даже при законном использовании. Поэтому для каждого финального трека храним:
 - точный URL страницы;
@@ -105,7 +194,7 @@
 
 Claim не равен copyright strike. Оспариваем только если уверены, что используем файл в соответствии с лицензией.
 
-## 4. Кредиты в игре
+## 5. Кредиты в игре
 
 В `Settings` добавить кнопку `Credits / Лицензии`.
 
@@ -113,6 +202,6 @@ Claim не равен copyright strike. Оспариваем только есл
 - Kevin MacLeod и полные CC BY 4.0 кредиты для каждого использованного Incompetech-трека;
 - Pixabay-кредиты не обязательны, но можно добровольно указать `Sound effects via Pixabay` и авторов выбранных файлов.
 
-## 5. Правило проекта
+## 6. Правило проекта
 
 Ни один внешний аудиофайл не попадает в production build без записи в этот документ и проверки лицензии на дату скачивания.
