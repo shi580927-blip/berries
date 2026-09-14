@@ -330,25 +330,26 @@ function install(){
     const boardFrame=this.add.graphics();boardFrame.fillStyle(0x302014,.72);boardFrame.fillRoundedRect(BX-25,BY-25,C*CELL+50,R*CELL+50,32);boardFrame.lineStyle(6,0xd2a45c,.85);boardFrame.strokeRoundedRect(BX-25,BY-25,C*CELL+50,R*CELL+50,32);
     for(let r=0;r<R;r++)for(let c=0;c<C;c++){boardFrame.fillStyle((r+c)%2?0x4a6d3c:0x557b43,.68);boardFrame.fillRoundedRect(BX+c*CELL+4,BY+r*CELL+4,CELL-8,CELL-8,16)}
 
-    const addTop=()=>{
-      if(this.__topUiAdded)return;this.__topUiAdded=true;
-      const back=fit(this.add.image(92,66,'ui_back'),62,62).setDepth(20).setInteractive({useHandCursor:true});
-      back.on('pointerdown',()=>{this.fx.click();window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
-      fit(this.add.image(1285,64,'ui_life'),50,50).setDepth(20);
-      this.add.text(1320,64,'5',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff3c4',stroke:'#5a2e18',strokeThickness:4}).setOrigin(.5).setDepth(20);
-      let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
-      fit(this.add.image(1780,64,'ui_coin'),46,46).setDepth(20);
-      this.add.text(1820,64,String(save.coins||0),{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#fff3c4',stroke:'#5a2e18',strokeThickness:4}).setOrigin(.5).setDepth(20);
-      const settings=fit(this.add.image(1880,64,'ui_settings'),48,48).setDepth(20).setInteractive({useHandCursor:true});
-      settings.on('pointerdown',()=>this.fx.click());
-      fit(this.add.image(285,850,'panel_championat'),330,150).setDepth(2);
-    };
-    if(this.textures.exists('ui_back'))addTop();
-    else{
-      ['ui_back','ui_life','ui_coin','ui_settings'].forEach(key=>this.load.image(key,`assets/ui/icons/${key}.png`));
-      this.load.image('panel_championat','assets/ui/panels/panel_championat.png');
-      this.load.once('complete',addTop);this.load.start();
-    }
+    // Cohesive top ribbon, created synchronously on every level.
+    const topBar=this.add.graphics().setDepth(18);
+    topBar.fillStyle(0x183a24,.82);topBar.fillRoundedRect(24,14,W-48,100,30);
+    topBar.lineStyle(3,0xd3a555,.72);topBar.strokeRoundedRect(24,14,W-48,100,30);
+    topBar.fillStyle(0x6fa63b,.75);topBar.fillRoundedRect(180,105,W-360,5,3);
+
+    const backPlate=this.add.circle(80,64,43,0x75401f,.96).setStrokeStyle(4,0xe2b866,.95).setDepth(19).setInteractive({useHandCursor:true});
+    const backIcon=fit(this.add.image(80,64,'ui_back'),54,54).setDepth(20);
+    this.add.text(132,64,'КАРТА',{fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff2bd',stroke:'#542813',strokeThickness:5}).setOrigin(0,.5).setDepth(20);
+    backPlate.on('pointerdown',()=>{this.fx.click();window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
+    backIcon.setInteractive({useHandCursor:true}).on('pointerdown',()=>backPlate.emit('pointerdown'));
+
+    fit(this.add.image(1285,64,'ui_life'),50,50).setDepth(20);
+    this.add.text(1320,64,'5',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff3c4',stroke:'#5a2e18',strokeThickness:4}).setOrigin(.5).setDepth(20);
+    let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
+    fit(this.add.image(1780,64,'ui_coin'),46,46).setDepth(20);
+    this.add.text(1820,64,String(save.coins||0),{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#fff3c4',stroke:'#5a2e18',strokeThickness:4}).setOrigin(.5).setDepth(20);
+    const settings=fit(this.add.image(1880,64,'ui_settings'),48,48).setDepth(20).setInteractive({useHandCursor:true});
+    settings.on('pointerdown',()=>this.fx.click());
+    fit(this.add.image(285,850,'panel_championat'),330,150).setDepth(2);
   };
 
   p.resultPopup=function resultPopupStable(win){
@@ -525,50 +526,92 @@ function install(){
   const mapProto=mapScene?Object.getPrototypeOf(mapScene):null;
   if(mapProto&&!mapProto.__berriesMapV11){
     mapProto.__berriesMapV11=true;
-    mapProto.create=function createMapPolished(){
+    mapProto.create=function createMapWithEditor(){
       window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();
       this.add.image(W/2,H/2,'mapbg').setDisplaySize(W,H);
-
-      // Keep the complete logo inside the quiet upper area; never crop it.
       fit(this.add.image(W/2,100,'map_header_levels'),560,175).setDepth(8);
 
       let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
-      const done=new Set(save.done||[]);
-      const highest=Math.max(0,...done);
-      // Hand-placed route following the visible forest paths, using the original
-      // six approved control positions as fixed waypoints.
-      const route=[
-        [360,760],[402,735],[445,705],[490,668],[535,635],[610,610],
-        [655,622],[700,648],[744,684],[800,720],[860,735],
-        [910,714],[955,680],[1000,634],[1050,582],[1110,545],
-        [1160,555],[1212,582],[1265,620],[1320,655],[1370,670],
-        [1412,653],[1448,625],[1475,588],[1498,548],[1515,508],
-        [1530,474],[1548,446],[1565,425],[1580,410]
+      const done=new Set(save.done||[]),highest=Math.max(0,...done);
+      const defaults=[
+        [360,760,1],[402,735,1],[445,705,1],[490,668,1],[535,635,1.12],[610,610,1],
+        [655,622,1],[700,648,1],[744,684,1],[800,720,1.12],[860,735,1],
+        [910,714,1],[955,680,1],[1000,634,1],[1050,582,1.12],[1110,545,1],
+        [1160,555,1],[1212,582,1],[1265,620,1],[1320,655,1.12],[1370,670,1],
+        [1412,653,1],[1448,625,1],[1475,588,1],[1498,548,1.12],[1515,508,1],
+        [1530,474,1],[1548,446,1],[1565,425,1],[1580,410,1.18]
       ];
+      const LAYOUT_KEY='berries_map_layout_v1';
+      let stored=[];try{stored=JSON.parse(localStorage.getItem(LAYOUT_KEY)||'[]')}catch{}
+      const layout=defaults.map((base,index)=>({
+        x:Number(stored[index]?.x??base[0]),y:Number(stored[index]?.y??base[1]),
+        scale:Number(stored[index]?.scale??base[2])
+      }));
+      const editor=new URLSearchParams(location.search).get('mapEditor')==='1';
+      const nodes=[];let selected=null,selection=null,status=null;
 
-      route.forEach(([x,y],index)=>{
+      const saveLayout=()=>{
+        localStorage.setItem(LAYOUT_KEY,JSON.stringify(layout.map(q=>({x:Math.round(q.x),y:Math.round(q.y),scale:+q.scale.toFixed(2)}))));
+        status?.setText('Сохранено');
+      };
+      const select=node=>{
+        selected=node;
+        selection?.destroy();
+        selection=this.add.rectangle(node.x,node.y,node.getData('size')*node.scaleX+14,node.getData('size')*node.scaleY+14,0xffffff,.02).setStrokeStyle(4,0x66ffb0,.95).setDepth(49);
+        status?.setText(`Уровень ${node.getData('level')}  x:${Math.round(node.x)}  y:${Math.round(node.y)}  ×${node.scaleX.toFixed(2)}`);
+      };
+      const resize=delta=>{
+        if(!selected)return;
+        const index=selected.getData('level')-1,next=Phaser.Math.Clamp(selected.scaleX+delta,.55,2.2);
+        selected.setScale(next);layout[index].scale=next;select(selected);saveLayout();
+      };
+
+      layout.forEach((q,index)=>{
         const n=index+1,completed=done.has(n),unlocked=n===1||completed||n<=highest+1;
         const key=completed?'lvl_completed':unlocked?'lvl_current':'lvl_locked';
-        const major=n%5===0||n===1||n===30;
-        const size=major?76:58;
-        const button=fit(this.add.image(x,y,key),size,size).setDepth(5);
-        if(unlocked)button.setInteractive({useHandCursor:true}).on('pointerdown',()=>{
-          button.disableInteractive();
-          this.tweens.add({targets:button,scaleX:button.scaleX*.90,scaleY:button.scaleY*.90,duration:75,yoyo:true,onComplete:()=>this.scene.start('Play',{n})});
-        });
-        this.add.text(x,y,String(n),{
-          fontFamily:FONT,fontSize:major?'21px':'16px',fontStyle:'bold',
-          color:unlocked?'#fff8dc':'#c2b49d',stroke:'#512814',strokeThickness:major?4:3
-        }).setOrigin(.5).setDepth(6);
-        if(unlocked&&!completed&&(n===1||n===highest+1)){
-          this.tweens.add({targets:button,scaleX:button.scaleX*1.08,scaleY:button.scaleY*1.08,duration:850,yoyo:true,repeat:-1,ease:'Sine.inOut'});
-          const glow=this.add.circle(x,y,size*.48,0xffe68a,.04).setStrokeStyle(3,0xffef9d,.72).setDepth(4);
-          this.tweens.add({targets:glow,scale:1.18,alpha:{from:.8,to:.12},duration:900,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+        const major=n%5===0||n===1||n===30,size=major?76:58;
+        const button=fit(this.add.image(0,0,key),size,size);
+        const number=this.add.text(0,0,String(n),{fontFamily:FONT,fontSize:major?'21px':'16px',fontStyle:'bold',color:unlocked?'#fff8dc':'#c2b49d',stroke:'#512814',strokeThickness:major?4:3}).setOrigin(.5);
+        const node=this.add.container(q.x,q.y,[button,number]).setDepth(5).setSize(size,size).setScale(q.scale);
+        node.setData({level:n,size});nodes.push(node);
+        if(editor){
+          node.setInteractive(new Phaser.Geom.Rectangle(-size/2,-size/2,size,size),Phaser.Geom.Rectangle.Contains);
+          this.input.setDraggable(node);
+          node.on('pointerdown',()=>select(node));
+          node.on('drag',(pointer,x,y)=>{
+            node.x=Phaser.Math.Clamp(x,35,W-35);node.y=Phaser.Math.Clamp(y,175,H-35);
+            layout[index].x=node.x;layout[index].y=node.y;
+            if(selection){selection.x=node.x;selection.y=node.y}
+            status?.setText(`Уровень ${n}  x:${Math.round(node.x)}  y:${Math.round(node.y)}  ×${node.scaleX.toFixed(2)}`);
+          });
+          node.on('dragend',saveLayout);
+        }else if(unlocked){
+          node.setInteractive({useHandCursor:true}).on('pointerdown',()=>this.scene.start('Play',{n}));
         }
       });
 
       const king=fit(this.add.image(1715,790,'king_point'),265,265).setDepth(4);
       this.tweens.add({targets:king,y:778,angle:{from:-1.5,to:1.5},duration:1350,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+
+      if(editor){
+        const panel=this.add.rectangle(W/2,1025,1320,82,0x10281b,.94).setStrokeStyle(3,0xe1b45f,.9).setDepth(45);
+        const makeButton=(x,label,width,cb)=>{
+          const bg=this.add.rectangle(x,1025,width,52,0x784322,.98).setStrokeStyle(2,0xf0c873,.9).setDepth(46).setInteractive({useHandCursor:true});
+          this.add.text(x,1025,label,{fontFamily:FONT,fontSize:'20px',fontStyle:'bold',color:'#fff4c5'}).setOrigin(.5).setDepth(47);
+          bg.on('pointerdown',cb);
+        };
+        makeButton(420,'−',62,()=>resize(-.08));makeButton(500,'+',62,()=>resize(.08));
+        makeButton(720,'КОПИРОВАТЬ JSON',300,async()=>{
+          saveLayout();const json=JSON.stringify(layout.map(q=>({x:Math.round(q.x),y:Math.round(q.y),scale:+q.scale.toFixed(2)})),null,2);
+          try{await navigator.clipboard.writeText(json);status.setText('JSON скопирован')}catch{status.setText('JSON сохранён в localStorage')}
+        });
+        makeButton(1000,'СБРОСИТЬ',180,()=>{
+          localStorage.removeItem(LAYOUT_KEY);this.scene.restart();
+        });
+        this.add.text(1180,1025,'Перетащите точку • колёсико меняет размер',{fontFamily:FONT,fontSize:'18px',color:'#fff0bd'}).setOrigin(.5).setDepth(47);
+        status=this.add.text(28,160,'Выберите уровень',{fontFamily:FONT,fontSize:'20px',fontStyle:'bold',color:'#caffd9',backgroundColor:'#10281bdd',padding:{x:12,y:7}}).setDepth(50);
+        this.input.on('wheel',(pointer,objects,dx,dy)=>resize(dy>0?-.05:.05));
+      }
     };
   }
 
