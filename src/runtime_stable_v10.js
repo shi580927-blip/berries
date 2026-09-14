@@ -285,12 +285,12 @@ function install(){
     // Right column.
     fit(this.add.image(1642,348,'pboost'),365,430).setDepth(3);
     this.boosterButtons={};
-    [['hammer',1640,260],['shuffle',1640,350],['fan',1640,440]].forEach(([id,x,y])=>{
+    [['hammer',1605,268],['shuffle',1605,358],['fan',1605,448]].forEach(([id,x,y])=>{
       const halo=this.add.circle(x,y,43,0xffdc75,.08).setStrokeStyle(2,0xffedac,.25).setDepth(4);
       const im=fit(this.add.image(x,y,id),72,72).setDepth(5).setInteractive({useHandCursor:true});
-      const tx=this.add.text(x+84,y,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#fff7d5',stroke:'#4b2915',strokeThickness:4}).setOrigin(.5).setDepth(6);
-      im.on('pointerover',()=>this.tweens.add({targets:[im,halo],scaleX:'*=1.05',scaleY:'*=1.05',duration:100}));
-      im.on('pointerout',()=>{const sx=im.getData('baseSX')||im.scaleX/1.05,sy=im.getData('baseSY')||im.scaleY/1.05;im.setScale(sx,sy);halo.setScale(1)});
+      const tx=this.add.text(1702,y,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#fff7d5',stroke:'#4b2915',strokeThickness:4}).setOrigin(.5).setDepth(6);
+      im.on('pointerover',()=>this.tweens.add({targets:im,scaleX:im.getData('baseSX')*1.05,scaleY:im.getData('baseSY')*1.05,duration:100}));
+      im.on('pointerout',()=>{this.tweens.killTweensOf(im);im.setScale(im.getData('baseSX'),im.getData('baseSY'));halo.setScale(1)});
       im.setData('baseSX',im.scaleX);im.setData('baseSY',im.scaleY);
       im.on('pointerdown',()=>{this.tweens.add({targets:im,scaleX:im.scaleX*.92,scaleY:im.scaleY*.92,duration:75,yoyo:true});this.pickBooster(id)});
       this.boosterButtons[id]={im,tx,halo};
@@ -433,6 +433,26 @@ function install(){
     baseCreate.call(this);
     this.input.keyboard?.on('keydown-G',()=>this.toggleDebugGrid());
     if(new URLSearchParams(location.search).get('debugGrid')==='1')this.time.delayedCall(50,()=>this.toggleDebugGrid(true));
+    if(this.fx&&!this.fx.__juicyV11){
+      this.fx.__juicyV11=true;
+      this.fx.pop=(chain=1)=>{
+        if(!this.fx.can?.('juicy_pop',34))return;
+        const ctx=this.sound?.context;if(!ctx||this.fx.muted)return;
+        if(ctx.state==='suspended')ctx.resume().catch(()=>{});
+        const now=ctx.currentTime,pitch=1+Math.min(chain,5)*.035+(Math.random()-.5)*.06;
+        const osc=ctx.createOscillator(),gain=ctx.createGain();
+        osc.type='sine';osc.frequency.setValueAtTime(235*pitch,now);osc.frequency.exponentialRampToValueAtTime(92*pitch,now+.095);
+        gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.055,now+.006);gain.gain.exponentialRampToValueAtTime(.0001,now+.105);
+        osc.connect(gain).connect(ctx.destination);osc.start(now);osc.stop(now+.12);
+        const len=Math.floor(ctx.sampleRate*.055),buf=ctx.createBuffer(1,len,ctx.sampleRate),data=buf.getChannelData(0);
+        for(let i=0;i<len;i++){const fade=1-i/len;data[i]=(Math.random()*2-1)*fade*fade}
+        const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),ng=ctx.createGain();
+        src.buffer=buf;filter.type='lowpass';filter.frequency.value=1150+chain*90;
+        ng.gain.setValueAtTime(.018,now);ng.gain.exponentialRampToValueAtTime(.0001,now+.06);
+        src.connect(filter).connect(ng).connect(ctx.destination);src.start(now);src.stop(now+.065);
+        if(chain>=3)this.fx.tone?.(720+chain*55,.075,.006,'sine',120,.025);
+      };
+    }
     this.ambientFx=[];
     for(let i=0;i<18;i++){
       const x=70+Math.random()*(W-140),y=150+Math.random()*(H-210);
@@ -442,6 +462,52 @@ function install(){
       this.tweens.add({targets:mote,x:x-25+Math.random()*50,y:y-35-Math.random()*45,alpha:{from:mote.alpha,to:.05},duration:2200+Math.random()*2800,yoyo:true,repeat:-1,delay:Math.random()*1600,ease:'Sine.inOut'});
     }
   };
+
+
+  // Full level map: logo asset plus 30 stops following the existing winding trail.
+  const mapScene=window.__berriesGame?.scene?.keys?.Map;
+  const mapProto=mapScene?Object.getPrototypeOf(mapScene):null;
+  if(mapProto&&!mapProto.__berriesMapV11){
+    mapProto.__berriesMapV11=true;
+    mapProto.create=function createMapPolished(){
+      window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();
+      this.fx=new (window.__BerriesSfxClass||class{click(){}})(this);
+      this.add.image(W/2,H/2,'mapbg').setDisplaySize(W,H);
+      this.add.rectangle(W/2,58,760,116,0x163d24,.20).setDepth(1);
+      fit(this.add.image(W/2,92,'logo'),620,245).setDepth(3);
+
+      let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
+      const done=new Set(save.done||[]);
+      const anchors=[
+        {n:1,x:330,y:790},{n:6,x:585,y:610},{n:11,x:820,y:760},
+        {n:16,x:1080,y:548},{n:21,x:1355,y:684},{n:26,x:1530,y:500},{n:30,x:1660,y:335}
+      ];
+      const pointFor=n=>{
+        for(let i=0;i<anchors.length-1;i++){
+          const a=anchors[i],b=anchors[i+1];
+          if(n>=a.n&&n<=b.n){
+            const t=(n-a.n)/(b.n-a.n);
+            return{x:Phaser.Math.Linear(a.x,b.x,t),y:Phaser.Math.Linear(a.y,b.y,t)+Math.sin(t*Math.PI)*(i%2?58:-58)};
+          }
+        }
+        return anchors[anchors.length-1];
+      };
+      const highest=Math.max(1,...done);
+      for(let n=1;n<=30;n++){
+        const q=pointFor(n),completed=done.has(n),unlocked=n<=Math.max(2,highest+1);
+        const key=completed?'lvl_completed':unlocked?'lvl_current':'lvl_locked';
+        const size=n%5===0?102:78;
+        const button=fit(this.add.image(q.x,q.y,key),size,size).setDepth(5);
+        if(unlocked)button.setInteractive({useHandCursor:true}).on('pointerdown',()=>{
+          button.disableInteractive();this.tweens.add({targets:button,scaleX:button.scaleX*.9,scaleY:button.scaleY*.9,duration:80,yoyo:true,onComplete:()=>this.scene.start('Play',{n})});
+        });
+        this.add.text(q.x,q.y,String(n),{fontFamily:FONT,fontSize:n%5===0?'27px':'21px',fontStyle:'bold',color:unlocked?'#fff7d5':'#b9aa92',stroke:'#542a15',strokeThickness:5}).setOrigin(.5).setDepth(6);
+        if(n===highest+1||n===1&&!done.size)this.tweens.add({targets:button,y:q.y-7,duration:950,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+      }
+      const king=fit(this.add.image(1740,785,'king_point'),285,285).setDepth(4);
+      this.tweens.add({targets:king,y:770,angle:{from:-2,to:2},duration:1250,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+    };
+  }
 
   return true;
 }
