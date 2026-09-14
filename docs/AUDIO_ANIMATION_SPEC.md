@@ -5,10 +5,17 @@
 
 ## 1. Музыка MVP
 
-Минимальная схема:
+Для первого рабочего варианта используем несколько музыкальных состояний, а не один трек на всю игру:
 - `music_menu` — главное меню / спокойная карта;
-- `music_gameplay` — основной loop уровня;
-- `music_event` — короткий музыкальный акцент для победы/открытия главы, если потребуется.
+- `music_gameplay_calm` — обычные уровни;
+- `music_gameplay_magic` — более магические / сложные / поздние уровни;
+- `music_event` — короткий музыкальный акцент для победы, открытия главы или особого уровня при необходимости.
+
+### Текущая рабочая раскладка
+- `music_menu` → **Morning — Kevin MacLeod**.
+- `music_gameplay_calm` → **Devonshire Waltz Moderato — Kevin MacLeod** как первый тест. Если темп покажется слишком быстрым/медленным, сравнить с Allegretto и Andante.
+- `music_gameplay_magic` → **Magic Escape Room — Kevin MacLeod**, но не весь 14-минутный трек: выбрать спокойный подходящий фрагмент и сделать аккуратный loop/edit.
+- `music_event` / более активный уровень → **Adventures in Adventureland** или `Wonders of the Earth` после теста внутри игры.
 
 Требования:
 - без вокала;
@@ -16,9 +23,10 @@
 - бесшовный или легко монтируемый loop;
 - настроение: whimsical / fantasy / magical forest / playful / light adventure;
 - музыку приглушать во время важных victory/lose stings;
-- отдельные sliders/toggles Music и SFX в Settings.
+- отдельные sliders/toggles Music и SFX в Settings;
+- переключение между музыкальными состояниями делать плавным fade/crossfade, без резких обрывов.
 
-Текущие музыкальные кандидаты и лицензии хранятся в `docs/LICENSES_AUDIO.md`.
+Точные источники, лицензии, ISRC и обязательные кредиты хранятся в `docs/LICENSES_AUDIO.md`.
 
 ## 2. SFX MVP
 
@@ -116,7 +124,8 @@
 - global SFX voice limit;
 - per-sound cooldown;
 - slight pitch randomization;
-- ducking музыки на 2–4 dB во время win/special stings.
+- ducking музыки на 2–4 dB во время win/special stings;
+- crossfade при смене `menu/calm/magic` музыки.
 
 ## 5. Анимация поля
 
@@ -189,7 +198,8 @@
 6. `special_line`, `special_bomb`, `special_rainbow`;
 7. `coin_reward`, `goal_complete`, `level_win`, `level_lose`;
 8. boosters;
-9. музыка и финальный mix.
+9. `Morning` + `Devonshire Waltz` как первые music integration tests;
+10. `Magic Escape Room` и event-track после базового mix.
 
 На первом рабочем проходе допустимо временно собирать `acorn_collect`, cascade и rainbow из уже лицензированных слоёв; перед релизом каждому композиционному звуку дать отдельный итоговый filename.
 
