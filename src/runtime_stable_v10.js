@@ -530,7 +530,7 @@ function install(){
       this.add.image(W/2,H/2,'mapbg').setDisplaySize(W,H);
 
       // Keep the complete logo inside the quiet upper area; never crop it.
-      fit(this.add.image(W/2,105,'logo'),440,155).setDepth(8);
+      fit(this.add.image(W/2,100,'map_header_levels'),560,175).setDepth(8);
 
       let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
       const done=new Set(save.done||[]);
