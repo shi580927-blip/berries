@@ -311,8 +311,8 @@ function install(){
   p.hud=function hudStable(){
     fit(this.add.image(W/2,64,'plevel'),560,125);
     this.add.text(W/2,64,`УРОВЕНЬ ${this.no}`,{fontFamily:FONT,fontSize:'42px',fontStyle:'bold',color:'#fff0b7',stroke:'#6a3219',strokeThickness:7}).setOrigin(.5);
-    this.mt=this.add.text(1510,64,'',{fontFamily:FONT,fontSize:'32px',fontStyle:'bold',color:'#fff3c4',stroke:'#5b2d18',strokeThickness:5}).setOrigin(.5);
-    this.st=this.add.text(1695,64,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff0b7',stroke:'#5b2d18',strokeThickness:4}).setOrigin(.5);
+    this.mt=this.add.text(365,64,'',{fontFamily:FONT,fontSize:'32px',fontStyle:'bold',color:'#fff3c4',stroke:'#5b2d18',strokeThickness:5}).setOrigin(.5);
+    this.st=this.add.text(1485,64,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff0b7',stroke:'#5b2d18',strokeThickness:4}).setOrigin(.5);
 
     fit(this.add.image(285,410,'pgoals'),430,570);
     this.gt=this.goals.map((goal,index)=>this.add.text(285,290+index*102,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',align:'center',color:'#49331f',stroke:'#fff0cf',strokeThickness:1,wordWrap:{width:300}}).setOrigin(.5));
@@ -345,8 +345,8 @@ function install(){
     fit(this.add.image(1285,64,'ui_life'),50,50).setDepth(20);
     this.add.text(1320,64,'5',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff3c4',stroke:'#5a2e18',strokeThickness:4}).setOrigin(.5).setDepth(20);
     let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
-    fit(this.add.image(1780,64,'ui_coin'),46,46).setDepth(20);
-    this.add.text(1820,64,String(save.coins||0),{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#fff3c4',stroke:'#5a2e18',strokeThickness:4}).setOrigin(.5).setDepth(20);
+    fit(this.add.image(1718,64,'ui_coin'),46,46).setDepth(20);
+    this.add.text(1760,64,String(save.coins||0),{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#fff3c4',stroke:'#5a2e18',strokeThickness:4}).setOrigin(.5).setDepth(20);
     const settings=fit(this.add.image(1880,64,'ui_settings'),48,48).setDepth(20).setInteractive({useHandCursor:true});
     settings.on('pointerdown',()=>this.fx.click());
     fit(this.add.image(285,850,'panel_championat'),330,150).setDepth(2);
