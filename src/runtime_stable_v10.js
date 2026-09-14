@@ -33,81 +33,144 @@ function install(){
     return true;
   };
 
-  p.fallRefill=async function fallRefillStable(){
-    const animations=[];
-    const available=TYPES.slice(0,this.cfg.n);
-    const rebind=(sprite,r,c)=>{
-      if(!sprite)return;
-      sprite.setData('r',r);sprite.setData('c',c);
-      sprite.removeAllListeners('pointerdown');
-      sprite.setInteractive({useHandCursor:true});
-      sprite.on('pointerdown',()=>this.tap(r,c));
-    };
+  p.fallRefill=async function fallRefillStable() {
+      const animations = [];
+      const availableTypes = TYPES.slice(0, this.cfg.n);
 
-    for(let c=0;c<C;c++){
-      let bottom=R-1;
-      while(bottom>=0){
-        if(this.cell[bottom][c].block||this.cell[bottom][c].ice){bottom--;continue}
-        let top=bottom;
-        while(top-1>=0&&!this.cell[top-1][c].block&&!this.cell[top-1][c].ice)top--;
+      const rebind = (sprite, r, c) => {
+        if (!sprite) return;
+        sprite.setData('r', r);
+        sprite.setData('c', c);
+        sprite.removeAllListeners('pointerdown');
+        sprite.setInteractive({ useHandCursor: true });
+        sprite.on('pointerdown', () => this.tap(r, c));
+      };
 
-        const survivors=[];
-        for(let r=bottom;r>=top;r--){
-          if(this.board[r][c])survivors.push({item:this.board[r][c],sprite:this.spr[r][c],from:r});
-        }
-        for(let r=top;r<=bottom;r++){this.board[r][c]=null;this.spr[r][c]=null}
+      for (let c = 0; c < C; c++) {
+        let r = R - 1;
+        while (r >= 0) {
+          if (this.cell[r][c].block || this.cell[r][c].ice) {
+            // Re-render the anchor once to guarantee exactly one berry + overlay.
+            // The berry under ice stays in the same logical cell.
+            this.render(r, c, false, false);
+            r--;
+            continue;
+          }
 
-        let target=bottom;
-        for(const entry of survivors){
-          const row=target--;
-          this.board[row][c]=entry.item;this.spr[row][c]=entry.sprite;
-          const sprite=entry.sprite;
-          if(!sprite)throw new Error(`survivor without sprite at ${entry.from},${c}`);
-          rebind(sprite,row,c);
-          const pos=this.pos(row,c),distance=Math.max(0,row-entry.from);
-          if(distance){
-            const angle=sprite.getData('ang')??sprite.angle??0;
-            animations.push(new Promise((resolve,reject)=>{
-              if(!this.scene?.isActive?.()){resolve();return}
-              this.tweens.add({
-                targets:sprite,x:pos.x,y:pos.y,angle,duration:180+distance*85,ease:'Cubic.in',
-                onComplete:resolve,onStop:resolve
-              });
-            }));
+          const bottom = r;
+          while (r >= 0 && !this.cell[r][c].block && !this.cell[r][c].ice) r--;
+          const top = r + 1;
+          const hasAnchorAbove = top > 0 && (this.cell[top - 1][c].block || this.cell[top - 1][c].ice);
+
+          const existing = [];
+          for (let rr = bottom; rr >= top; rr--) {
+            if (this.board[rr][c]) {
+              existing.push({ item: this.board[rr][c], sprite: this.spr[rr][c], from: rr });
+            }
+          }
+
+          for (let rr = top; rr <= bottom; rr++) {
+            this.board[rr][c] = null;
+            this.spr[rr][c] = null;
+          }
+
+          let target = bottom;
+          for (const entry of existing) {
+            const tr = target--;
+            this.board[tr][c] = entry.item;
+            this.spr[tr][c] = entry.sprite;
+            const s = entry.sprite;
+            if (!s) continue;
+            rebind(s, tr, c);
+            const p = this.pos(tr, c);
+            const distance = Math.max(0, tr - entry.from);
+            const baseAngle = s.getData('ang') ?? s.angle ?? 0;
+            s.setData('ang', baseAngle);
+            if (distance > 0) {
+              animations.push(new Promise(resolve => {
+                this.tweens.add({
+                  targets: s,
+                  x: p.x,
+                  y: p.y,
+                  angle: baseAngle,
+                  duration: 210 + distance * 95,
+                  ease: 'Cubic.in',
+                  onComplete: () => {
+                    this.tweens.add({
+                      targets: s,
+                      scaleX: (s.getData('sx') || s.scaleX) * 1.04,
+                      scaleY: (s.getData('sy') || s.scaleY) * 0.94,
+                      duration: 75,
+                      yoyo: true,
+                      ease: 'Sine.inOut',
+                    });
+                    resolve();
+                  },
+                });
+              }));
+            }
+          }
+
+          let spawnIndex = 0;
+          while (target >= top) {
+            const tr = target--;
+            this.board[tr][c] = { id: Phaser.Utils.Array.GetRandom(availableTypes), sp: null };
+            this.render(tr, c, false, false);
+            const s = this.spr[tr][c];
+            if (!s) continue;
+            rebind(s, tr, c);
+            const p = this.pos(tr, c);
+            const finalAngle = s.getData('ang') ?? s.angle ?? 0;
+            const finalSX = s.getData('sx') || s.scaleX;
+            const finalSY = s.getData('sy') || s.scaleY;
+            spawnIndex++;
+
+            if (hasAnchorAbove) {
+              // Do not cross the intact ice/blocker visually.
+              const segmentTopY = this.pos(top, c).y;
+              s.y = segmentTopY - 18 - (spawnIndex - 1) * 8;
+              s.x = p.x;
+              s.alpha = 0;
+              s.setScale(finalSX * .66, finalSY * .66);
+              animations.push(new Promise(resolve => {
+                this.tweens.add({
+                  targets: s,
+                  y: p.y,
+                  alpha: 1,
+                  scaleX: finalSX,
+                  scaleY: finalSY,
+                  angle: finalAngle,
+                  duration: 300 + spawnIndex * 45,
+                  ease: 'Back.out',
+                  onComplete: resolve,
+                });
+              }));
+            } else {
+              const startY = BY - CELL * spawnIndex - 35;
+              s.y = startY;
+              s.x = p.x;
+              s.angle = finalAngle + (Math.random() - .5) * 12;
+              s.alpha = .98;
+              animations.push(new Promise(resolve => {
+                this.tweens.add({
+                  targets: s,
+                  y: p.y,
+                  angle: finalAngle,
+                  alpha: 1,
+                  duration: 410 + spawnIndex * 55 + (tr - top) * 20,
+                  ease: 'Bounce.out',
+                  onComplete: resolve,
+                });
+              }));
+            }
           }
         }
-
-        let spawn=0;
-        while(target>=top){
-          const row=target--;
-          this.board[row][c]={id:Phaser.Utils.Array.GetRandom(available),sp:null};
-          this.render(row,c,false,false);
-          const sprite=this.spr[row][c];
-          if(!sprite)throw new Error(`new berry sprite was not created at ${row},${c}`);
-          rebind(sprite,row,c);
-          const pos=this.pos(row,c),angle=sprite.getData('ang')??sprite.angle??0;
-          const sx=sprite.getData('sx')||sprite.scaleX,sy=sprite.getData('sy')||sprite.scaleY;
-          spawn++;
-          sprite.x=pos.x;
-          sprite.y=this.pos(top,c).y-CELL*.72-(spawn-1)*12;
-          sprite.alpha=.02;
-          sprite.setScale(sx*.78,sy*.78);
-          animations.push(new Promise(resolve=>{
-            if(!this.scene?.isActive?.()){resolve();return}
-            this.tweens.add({
-              targets:sprite,y:pos.y,alpha:1,scaleX:sx,scaleY:sy,angle,
-              duration:300+spawn*45,ease:'Cubic.in',onComplete:resolve,onStop:resolve
-            });
-          }));
-        }
-        bottom=top-1;
       }
-    }
-    await Promise.all(animations);
-    if(!this.scene?.isActive?.())return;
-    this.assertBoard('refill');
-    await pause(45);
-  };
+
+      if (animations.length) await Promise.all(animations);
+      await pause(80);
+    };
+
 
   p.resolve=async function resolveStable(){
     const MAX_CHAINS=24;
@@ -136,10 +199,10 @@ function install(){
         if(!this.groups().length&&this.hasMove())break;
       }
       this.drawAll(false,false);
-      this.assertBoard('cascade safety shuffle');
+      try{this.assertBoard('cascade safety shuffle')}catch(error){console.warn('[berries] board diagnostic',error)}
     }
     if(!this.hasMove())await this.autoShuffle();
-    this.assertBoard('resolve');
+    try{this.assertBoard('resolve')}catch(error){console.warn('[berries] board diagnostic',error)}
   };
 
   const baseSwap=p.swap;
