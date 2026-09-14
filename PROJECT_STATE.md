@@ -1,16 +1,17 @@
 # PROJECT_STATE — «Безумные ягодки: Лесное королевство»
 
-**Версия:** 0.3  
+**Версия:** 0.4  
 **Дата:** 2026-09-14  
-**Статус:** разработка начата; первый playable vertical slice создан  
+**Статус:** разработка идёт; vertical slice v0.2 собран  
 **Репозиторий:** `shi580927-blip/berries`
 
-Главный источник состояния проекта — этот файл. Подробности разнесены по специализированным документам:
+Главный источник состояния проекта — этот файл. Подробности:
 - `docs/GAME_DESIGN.md` — механика, экономика, уровни 1–30;
 - `docs/ASSET_SPEC.md` — требования к ассетам;
-- `docs/ASSET_AUDIT_2026-09-14.md` — фактический аудит загруженных ассетов;
+- `docs/ASSET_AUDIT_2026-09-14.md` — фактический аудит ассетов;
 - `docs/AUDIO_ANIMATION_SPEC.md` — звук, ASMR-feel, анимации;
-- `docs/LICENSES_AUDIO.md` — источники и лицензии музыки/SFX.
+- `docs/LICENSES_AUDIO.md` — источники и лицензии;
+- `docs/IMPLEMENTATION_LOG.md` — история реализации.
 
 ---
 
@@ -19,240 +20,250 @@
 - Название: **«Безумные ягодки»**.
 - Подзаголовок: **«Лесное королевство»**.
 - Жанр: 2D casual match-3.
-- Первая платформа: **Яндекс Игры**.
+- Первая платформа: Яндекс Игры.
 - ПК + mobile landscape.
-- Виртуальная сцена: **1920×1080, 16:9**.
+- Виртуальная сцена: 1920×1080, 16:9.
 - Phaser 3 / HTML5 / JavaScript.
-- Основной принцип монетизации: добровольная rewarded-реклама + покупки, без forced ads на старте.
+- Монетизация: добровольная rewarded-реклама + покупки, без forced ads на старте.
 
-Core loop: карта → уровень → цели/бустеры → match-3 → победа/поражение → награда/rewarded → карта.
+Core loop: карта → уровень → цели/бустеры → match-3 → победа/поражение → reward/rewarded → карта.
 
 ---
 
-## 2. ВИЗУАЛ И АССЕТЫ
+## 2. АССЕТЫ
 
 Основной MVP asset-pack закрыт.
 
 Готово:
 - 6 базовых ягод;
-- 4 special-элемента;
-- лёд, жёлудь, корни;
-- hammer / shuffle / fan;
-- кнопки уровней;
-- основные UI-иконки;
-- панели уровня/целей/прогресса/монет/жизней/бустеров;
-- фон заставки, игровые лесные фоны, фон карты;
-- `logo_main.png` с подзаголовком;
-- popups win/lose/exit/shop;
-- Король: idle / celebrate / sad / point;
-- Королева: idle / celebrate / puzzled / point.
+- line H/V, bomb, rainbow;
+- ice 1/2 + запасные варианты прозрачности;
+- acorn, roots;
+- hammer, shuffle, fan;
+- buttons / UI icons / panels;
+- title / game / map backgrounds;
+- logo;
+- win/lose/exit/shop popups;
+- King: idle / celebrate / sad / point;
+- Queen: idle / celebrate / puzzled / point.
 
-Правила:
-- FX специальных ягод не запекаются в PNG, а делаются кодом;
-- тексты и номера reusable UI по возможности выводятся кодом;
-- дополнительные деревянные панели пока не рисуем;
-- персонажей расширяем только после проверки vertical slice.
+FX specials делаются кодом, не запекаются в PNG.
 
 ---
 
-## 3. MATCH-3
+## 3. MATCH-3 — ТЕКУЩИЙ RUNTIME
 
-- Поле: **8×8**.
-- 3 — обычное удаление.
-- 4 — line special.
-- 5 — rainbow special.
-- T/L → bomb по дизайну MVP; полная реализация ещё впереди.
-- Невалидный swap откатывается без списания хода.
-- Каскады автоматические.
-- При отсутствии ходов — shuffle без списания хода.
-- Новые ягоды падают сверху.
-
-Препятствия:
-- `ice_1` — 1 HP;
-- `ice_2` — 2 HP;
-- лёд — overlay поверх содержимого клетки;
-- acorn — объект цели;
-- roots — блокируют клетку и снимаются соседним воздействием/special/hammer.
-
----
-
-## 4. БУСТЕРЫ
-
-- Hammer — точечное удаление / 1 слой препятствия.
-- Shuffle — перемешивание подвижных ягод.
-- Fan — выбранный ряд целиком.
-
-В vertical slice бустеры ещё не подключены к UI/экономике.
-
----
-
-## 5. УРОВНИ И БАЛАНС
-
-Первый релиз: **30 уровней**, data-driven архитектура.
-
-Подробная таблица 1–30 находится в `docs/GAME_DESIGN.md`.
-
-Для vertical slice выбраны контрольные уровни:
-- 1 — базовый match-3;
-- 6 — score / specials;
-- 11 — лёд;
-- 16 — жёлуди;
-- 21 — roots;
-- 30 — смешанный финальный тест.
-
-Стартовая экономика:
-- жизни: максимум 5;
-- восстановление: тестово 30 минут;
-- rewarded continue: +5 ходов, максимум 1 раз за попытку;
-- rewarded win: ×2 монеты;
-- zero lives: rewarded +1 жизнь;
-- hammer 250 coins;
-- shuffle 300 coins;
-- fan 400 coins.
-
-Три звезды/короны пока не вводим; используем статусы locked/open/current/completed.
-
----
-
-## 6. МОНЕТИЗАЦИЯ
-
-Rewarded MVP:
-- проигрыш → +5 ходов;
-- победа → ×2 монеты;
-- 0 жизней → +1 жизнь.
-
-Premium:
-- разовая покупка «Королевский набор»;
-- первое мягкое предложение после уровня 3;
-- Королева;
-- выбор Король/Королева;
-- premium theme «Королевская оранжерея»;
-- немного монет и бустеров.
-
-Цена/SKU позже.
-
----
-
-## 7. МУЗЫКА, ЗВУК, ASMR
-
-Лицензии и точные источники: `docs/LICENSES_AUDIO.md`.
-
-Музыкальные фавориты пользователя — Kevin MacLeod / Incompetech, CC BY 4.0:
-- `Morning` — меню / карта;
-- `Devonshire Waltz Moderato` — первый кандидат на обычный gameplay;
-- `Magic Escape Room` — магические/сложные уровни, loop из подходящего фрагмента;
-- `Adventures in Adventureland` — активные уровни / событие.
-
-Дополнительные кандидаты Pixabay сохранены в license-файле.
-
-Sound direction:
-- juicy + tactile + мягкий ASMR;
-- pop / tiny chime / crack / swish;
-- без громких buzzer и агрессивных взрывов;
-- voice limit и cooldown на повторяющиеся SFX;
-- pitch variation для match/cascade.
-
-В первом runtime уже есть **временный procedural WebAudio SFX слой** для click/pop/crack/sparkle/win/lose. Он нужен для проверки feel до подключения финальных лицензированных файлов.
-
----
-
-## 8. АНИМАЦИЯ
-
-Основной принцип: Phaser tweens/particles, без тяжёлых sprite sheets.
-
-- selected berry: лёгкое увеличение/подсветка;
-- swap: ~145 ms;
-- invalid swap: возврат;
-- match: squash/pop/fade;
-- refill: bounce;
-- cascade: постепенное усиление звукового акцента;
-- ice: crack/shatter;
-- blockers: shake/fade;
-- маскот: idle breathing / celebrate bounce / sad sway;
-- popup transitions быстрые и мягкие.
-
----
-
-## 9. PLAYABLE VERTICAL SLICE — 2026-09-14
-
-Созданы:
-- `index.html`;
-- `styles.css`;
-- `src/vertical_slice.js`.
-
-Также существует ранний `src/main.js`, но **активным runtime является `src/vertical_slice.js`**, подключённый из `index.html`.
-
-Уже работает в коде:
-- Boot/Loading;
-- Title screen;
-- тестовая Map;
-- уровни 1 / 6 / 11 / 16 / 21 / 30;
-- 8×8 board;
-- swap / invalid swap;
+Работает:
+- поле 8×8;
+- swap соседних клеток;
+- invalid swap возвращается без списания хода;
 - match-3;
-- cascades;
+- каскады;
 - refill;
-- простое создание 4/5 special;
-- лёд;
+- автоматический shuffle при отсутствии ходов;
+- 4 в ряд → line special;
+- 5 в ряд → rainbow;
+- T/L пересечение → bomb;
+- line activation;
+- bomb 3×3;
+- rainbow + обычная ягода;
+- лёд как overlay;
 - acorn;
 - roots;
-- цели / moves / score;
-- win / lose;
-- localStorage для тестового прогресса;
-- landscape rotate hint;
-- базовые tween-анимации;
-- временные procedural ASMR-SFX.
+- score / moves / goals;
+- win / lose.
+
+Расширенные special+special combinations пока не приоритет.
 
 ---
 
-## 10. НЕ ПОДКЛЮЧЕНО ПОКА
+## 4. БУСТЕРЫ — ПОДКЛЮЧЕНЫ
 
-- Yandex Games SDK;
-- `LoadingAPI.ready()` / Gameplay API;
-- Player API/cloud save;
-- rewarded ads;
+В vertical slice работают:
+- Hammer — выбранная клетка / 1 слой препятствия;
+- Shuffle — перемешивание подвижных ягод с гарантией валидного хода;
+- Fan — очистка выбранного ряда.
+
+На этапе QA используется тестовый инвентарь 2/2/2. Экономика магазина подключается позже.
+
+---
+
+## 5. УРОВНИ
+
+Первый релиз: 30 уровней, data-driven.
+
+Подробная кривая 1–30: `docs/GAME_DESIGN.md`.
+
+Контрольные уровни runtime:
+- 1 — base match-3;
+- 6 — score/specials;
+- 11 — ice;
+- 16 — acorn;
+- 21 — roots;
+- 30 — mixed finale.
+
+Стартовая экономика:
+- 5 жизней;
+- 30 минут тестовое восстановление;
+- rewarded continue +5 moves, максимум 1 раз за попытку;
+- rewarded win ×2 coins — ещё не подключено runtime;
+- zero lives rewarded +1 life — ещё не подключено runtime;
+- hammer 250;
+- shuffle 300;
+- fan 400.
+
+---
+
+## 6. YANDEX GAMES SDK — БАЗОВАЯ ИНТЕГРАЦИЯ ДОБАВЛЕНА
+
+Файл: `src/sdk/yandex.js`.
+
+Подключено:
+- безопасный `YaGames.init()`;
+- standalone fallback вне Яндекс Игр;
+- `LoadingAPI.ready()` после загрузки;
+- `GameplayAPI.start()` при старте уровня;
+- `GameplayAPI.stop()` при завершении уровня, уходе в меню, потере focus и перед rewarded;
+- `ysdk.adv.showRewardedVideo()`;
+- rewarded callback выдаёт награду только через `onRewarded`;
+- тестовый standalone режим рекламы: `?mockAds=1`;
+- Player API cloud-save hooks + localStorage fallback.
+
+Rewarded continue уже работает в логике: проигрыш → +5 ходов, один раз за попытку.
+
+Официальные точки документации зафиксированы в `docs/IMPLEMENTATION_LOG.md`.
+
+---
+
+## 7. ЗВУК / ASMR
+
+Направление: juicy + tactile + мягкий ASMR.
+
+Runtime procedural слой сейчас включает:
+- click;
+- invalid;
+- swap;
+- match pop;
+- cascade sparkle;
+- ice crack;
+- wood/root crack;
+- whoosh;
+- bomb low-pop;
+- reward;
+- win/lose.
+
+Есть cooldown/voice limiting, чтобы каскады не превращались в звуковую кашу.
+
+Финальные лицензированные SFX ещё не загружены как файлы; источники уже записаны в `docs/LICENSES_AUDIO.md`.
+
+---
+
+## 8. МУЗЫКА
+
+Фавориты пользователя — Kevin MacLeod / Incompetech, CC BY 4.0:
+- Morning — меню/карта;
+- Devonshire Waltz Moderato — спокойный gameplay;
+- Magic Escape Room — магические/сложные уровни;
+- Adventures in Adventureland — активный gameplay/event.
+
+`MusicBus` в runtime добавлен, но mp3 пока физически не лежат в репозитории, поэтому загрузка отсутствующих файлов не вызывается.
+
+Перед production каждый музыкальный файл:
+1. скачать с официальной страницы;
+2. сохранить лицензию/атрибуцию;
+3. записать дату скачивания;
+4. положить в `audio/music`;
+5. внести точное имя файла в `docs/LICENSES_AUDIO.md`.
+
+---
+
+## 9. АНИМАЦИЯ
+
+Работает программно через Phaser tweens:
+- selected berry pulse;
+- swap;
+- invalid return;
+- match squash/fade;
+- refill bounce;
+- special FX;
+- bomb camera shake;
+- ice/root feedback;
+- mascot idle/celebrate/sad;
+- popup scale/fade.
+
+Тяжёлые sprite sheets пока не нужны.
+
+---
+
+## 10. ФАЙЛЫ RUNTIME
+
+Активные:
+- `index.html`;
+- `styles.css`;
+- `src/vertical_slice.js`;
+- `src/sdk/yandex.js`.
+
+Ранний `src/main.js` не является активным runtime.
+
+---
+
+## 11. ЧТО ЕЩЁ НЕ ПОДКЛЮЧЕНО
+
+- финальные mp3/SFX файлы;
+- rewarded ×2 coins после победы;
+- rewarded +1 life;
+- lives timer runtime;
+- shop/economy runtime;
 - Payments API;
-- lives timer в runtime;
-- economy/shop runtime;
-- boosters runtime;
-- финальные внешние SFX-файлы;
-- финальные музыкальные файлы;
-- T/L bomb и расширенные special-комбинации;
+- premium pack;
+- полные 30 runtime levels JSON;
 - RU/EN runtime localization;
-- production popups;
-- полноценная mobile QA.
+- production split popups background/text;
+- полноценная mobile QA;
+- расширенные special combinations;
+- финальный HUD после теста.
 
 ---
 
-## 11. СЛЕДУЮЩИЙ ПРОХОД
+## 12. БЛИЖАЙШИЙ ПОРЯДОК
 
-Приоритет:
-1. проверить vertical slice в браузере и исправить runtime-баги;
-2. подключить boosters и T/L bomb;
-3. подключить финальные SFX + ASMR mix;
-4. положить выбранную музыку в `audio/music` и подключить music bus;
-5. интегрировать Яндекс SDK: loading/gameplay/save/rewarded;
-6. проверить mobile landscape safe-area;
-7. после рабочего core перейти к полным 30 уровням.
+1. browser QA vertical slice v0.2;
+2. исправить runtime-баги;
+3. подключить реальные аудиофайлы и финальный mix;
+4. lives + coins + runtime economy;
+5. rewarded ×2 coins / +1 life;
+6. Player API cloud-save test внутри Яндекс Игр;
+7. Payments/premium;
+8. 30 уровней JSON;
+9. localization;
+10. production optimization.
 
 ---
 
-## 12. ИСТОРИЯ
+## 13. ИСТОРИЯ
+
+### 2026-09-14 — v0.4
+- добавлены boosters runtime;
+- добавлен T/L bomb;
+- расширены specials;
+- расширен procedural ASMR;
+- добавлен Yandex SDK adapter;
+- добавлены LoadingAPI / GameplayAPI hooks;
+- добавлен rewarded continue +5;
+- добавлены cloud save hooks;
+- добавлен `docs/IMPLEMENTATION_LOG.md`.
 
 ### 2026-09-14 — v0.3
-- пользователь дал явное разрешение начать разработку;
 - создан первый playable vertical slice;
-- активный runtime: `src/vertical_slice.js`;
-- добавлены Title / Map / test-levels;
-- добавлена базовая match-3 логика и blockers;
-- добавлены программные анимации;
-- добавлен временный procedural ASMR-SFX слой;
-- дальнейшая работа переведена из design-stage в implementation-stage.
+- Title / Map / test levels;
+- базовая match-3 логика;
+- blockers;
+- анимации;
+- procedural SFX.
 
 ### 2026-09-14 — v0.2
 - закрыт основной asset-pack;
-- утверждены game design, 30-level curve, экономика и rewarded cadence;
-- зафиксированы звук/анимация/лицензии.
+- утверждены game design, экономика, audio/animation.
 
 ### 2026-09-13 — v0.1
-- создан начальный мастер-файл и утверждён концепт.
+- создан мастер-файл и утверждён концепт.
