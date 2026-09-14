@@ -308,48 +308,74 @@ function install(){
   p.select=function(r,c){baseSelect.call(this,r,c);const sp=this.board?.[r]?.[c]?.sp;if(sp)this.showSpecialInfo(sp,3200)};
 
 
-  p.hud=function hudStable(){
-    fit(this.add.image(W/2,64,'plevel'),560,125);
-    this.add.text(W/2,64,`УРОВЕНЬ ${this.no}`,{fontFamily:FONT,fontSize:'42px',fontStyle:'bold',color:'#fff0b7',stroke:'#6a3219',strokeThickness:7}).setOrigin(.5);
-    this.mt=this.add.text(365,64,'',{fontFamily:FONT,fontSize:'32px',fontStyle:'bold',color:'#fff3c4',stroke:'#5b2d18',strokeThickness:5}).setOrigin(.5);
-    this.st=this.add.text(1485,64,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff0b7',stroke:'#5b2d18',strokeThickness:4}).setOrigin(.5);
+  p.hud=function hudDesigned(){
+    // Board stays in its proven position; only the visual shell is rebuilt.
+    const frame=this.add.graphics().setDepth(1);
+    frame.fillStyle(0x243424,.76);frame.fillRoundedRect(BX-20,BY-20,C*CELL+40,R*CELL+40,28);
+    frame.lineStyle(5,0xd5aa62,.82);frame.strokeRoundedRect(BX-20,BY-20,C*CELL+40,R*CELL+40,28);
+    for(let r=0;r<R;r++)for(let c=0;c<C;c++){
+      frame.fillStyle((r+c)%2?0x496d3f:0x557b46,.72);
+      frame.fillRoundedRect(BX+c*CELL+5,BY+r*CELL+5,CELL-10,CELL-10,15);
+    }
 
-    fit(this.add.image(285,410,'pgoals'),430,570);
-    this.gt=this.goals.map((goal,index)=>this.add.text(285,290+index*102,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',align:'center',color:'#49331f',stroke:'#fff0cf',strokeThickness:1,wordWrap:{width:300}}).setOrigin(.5));
+    const plaque=(x,y,w,h)=>{
+      const g=this.add.graphics().setDepth(17);
+      g.fillStyle(0x244a31,.88);g.fillRoundedRect(x-w/2,y-h/2,w,h,h/2);
+      g.lineStyle(3,0xd9ae62,.85);g.strokeRoundedRect(x-w/2,y-h/2,w,h,h/2);
+      return g;
+    };
 
-    fit(this.add.image(1640,365,'pboost'),375,445);
+    // Back button is always visible and separate from counters.
+    const backBg=this.add.circle(78,66,43,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(19).setInteractive({useHandCursor:true});
+    const backIcon=fit(this.add.image(78,66,'ui_back'),54,54).setDepth(20).setInteractive({useHandCursor:true});
+    this.add.text(128,66,'КАРТА',{fontFamily:FONT,fontSize:'21px',fontStyle:'bold',color:'#fff0bd',stroke:'#552914',strokeThickness:5}).setOrigin(0,.5).setDepth(20);
+    const goMap=()=>{this.fx.click();window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')};
+    backBg.on('pointerdown',goMap);backIcon.on('pointerdown',goMap);
+
+    plaque(350,66,245,70);
+    this.mt=this.add.text(350,66,'',{fontFamily:FONT,fontSize:'29px',fontStyle:'bold',color:'#fff4c9',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
+
+    fit(this.add.image(W/2,67,'plevel'),500,108).setDepth(18);
+    this.add.text(W/2,64,`УРОВЕНЬ ${this.no}`,{fontFamily:FONT,fontSize:'39px',fontStyle:'bold',color:'#fff3b8',stroke:'#633017',strokeThickness:7}).setOrigin(.5).setDepth(20);
+
+    plaque(1248,66,138,70);
+    fit(this.add.image(1215,66,'ui_life'),43,43).setDepth(20);
+    this.add.text(1262,66,'5',{fontFamily:FONT,fontSize:'27px',fontStyle:'bold',color:'#fff5d0',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
+
+    plaque(1450,66,225,70);
+    this.st=this.add.text(1450,66,'',{fontFamily:FONT,fontSize:'24px',fontStyle:'bold',color:'#fff4c9',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
+
+    let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
+    plaque(1695,66,190,70);
+    fit(this.add.image(1658,66,'ui_coin'),42,42).setDepth(20);
+    this.add.text(1717,66,String(save.coins||0),{fontFamily:FONT,fontSize:'24px',fontStyle:'bold',color:'#fff4c9',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
+    const settingsBg=this.add.circle(1872,66,38,0x244a31,.92).setStrokeStyle(3,0xd9ae62,.85).setDepth(19);
+    const settings=fit(this.add.image(1872,66,'ui_settings'),49,49).setDepth(20).setInteractive({useHandCursor:true});
+    settings.on('pointerdown',()=>{this.fx.click();this.tweens.add({targets:settings,angle:90,duration:220,yoyo:true})});
+
+    // Goals: smaller panel with visual target icons, no giant empty card.
+    fit(this.add.image(270,385,'pgoals'),350,430).setDepth(3);
+    const goalCount=Math.max(1,this.goals.length),gap=goalCount===1?0:Math.min(100,250/(goalCount-1));
+    const firstY=goalCount===1?382:285;
+    this.gt=this.goals.map((goal,index)=>{
+      const y=firstY+index*gap;
+      const key=goal.type==='berry'?'b_'+goal.id:goal.type==='ice'?'ice1':goal.type==='acorn'?'acorn':goal.type==='roots'?'roots':null;
+      if(key&&this.textures.exists(key))fit(this.add.image(225,y,key),74,74).setDepth(5);
+      return this.add.text(key?305:270,y,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',align:'center',color:'#49331f',stroke:'#fff4dc',strokeThickness:2,wordWrap:{width:key?145:240}}).setOrigin(.5).setDepth(6);
+    });
+
+    // Boosters aligned to the three painted slots.
+    fit(this.add.image(1640,370,'pboost'),350,420).setDepth(3);
     this.boosterButtons={};
-    [['hammer',1640,274],['shuffle',1640,364],['fan',1640,454]].forEach(([id,x,y])=>{
-      const im=fit(this.add.image(x,y,id),68,68).setInteractive({useHandCursor:true});
-      const tx=this.add.text(x+82,y,'',{fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff4ca',stroke:'#4b2915',strokeThickness:4}).setOrigin(.5);
+    [['hammer',1607,282],['shuffle',1607,371],['fan',1607,460]].forEach(([id,x,y])=>{
+      const im=fit(this.add.image(x,y,id),66,66).setDepth(5).setInteractive({useHandCursor:true});
+      const tx=this.add.text(1700,y,'',{fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff4ca',stroke:'#4b2915',strokeThickness:4}).setOrigin(.5).setDepth(6);
       im.on('pointerdown',()=>this.pickBooster(id));this.boosterButtons[id]={im,tx};
     });
-    this.boosterHint=this.add.text(1640,537,'',{fontFamily:FONT,fontSize:'18px',fontStyle:'bold',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:320}}).setOrigin(.5);
-    this.king=fit(this.add.image(1650,760,'king_idle'),330,330);this.kingBaseY=760;this.kingBaseScale=this.king.scaleX;
+    this.boosterHint=this.add.text(1640,548,'',{fontFamily:FONT,fontSize:'17px',fontStyle:'bold',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:310}}).setOrigin(.5).setDepth(6);
 
-    const boardFrame=this.add.graphics();boardFrame.fillStyle(0x302014,.72);boardFrame.fillRoundedRect(BX-25,BY-25,C*CELL+50,R*CELL+50,32);boardFrame.lineStyle(6,0xd2a45c,.85);boardFrame.strokeRoundedRect(BX-25,BY-25,C*CELL+50,R*CELL+50,32);
-    for(let r=0;r<R;r++)for(let c=0;c<C;c++){boardFrame.fillStyle((r+c)%2?0x4a6d3c:0x557b43,.68);boardFrame.fillRoundedRect(BX+c*CELL+4,BY+r*CELL+4,CELL-8,CELL-8,16)}
-
-    // Cohesive top ribbon, created synchronously on every level.
-    const topBar=this.add.graphics().setDepth(18);
-    topBar.fillStyle(0x183a24,.82);topBar.fillRoundedRect(24,14,W-48,100,30);
-    topBar.lineStyle(3,0xd3a555,.72);topBar.strokeRoundedRect(24,14,W-48,100,30);
-    topBar.fillStyle(0x6fa63b,.75);topBar.fillRoundedRect(180,105,W-360,5,3);
-
-    const backPlate=this.add.circle(80,64,43,0x75401f,.96).setStrokeStyle(4,0xe2b866,.95).setDepth(19).setInteractive({useHandCursor:true});
-    const backIcon=fit(this.add.image(80,64,'ui_back'),54,54).setDepth(20);
-    this.add.text(132,64,'КАРТА',{fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff2bd',stroke:'#542813',strokeThickness:5}).setOrigin(0,.5).setDepth(20);
-    backPlate.on('pointerdown',()=>{this.fx.click();window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
-    backIcon.setInteractive({useHandCursor:true}).on('pointerdown',()=>backPlate.emit('pointerdown'));
-
-    fit(this.add.image(1285,64,'ui_life'),50,50).setDepth(20);
-    this.add.text(1320,64,'5',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff3c4',stroke:'#5a2e18',strokeThickness:4}).setOrigin(.5).setDepth(20);
-    let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
-    fit(this.add.image(1718,64,'ui_coin'),46,46).setDepth(20);
-    this.add.text(1760,64,String(save.coins||0),{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#fff3c4',stroke:'#5a2e18',strokeThickness:4}).setOrigin(.5).setDepth(20);
-    const settings=fit(this.add.image(1880,64,'ui_settings'),48,48).setDepth(20).setInteractive({useHandCursor:true});
-    settings.on('pointerdown',()=>this.fx.click());
-    fit(this.add.image(285,850,'panel_championat'),330,150).setDepth(2);
+    this.king=fit(this.add.image(1650,790,'king_idle'),330,330).setDepth(4);
+    this.kingBaseY=790;this.kingBaseScale=this.king.scaleX;
   };
 
   p.resultPopup=function resultPopupStable(win){
