@@ -1,5 +1,15 @@
 # LICENSES_AUDIO — «Безумные ягодки: Лесное королевство»
 
+## 0. Имена файлов для подключения музыки
+
+Загружать в `audio/music/` строго под этими именами:
+- `music_menu_morning.mp3` — Morning;
+- `music_gameplay_calm_devonshire_moderato.mp3` — Devonshire Waltz Moderato;
+- `music_gameplay_magic_escape_room.mp3` — Magic Escape Room;
+- `music_event_adventureland.mp3` — Adventures in Adventureland.
+
+После загрузки проверить, что расширение действительно MP3, а не переименованный WAV/M4A. Для Magic Escape Room позднее подготовить укороченный бесшовный loop; исходный мастер можно сначала загрузить целиком.
+
 Дата: 2026-09-14
 
 Этот файл хранит источники, лицензии и обязательные кредиты для музыки и звуков игры. Перед релизом сверять его с фактическими файлами в `audio/music` и `audio/sfx`.
