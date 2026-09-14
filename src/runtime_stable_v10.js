@@ -318,12 +318,7 @@ function install(){
       frame.fillRoundedRect(BX+c*CELL+5,BY+r*CELL+5,CELL-10,CELL-10,15);
     }
 
-    const plaque=(x,y,w,h)=>{
-      const g=this.add.graphics().setDepth(17);
-      g.fillStyle(0x244a31,.88);g.fillRoundedRect(x-w/2,y-h/2,w,h,h/2);
-      g.lineStyle(3,0xd9ae62,.85);g.strokeRoundedRect(x-w/2,y-h/2,w,h,h/2);
-      return g;
-    };
+    const plaque=(x,y,w,h)=>fit(this.add.image(x,y,'btn'),w,h).setDepth(17);
 
     // Back button is always visible and separate from counters.
     const backBg=this.add.circle(78,66,43,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(19).setInteractive({useHandCursor:true});
@@ -332,31 +327,40 @@ function install(){
     const goMap=()=>{this.fx.click();window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')};
     backBg.on('pointerdown',goMap);backIcon.on('pointerdown',goMap);
 
-    plaque(350,66,245,70);
+    plaque(350,66,270,98);
     this.mt=this.add.text(350,66,'',{fontFamily:FONT,fontSize:'29px',fontStyle:'bold',color:'#fff4c9',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
 
     fit(this.add.image(W/2,67,'plevel'),500,108).setDepth(18);
     this.add.text(W/2,64,`УРОВЕНЬ ${this.no}`,{fontFamily:FONT,fontSize:'39px',fontStyle:'bold',color:'#fff3b8',stroke:'#633017',strokeThickness:7}).setOrigin(.5).setDepth(20);
 
-    plaque(1248,66,138,70);
+    plaque(1248,66,150,88);
     fit(this.add.image(1215,66,'ui_life'),43,43).setDepth(20);
     this.add.text(1262,66,'5',{fontFamily:FONT,fontSize:'27px',fontStyle:'bold',color:'#fff5d0',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
 
-    plaque(1450,66,225,70);
+    plaque(1450,66,245,98);
     this.st=this.add.text(1450,66,'',{fontFamily:FONT,fontSize:'24px',fontStyle:'bold',color:'#fff4c9',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
 
     let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
-    plaque(1695,66,190,70);
+    plaque(1695,66,210,98);
     fit(this.add.image(1658,66,'ui_coin'),42,42).setDepth(20);
     this.add.text(1717,66,String(save.coins||0),{fontFamily:FONT,fontSize:'24px',fontStyle:'bold',color:'#fff4c9',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
     const settingsBg=this.add.circle(1872,66,38,0x244a31,.92).setStrokeStyle(3,0xd9ae62,.85).setDepth(19);
     const settings=fit(this.add.image(1872,66,'ui_settings'),49,49).setDepth(20).setInteractive({useHandCursor:true});
-    settings.on('pointerdown',()=>{this.fx.click();this.tweens.add({targets:settings,angle:90,duration:220,yoyo:true})});
+    settings.on('pointerdown',()=>{
+      if(this._soundMenu?.active){this._soundMenu.destroy();this._soundMenu=null;return}
+      const box=this.add.container(1540,135).setDepth(29);
+      box.add(fit(this.add.image(0,0,'btn'),430,120));
+      const label=this.add.text(0,0,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff4c9',stroke:'#552914',strokeThickness:4}).setOrigin(.5);
+      const update=()=>label.setText(this.fx.muted?'ЗВУК: ВЫКЛ':'ЗВУК: ВКЛ');
+      update();box.add(label);
+      const hit=this.add.zone(0,0,400,100).setInteractive({useHandCursor:true});
+      hit.on('pointerdown',()=>{this.fx.muted=!this.fx.muted;update()});box.add(hit);this._soundMenu=box;
+    });
 
     // Goals: smaller panel with visual target icons, no giant empty card.
-    fit(this.add.image(270,385,'pgoals'),350,430).setDepth(3);
+    const goalsPanel=fit(this.add.image(270,405,'pgoals'),390,510).setDepth(3);
     const goalCount=Math.max(1,this.goals.length),gap=goalCount===1?0:Math.min(100,250/(goalCount-1));
-    const firstY=goalCount===1?382:285;
+    const firstY=405-(goalCount-1)*gap/2;
     this.gt=this.goals.map((goal,index)=>{
       const y=firstY+index*gap;
       const key=goal.type==='berry'?'b_'+goal.id:goal.type==='ice'?'ice1':goal.type==='acorn'?'acorn':goal.type==='roots'?'roots':null;
@@ -365,11 +369,11 @@ function install(){
     });
 
     // Boosters aligned to the three painted slots.
-    fit(this.add.image(1640,370,'pboost'),350,420).setDepth(3);
+    const boostersPanel=fit(this.add.image(1640,370,'pboost'),350,420).setDepth(3);
     this.boosterButtons={};
-    [['hammer',1607,282],['shuffle',1607,371],['fan',1607,460]].forEach(([id,x,y])=>{
+    [['hammer',1640,282],['shuffle',1640,371],['fan',1640,460]].forEach(([id,x,y])=>{
       const im=fit(this.add.image(x,y,id),66,66).setDepth(5).setInteractive({useHandCursor:true});
-      const tx=this.add.text(1700,y,'',{fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff4ca',stroke:'#4b2915',strokeThickness:4}).setOrigin(.5).setDepth(6);
+      const tx=this.add.text(1700,y+24,'',{fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff4ca',stroke:'#4b2915',strokeThickness:4,backgroundColor:'#59321d',padding:{x:6,y:3}}).setOrigin(.5).setDepth(6);
       im.on('pointerdown',()=>this.pickBooster(id));this.boosterButtons[id]={im,tx};
     });
     this.boosterHint=this.add.text(1640,548,'',{fontFamily:FONT,fontSize:'17px',fontStyle:'bold',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:310}}).setOrigin(.5).setDepth(6);
