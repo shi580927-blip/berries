@@ -253,3 +253,12 @@ Claim не равен copyright strike. Оспариваем только есл
 - `audio/sfx/ice_break.mp3` — Ice, 03Thib (Freesound), аккаунт freesound_community. Источник: https://pixabay.com/sound-effects/ice-43072/ . Исходный файл: freesound_community-ice-43072.mp3. Звучит при снятии последнего слоя льда, включая молоток; частичное повреждение сохраняет тихий procedural crack.
 - Условия: https://pixabay.com/service/terms/ ; краткая лицензия: https://pixabay.com/service/license-summary/ .
 Проверка: синтаксис JS; изолированный тест трёх ягод и льда с одним/двумя слоями: один хлопок, одно разрушение льда, один частичный треск. Прослушивание игрового микса в браузере не выполнялось.
+
+
+## 2026-09-14 — Музыкальные акценты
+- Автор: Kevin MacLeod (incompetech.com), “Adventures in Adventureland”.
+- Источник исходного трека: https://incompetech.com/music/royalty-free/index.html?Search=Search&isrc=USUAN2100029
+- Лицензия согласно записи исходного трека выше: Creative Commons Attribution 4.0, https://creativecommons.org/licenses/by/4.0/ .
+- Производные файлы: `audio/music/accents/combo.mp3` (0.4568–2.2346 секунды исходника), `audio/music/accents/victory.mp3` (7.5679–11.1235).
+- Изменения: вырезаны фрагменты, добавлены fade-in/fade-out, перекодированы в MP3 128 kbps. Полный исходник не изменён.
+- Атрибуция исходного трека уже доступна в настройках «О музыке».

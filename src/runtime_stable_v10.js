@@ -373,7 +373,7 @@ function install(){
         if(this._musicCredits?.active){this._musicCredits.destroy();return}
         const card=this.add.container(960,540).setDepth(60);
         card.add(this.add.rectangle(0,0,1080,430,0xfff7e9,.98).setStrokeStyle(3,0xcda36a).setInteractive());
-        const copy='Музыка: Kevin MacLeod (incompetech.com)\nMorning • Devonshire Waltz Moderato\nMagic Escape Room • Adventures in Adventureland\nLicensed under Creative Commons: By Attribution 4.0\nhttps://creativecommons.org/licenses/by/4.0/';
+        const copy='Музыка: Kevin MacLeod (incompetech.com)\nMorning • Devonshire Waltz Moderato\nMagic Escape Room • Adventures in Adventureland\nАкценты: фрагменты с плавным началом и окончанием\nLicensed under Creative Commons: By Attribution 4.0\nhttps://creativecommons.org/licenses/by/4.0/';
         card.add(text(0,-20,copy,26));
         const exit=text(0,155,'ЗАКРЫТЬ',26).setInteractive({useHandCursor:true});
         exit.on('pointerdown',()=>card.destroy());card.add(exit);this._musicCredits=card;
@@ -459,17 +459,36 @@ function install(){
     if(label)this.boosterHint.setText(label);
   };
 
+  // Cosmetic objects only. No tween below owns a berry sprite or gates a move.
+  p.fxAllow=function(key,gap=180){
+    this._fxTimes??={};const now=this.time.now;
+    if(now<(this._fxTimes[key]??-Infinity))return false;
+    this._fxTimes[key]=now+gap;return true;
+  };
+  p.fxTween=function(object,config){
+    this._fxObjects??=new Set();
+    if(this._fxObjects.size>=160){object.destroy();return}
+    this._fxObjects.add(object);
+    this.tweens.add({targets:object,...config,onComplete:()=>{this._fxObjects.delete(object);object.destroy()}});
+  };
+  p.fxBits=function(x,y,colors,count=14,radius=110,depth=14){
+    for(let i=0;i<count;i++){
+      const a=Math.PI*2*i/count+Math.random()*.25,d=radius*(.4+Math.random()*.6);
+      const bit=i%3===0?this.add.star(x,y,4,3,9,colors[i%colors.length],1):this.add.ellipse(x,y,6+Math.random()*5,12+Math.random()*7,colors[i%colors.length],.95);
+      bit.setDepth(depth).setAngle(a*180/Math.PI);
+      this.fxTween(bit,{x:x+Math.cos(a)*d,y:y+Math.sin(a)*d+24,angle:bit.angle+100,scale:0,alpha:0,duration:440+Math.random()*280,ease:'Cubic.out'});
+    }
+  };
+  p.fxWave=function(x,y,color,radius,depth=14){
+    const ring=this.add.circle(x,y,16,color,.06).setStrokeStyle(6,color,.9).setDepth(depth);
+    this.fxTween(ring,{scale:radius/16,alpha:0,duration:450,ease:'Cubic.out'});
+  };
+  p.burst=function(x,y,color=0xffe36d,n=8){
+    this.fxBits(x,y,[color,0xfff4c3,0xffbb54],Math.min(n,14),70);
+  };
   const baseClearCells=p.clearCells;
   p.clearCells=async function clearCellsPolished(initial,chain=1){
     const beforeGoals=this.goals.map(g=>g.done);
-    const keys=[...initial];
-    keys.slice(0,18).forEach((key,index)=>{
-      const [r,c]=String(key).split(',').map(Number),q=this.pos(r,c);
-      this.time.delayedCall(index*10,()=>{
-        const glow=this.add.circle(q.x,q.y,14,chain>=3?0xfff2a1:0xffc85a,.24).setDepth(11);
-        this.tweens.add({targets:glow,scale:3.1,alpha:0,duration:260,ease:'Quad.out',onComplete:()=>glow.destroy()});
-      });
-    });
     await baseClearCells.call(this,initial,chain);
     this.goals.forEach((goal,index)=>{
       if(goal.done>beforeGoals[index]){
@@ -477,40 +496,66 @@ function install(){
         if(target)this.tweens.add({targets:target,scale:1.12,duration:115,yoyo:true,ease:'Back.out'});
       }
     });
-    if(chain>=2){
-      const words=['СОЧНО!','КОМБО!','ЕЩЁ!','ВЕЛИКОЛЕПНО!'];
-      const label=this.add.text(W/2,178,words[Math.min(chain-2,words.length-1)],{fontFamily:FONT,fontSize:chain>=4?'45px':'37px',fontStyle:'bold',color:'#fff5a8',stroke:'#743416',strokeThickness:8}).setOrigin(.5).setDepth(30).setScale(.65).setAlpha(0);
-      this.tweens.add({targets:label,y:154,scale:1.08,alpha:1,duration:180,ease:'Back.out',yoyo:true,hold:210,onComplete:()=>label.destroy()});
+    if(chain>=2&&this.fxAllow('combo',700)){
+      const words=['СОЧНО!','КОМБО!','ЯГОДНЫЙ БУМ!','ВОТ ЭТО КАСКАД!'];
+      const label=this.add.text(BX+C*CELL/2,BY+82,words[Math.min(chain-2,3)],{fontFamily:FONT,fontSize:chain>=4?'51px':'43px',fontStyle:'bold',color:'#fff6bb',stroke:'#793322',strokeThickness:9,shadow:{offsetX:0,offsetY:5,color:'#6a3020',blur:10,fill:true}}).setOrigin(.5).setDepth(24).setScale(.65);
+      this.fxTween(label,{y:BY+42,scale:1.05,alpha:0,duration:900,ease:'Cubic.out'});
+      this.fxBits(BX+C*CELL/2,BY+72,[0xffd45a,0xff759e,0xfff6d0],18,175,23);
+      this.kingReact('celebrate',900);
+      if(chain>=3)this.music?.accent('combo');
     }
   };
-
-  p.lineFx=function lineFxPolished(r,c,dir){
+  p.specialCreateFx=function(cell){
+    const q=this.pos(cell.r,cell.c);
+    this.fxWave(q.x,q.y,0xffdf6a,88);
+    this.fxBits(q.x,q.y,[0xffed9c,0xffffff,0xffa851],18,110);
+    this.fx.spark();
+  };
+  p.lineFx=function(r,c,dir){
+    if(!this.fxAllow('line-'+dir+'-'+(dir==='h'?r:c),180))return;
     const q=this.pos(r,c),horizontal=dir==='h';
-    for(let i=0;i<3;i++){
-      const beam=this.add.rectangle(q.x,q.y,horizontal?C*CELL:10,horizontal?10:R*CELL,0xfff1a0,.75-i*.16).setDepth(13);
-      if(!horizontal)beam.setSize(10,R*CELL);
-      beam.setScale(horizontal?.1:1,horizontal?1:.1);
-      this.tweens.add({targets:beam,scaleX:1,scaleY:1,alpha:0,duration:260+i*55,ease:'Cubic.out',onComplete:()=>beam.destroy()});
+    const x=horizontal?BX+C*CELL/2:q.x,y=horizontal?q.y:BY+R*CELL/2;
+    [38,15,5].forEach((thickness,i)=>{
+      const beam=this.add.rectangle(x,y,horizontal?C*CELL:thickness,horizontal?thickness:R*CELL,i===2?0xffffff:0xffdf76,i===0?.22:.9).setDepth(13+i);
+      beam.setScale(horizontal?.05:1,horizontal?1:.05);
+      this.fxTween(beam,{scaleX:1,scaleY:1,alpha:0,duration:330+i*65,ease:'Expo.out'});
+    });
+    for(let i=0;i<8;i++){
+      const at=this.pos(horizontal?r:i,horizontal?i:c);
+      this.fxBits(at.x,at.y,[0xffee9f,0xffffff],4,52);
     }
-    this.burst(q.x,q.y,0xffe477,18);this.fx.whoosh();
   };
-
-  p.bombFx=function bombFxPolished(r,c){
+  p.bombFx=function(r,c){
+    if(!this.fxAllow('bomb-'+r+'-'+c,220))return;
     const q=this.pos(r,c);
-    [0xfff09a,0xffa43f,0xff6688].forEach((color,index)=>{
-      const ring=this.add.circle(q.x,q.y,15,0xffffff,.02).setStrokeStyle(8-index*2,color,.95).setDepth(14);
-      this.tweens.add({targets:ring,scale:5.8+index,alpha:0,duration:280+index*70,ease:'Quad.out',onComplete:()=>ring.destroy()});
-    });
-    this.burst(q.x,q.y,0xffc052,24);this.cameras.main.shake(125,.0045);this.fx.bomb();
+    this.fxWave(q.x,q.y,0xffd268,CELL*1.5);
+    this.fxWave(q.x,q.y,0xff7697,CELL*1.25);
+    this.fxBits(q.x,q.y,[0xffc45e,0xfff7be,0xff7c99],28,CELL*1.7);
+    const flash=this.add.circle(q.x,q.y,42,0xfff0b0,.5).setDepth(13);
+    this.fxTween(flash,{scale:2.2,alpha:0,duration:190,ease:'Quad.out'});
   };
-
-  p.rainbowFx=function rainbowFxPolished(){
-    const x=BX+C*CELL/2,y=BY+R*CELL/2,colors=[0xff6f91,0xffd966,0x77e9a6,0x72cfff,0xc88cff];
-    colors.forEach((color,index)=>{
-      const ring=this.add.circle(x,y,28,0xffffff,.01).setStrokeStyle(7,color,.8).setDepth(14);
-      this.tweens.add({targets:ring,scale:7+index*.7,alpha:0,duration:440+index*55,delay:index*25,ease:'Quad.out',onComplete:()=>ring.destroy()});
+  p.rainbowFx=function(){
+    if(!this.fxAllow('rainbow',650))return;
+    const x=BX+C*CELL/2,y=BY+R*CELL/2,colors=[0xff719c,0xffd56b,0x81edb0,0x72d8ff,0xc78aff];
+    colors.forEach((color,i)=>{
+      this.fxWave(x,y,color,170+i*42);
+      this.fxBits(x,y,[color,0xffffff],9,180+i*30);
     });
-    this.fx.whoosh();this.kingReact?.('celebrate',900);
+    this.music?.accent('combo');this.fx.whoosh();this.kingReact('celebrate',900);
+  };
+  const baseResultPopup=p.resultPopup;
+  p.resultPopup=function(win,...args){
+    const result=baseResultPopup.call(this,win,...args);
+    if(win){
+      this.music?.accent('victory');
+      // Confetti stays behind popup controls; never captures input.
+      [[W/2-420,H/2],[W/2+420,H/2]].forEach(([x,y])=>{
+        this.fxBits(x,y,[0xffd35f,0xff79a6,0x7de4c5,0xffffff],36,280,30);
+        this.fxWave(x,y,0xffe7a0,210,30);
+      });
+      this.kingReact('celebrate',1400);
+    }
+    return result;
   };
 
   p.toggleDebugGrid=function(force){
@@ -537,6 +582,7 @@ function install(){
 
   const baseCreate=p.create;
   p.create=function createPolished(){
+    this._fxObjects=new Set();this._fxTimes={};
     baseCreate.call(this);
     this.events.once('shutdown',()=>{clearTimeout(this.hintTimer);clearTimeout(this.hintCleanupTimer);clearTimeout(this.specialInfoTimer)});
     this.input.keyboard?.on('keydown-G',()=>this.toggleDebugGrid());

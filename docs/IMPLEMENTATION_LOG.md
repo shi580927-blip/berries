@@ -1,3 +1,12 @@
+## 2026-09-14 — Musical accents and stronger cosmetic FX
+
+- Added two MP3 excerpts from uploaded Adventures in Adventureland (Kevin MacLeod): combo 0.4568–2.2346 s; victory 7.5679–11.1235 s. Boundaries based on 135 BPM file metadata after intro silence; fade-in/out applied, encoded 128 kbps. Musical fit still needs listening in the actual game.
+- Strong cascade (chain >= 3) and rainbow request combo accent; 6.5-second cooldown and one voice prevent stacking. Victory takes priority. Background music ducks to 26% of its normal volume and restores on completion; music mute, visibility, ads and scene shutdown handle accents.
+- Replaced thin line effects with layered beams aligned to board centre; bomb shockwave, rainbow sparks, special-creation starburst, bigger combo titles and victory confetti.
+- Cosmetic effects target only their own objects, with 160-object cap and repeated-special debounce. No new runtime patch file, no game-rule, gravity, move-lock or popup-hitbox change.
+- Checks: JS syntax; isolated music lifecycle/priority/ducking tests; effect budget, debounce and cleanup tests; both MP3s decode successfully.
+- Limitation: no visual browser run or listening test of the final mix in this session.
+
 ## 2026-09-14 — Music files and animation ownership fix
 
 - Uploaded MP3s connected through lazy scene loading: Morning for Title/Map, Devonshire Waltz Moderato for levels below 21, Magic Escape Room for levels 21+. Adventures in Adventureland is registered as music_event for future events; no event trigger added.

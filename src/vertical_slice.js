@@ -80,8 +80,36 @@ return;
 }
 this.current=key;this.sound=this.s.sound.add(key,{loop:true,volume:this.volume});this.sound.play();this.applyPause();
 }
-stop(){if(this.sound){this.sound.destroy();this.sound=null}this.current=null}
-applyPause(){if(!this.sound)return;if(this.paused||document.hidden)this.sound.pause();else if(!this.muted&&this.sound.isPaused)this.sound.resume()}
+stop(){
+this.cueTween?.stop();this.cueTween=null;
+if(this.cueSound){this.cueSound.destroy();this.cueSound=null}
+if(this.sound){this.sound.destroy();this.sound=null}this.current=null;
+}
+accent(kind){
+if(this.closed||this.muted||this.paused||document.hidden)return false;
+const key=kind==='victory'?'music_victory_accent':'music_combo_accent';
+if(!this.s.cache.audio.exists(key))return false;
+const now=this.s.time.now;
+if(kind!=='victory'&&(this.cueSound||now<(this.nextAccent||0)))return false;
+this.nextAccent=now+6500;
+this.cueTween?.stop();if(this.cueSound)this.cueSound.destroy();
+const cue=this.cueSound=this.s.sound.add(key,{volume:0});
+if(this.sound)this.sound.setVolume(this.volume*.26);
+cue.once('complete',()=>{
+if(this.cueSound!==cue)return;
+this.cueTween?.stop();this.cueTween=null;cue.destroy();this.cueSound=null;
+if(this.sound)this.sound.setVolume(this.volume);
+});
+cue.play();
+this.cueTween=this.s.tweens.add({targets:cue,volume:.48,duration:65});
+return true;
+}
+applyPause(){
+for(const sound of [this.sound,this.cueSound]){
+if(!sound)continue;
+if(this.paused||document.hidden)sound.pause();else if(!this.muted&&sound.isPaused)sound.resume();
+}
+}
 pause(v){this.paused=!!v;this.applyPause()}
 }
 window.BerriesMusicBus=MusicBus;
@@ -92,6 +120,8 @@ class Boot extends Phaser.Scene{
     const t=this.add.text(W/2,H/2,'Загружаем лес…',{fontSize:'36px',color:'#fff7dc'}).setOrigin(.5);this.load.on('progress',v=>t.setText(`Загружаем лес… ${Math.round(v*100)}%`));
     this.load.audio('sfx_berry_pop','audio/sfx/berry_pop.mp3');
     this.load.audio('sfx_ice_break','audio/sfx/ice_break.mp3');
+    this.load.audio('music_combo_accent','audio/music/accents/combo.mp3');
+    this.load.audio('music_victory_accent','audio/music/accents/victory.mp3');
     const I=(k,p)=>this.load.image(k,p);
     I('title','assets/backgrounds/background_title_forest.jpg');I('gamebg','assets/backgrounds/background_game_forest.jpg');I('mapbg','assets/map/map_forest_background.jpg');I('logo','assets/ui/panels/logo_main.png');I('plevel','assets/ui/panels/panel_level_title.png');I('pgoals','assets/ui/panels/panel_goals.png');I('pboost','assets/ui/panels/panel_boosters.png');I('pboard','assets/ui/panels/board_frame_forest.png');I('pprogress','assets/ui/panels/panel_progress.png');I('pchamp','assets/ui/panels/panel_championat.png');I('plives','assets/ui/panels/panel_lives.png');I('pcoins','assets/ui/panels/panel_coins.png');I('btn','assets/ui/buttons/button_wood.png');I('btnblue','assets/ui/buttons/button_blue.png');
     I('popup_win','assets/ui/popups/popup_level_win.png');I('popup_lose','assets/ui/popups/popup_level_lose.png');
