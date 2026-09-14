@@ -1,3 +1,14 @@
+## 2026-09-14 — Music files and animation ownership fix
+
+- Uploaded MP3s connected through lazy scene loading: Morning for Title/Map, Devonshire Waltz Moderato for levels below 21, Magic Escape Room for levels 21+. Adventures in Adventureland is registered as music_event for future events; no event trigger added.
+- Music preference persists; scene shutdown destroys owned music. Visibility and rewarded pause control music. Settings includes attribution.
+- Hint cleanup now only destroys hint-owned objects, never berry tweens awaited by swap/clear/refill. Hint timers are cancelled on scene shutdown; hints cannot start while busy.
+- Rainbow swaps now update sprite ownership before clearing cells, matching board data.
+- No new runtime patch layer, watchdog unlock, or automatic restart added. Layout and game rules unchanged.
+- Validation: JavaScript syntax and isolated mocked regression checks passed for hint ownership, rainbow swap completion, music selection, mute, duplicate prevention and shutdown.
+- Limitation: the reported high-level freeze has not been reproduced in a real browser in this session. These fixes remove concrete defects, but do not establish that every freeze is resolved.
+- Audio decoding, browser autoplay/unlock and long device play sessions still need browser validation.
+
 ## 2026-09-14 — Map and juice pass v1.2
 
 - системный заголовок карты заменён на production `logo_main.png`;
