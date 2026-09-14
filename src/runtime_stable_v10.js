@@ -312,31 +312,28 @@ function install(){
       frame.fillRoundedRect(BX+c*CELL+5,BY+r*CELL+5,CELL-10,CELL-10,15);
     }
 
-    const plaque=(x,y,w,h)=>fit(this.add.image(x,y,'btn'),w,h).setDepth(17);
-
-    // Back button is always visible and separate from counters.
-    const backBg=this.add.circle(78,66,43,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(19).setInteractive({useHandCursor:true});
-    const backIcon=fit(this.add.image(78,66,'ui_back'),54,54).setDepth(20).setInteractive({useHandCursor:true});
-    const goMap=()=>{this.fx.click();window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')};
-    backBg.on('pointerdown',goMap);backIcon.on('pointerdown',goMap);
-
-    plaque(350,66,270,98);
-    this.mt=this.add.text(350,66,'',{fontFamily:FONT,fontSize:'29px',fontStyle:'bold',color:'#fff4c9',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
-
-    fit(this.add.image(W/2,67,'plevel'),500,108).setDepth(18);
-    this.add.text(W/2,64,`УРОВЕНЬ ${this.no}`,{fontFamily:FONT,fontSize:'39px',fontStyle:'bold',color:'#fff3b8',stroke:'#633017',strokeThickness:7}).setOrigin(.5).setDepth(20);
-
-    plaque(600,66,245,98);
-    fit(this.add.image(562,66,'ui_life'),50,50).setDepth(20);
-    this.add.text(620,66,'5',{fontFamily:FONT,fontSize:'27px',fontStyle:'bold',color:'#fff5d0',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
-
-    plaque(1450,66,245,98);
-    this.st=this.add.text(1450,66,'',{fontFamily:FONT,fontSize:'24px',fontStyle:'bold',color:'#fff4c9',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
-
+    const label=(x,y,value,size=30,color='#fff4cf')=>this.add.text(x,y,value,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color,stroke:color==='#57301d'?'#fff4d5':'#63351e',strokeThickness:color==='#57301d'?1:5,align:'center'}).setOrigin(.5).setDepth(20);
+    const wood=(x,y,w,h)=>fit(this.add.image(x,y,'wood_flat'),w,h).setDepth(17);
+    const nav=(x,y,title,icon,action)=>{
+      const bg=wood(x,y,345,108).setInteractive({useHandCursor:true});
+      fit(this.add.image(x-115,y,icon),65,65).setDepth(20);
+      label(x+27,y,title,30);
+      bg.on('pointerdown',()=>{this.fx.click();action()});
+    };
+    fit(this.add.image(960,73,'plevel'),610,140).setDepth(18);
+    label(960,70,`УРОВЕНЬ ${this.no}`,42);
     let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
-    plaque(1695,66,210,98);
-    fit(this.add.image(1658,66,'ui_coin'),42,42).setDepth(20);
-    this.add.text(1717,66,String(save.coins||0),{fontFamily:FONT,fontSize:'24px',fontStyle:'bold',color:'#fff4c9',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
+    const coinPanel=fit(this.add.image(300,77,'pcoins'),380,104).setDepth(18).setInteractive({useHandCursor:true});
+    this.coinText=label(310,77,String(save.coins||0),32,'#57301d');
+    coinPanel.on('pointerdown',()=>this.openShop());
+    const lifePanel=fit(this.add.image(1610,77,'plives'),380,104).setDepth(18).setInteractive({useHandCursor:true});
+    label(1620,77,'5',32,'#57301d');
+    lifePanel.on('pointerdown',()=>this.openShop());
+    wood(300,180,300,88);this.mt=label(300,180,'',29);
+    wood(1610,180,300,88);this.st=label(1610,180,'',27);
+    nav(300,1016,'НАЗАД','ui_back',()=>{window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
+    nav(1610,1016,'МАГАЗИН','ui_shop',()=>this.openShop());
+
     const settingsBg=this.add.circle(1872,66,38,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(19);
     const settings=fit(this.add.image(1872,66,'ui_settings'),49,49).setDepth(20).setInteractive({useHandCursor:true});
     settings.on('pointerdown',()=>{
@@ -382,30 +379,60 @@ function install(){
       this._soundMenu=box;
     });
 
-    // Goals: smaller panel with visual target icons, no giant empty card.
-    const goalsPanel=fit(this.add.image(212.4,430,'pgoals'),495,649).setDepth(3);
-    const goalCount=Math.max(1,this.goals.length),gap=goalCount===1?0:Math.min(115,280/(goalCount-1));
-    const firstY=430-(goalCount-1)*gap/2;
+    // Fixed-size panels and slot centres in the 1920x1080 reference grid.
+    fit(this.add.image(300,500,'pgoals'),280,560).setDepth(3);
+    wood(300,325,210,66);label(300,325,'ЦЕЛЬ',26);
+    const count=Math.max(1,this.goals.length),gap=Math.min(112,300/count);
     this.gt=this.goals.map((goal,index)=>{
-      const y=firstY+index*gap;
-      const key=goal.type==='berry'?'b_'+goal.id:goal.type==='ice'?'ice1':goal.type==='acorn'?'acorn':goal.type==='roots'?'roots':null;
-      if(key&&this.textures.exists(key))fit(this.add.image(157.4,y,key),80,80).setDepth(5);
-      return this.add.text(key?257.4:212.4,y,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',align:'center',color:'#49331f',stroke:'#fff4dc',strokeThickness:2,wordWrap:{width:key?160:260}}).setOrigin(.5).setDepth(6);
+      const y=510+(index-(count-1)/2)*gap;
+      const key=goal.type==='berry'?'b_'+goal.id:goal.type==='ice'?'ice1':goal.type==='acorn'?'acorn':goal.type==='roots'?'roots':'ui_coin';
+      fit(this.add.image(250,y,key),70,70).setDepth(5);
+      return label(345,y,'',25,'#57301d');
     });
-
-    // Boosters aligned to the three painted slots.
-    const boostersPanel=fit(this.add.image(1640,370,'pboost'),400,480).setDepth(3);
+    fit(this.add.image(1610,570,'pboost'),280,650).setDepth(3);
+    wood(1610,302,225,66);label(1610,302,'БУСТЕРЫ',25);
     this.boosterButtons={};
-    [['hammer',1640,269],['shuffle',1640,371],['fan',1640,473]].forEach(([id,x,y])=>{
-      const im=fit(this.add.image(x,y+H*.01,id),72,72).setDepth(5).setInteractive({useHandCursor:true});
-      fit(this.add.image(1744,y,'btn'),82,52).setDepth(5);
-      const tx=this.add.text(1744,y,'',{fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff4ca',stroke:'#4b2915',strokeThickness:4}).setOrigin(.5).setDepth(6);
+    [['hammer',441],['shuffle',582],['fan',722]].forEach(([id,y])=>{
+      const im=fit(this.add.image(1610,y,id),96,96).setDepth(5).setInteractive({useHandCursor:true});
+      this.add.circle(1660,y+39,24,0x237fbd,1).setStrokeStyle(3,0xffe9b0).setDepth(6);
+      const tx=label(1660,y+39,'',24);tx.setDepth(7);
       im.on('pointerdown',()=>this.pickBooster(id));this.boosterButtons[id]={im,tx};
     });
-    this.boosterHint=this.add.text(1640,630,'',{fontFamily:FONT,fontSize:'17px',fontStyle:'bold',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:310}}).setOrigin(.5).setDepth(6);
+    this.boosterHint=this.add.text(1610,920,'',{fontFamily:FONT,fontSize:'19px',fontStyle:'bold',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:330}}).setOrigin(.5).setDepth(6);
+    this.king=fit(this.add.image(300,883,'king_idle'),195,195).setDepth(4);
+    this.kingBaseY=883;this.kingBaseScale=this.king.scaleX;
 
-    this.king=fit(this.add.image(1650,790,'king_idle'),330,330).setDepth(4);
-    this.kingBaseY=790;this.kingBaseScale=this.king.scaleX;
+  };
+
+  const referenceRefreshBoosters=p.refreshBoosters;
+  p.refreshBoosters=function(){
+    referenceRefreshBoosters.call(this);
+    for(const [id,b] of Object.entries(this.boosterButtons))b.tx.setText(String(this.inventory[id]));
+  };
+  const referenceUpdateHud=p.updateHud;
+  p.updateHud=function(){
+    referenceUpdateHud.call(this);
+    // Fit text to fixed slots; never change panel dimensions.
+    for(const [text,width,size] of [[this.mt,245,29],[this.st,245,27],[this.coinText,165,32]]){
+      if(!text)continue;text.setFontSize(size);
+      if(text.width>width)text.setFontSize(Math.max(16,Math.floor(size*width/text.width)));
+    }
+    this.goals.forEach((g,i)=>this.gt[i].setText(`${g.type==='score'?Math.min(g.need,Math.round(this.score)):g.done} / ${g.need}`));
+    for(const [id,b] of Object.entries(this.boosterButtons))b.tx.setText(String(this.inventory[id]));
+  };
+  p.openShop=function(){
+    if(this._shopModal?.active)return;
+    const box=this.add.container(0,0).setDepth(70);this._shopModal=box;
+    const close=()=>{box.destroy();this._shopModal=null};
+    const shade=this.add.rectangle(W/2,H/2,W,H,0x102419,.78).setInteractive();
+    box.add(shade);shade.on('pointerdown',close);
+    const art=fit(this.add.image(W/2,515,'popup_shop'),720,850).setInteractive();
+    box.add(art);
+    const cross=this.add.zone(W/2+(1260-720.5)*art.scaleX,515+(330-900)*art.scaleY,100,100).setInteractive({useHandCursor:true});
+    cross.on('pointerdown',close);box.add(cross);
+    const info=this.add.text(W/2,991,'Магазин готовится к открытию — покупки пока недоступны',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff6d4',stroke:'#59331c',strokeThickness:4,align:'center'}).setOrigin(.5);
+    box.add(info);
+    // Product prices are part of the source art; no payment handlers until SDK purchases are implemented.
   };
 
   p.resultPopup=function resultPopupStable(win){
