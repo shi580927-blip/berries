@@ -238,6 +238,101 @@ function install(){
   const baseSelect=p.select;
   p.select=function(r,c){baseSelect.call(this,r,c);const sp=this.board?.[r]?.[c]?.sp;if(sp)this.showSpecialInfo(sp,3200)};
 
+
+  p.hud=function hudStable(){
+    fit(this.add.image(W/2,64,'plevel'),560,125);
+    this.add.text(W/2,64,`УРОВЕНЬ ${this.no}`,{fontFamily:FONT,fontSize:'42px',fontStyle:'bold',color:'#fff0b7',stroke:'#6a3219',strokeThickness:7}).setOrigin(.5);
+    this.mt=this.add.text(1510,64,'',{fontFamily:FONT,fontSize:'32px',fontStyle:'bold',color:'#fff3c4',stroke:'#5b2d18',strokeThickness:5}).setOrigin(.5);
+    this.st=this.add.text(1695,64,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff0b7',stroke:'#5b2d18',strokeThickness:4}).setOrigin(.5);
+
+    fit(this.add.image(285,410,'pgoals'),430,570);
+    this.gt=this.goals.map((goal,index)=>this.add.text(285,290+index*102,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',align:'center',color:'#49331f',stroke:'#fff0cf',strokeThickness:1,wordWrap:{width:300}}).setOrigin(.5));
+
+    fit(this.add.image(1640,365,'pboost'),375,445);
+    this.boosterButtons={};
+    [['hammer',1640,274],['shuffle',1640,364],['fan',1640,454]].forEach(([id,x,y])=>{
+      const im=fit(this.add.image(x,y,id),68,68).setInteractive({useHandCursor:true});
+      const tx=this.add.text(x+82,y,'',{fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff4ca',stroke:'#4b2915',strokeThickness:4}).setOrigin(.5);
+      im.on('pointerdown',()=>this.pickBooster(id));this.boosterButtons[id]={im,tx};
+    });
+    this.boosterHint=this.add.text(1640,537,'',{fontFamily:FONT,fontSize:'18px',fontStyle:'bold',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:320}}).setOrigin(.5);
+    this.king=fit(this.add.image(1650,760,'king_idle'),330,330);this.kingBaseY=760;this.kingBaseScale=this.king.scaleX;
+
+    const boardFrame=this.add.graphics();boardFrame.fillStyle(0x302014,.72);boardFrame.fillRoundedRect(BX-25,BY-25,C*CELL+50,R*CELL+50,32);boardFrame.lineStyle(6,0xd2a45c,.85);boardFrame.strokeRoundedRect(BX-25,BY-25,C*CELL+50,R*CELL+50,32);
+    for(let r=0;r<R;r++)for(let c=0;c<C;c++){boardFrame.fillStyle((r+c)%2?0x4a6d3c:0x557b43,.68);boardFrame.fillRoundedRect(BX+c*CELL+4,BY+r*CELL+4,CELL-8,CELL-8,16)}
+
+    const addTop=()=>{
+      if(this.__topUiAdded)return;this.__topUiAdded=true;
+      const back=fit(this.add.image(92,66,'ui_back'),62,62).setDepth(20).setInteractive({useHandCursor:true});
+      back.on('pointerdown',()=>{this.fx.click();window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
+      fit(this.add.image(1285,64,'ui_life'),50,50).setDepth(20);
+      this.add.text(1320,64,'5',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff3c4',stroke:'#5a2e18',strokeThickness:4}).setOrigin(.5).setDepth(20);
+      let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
+      fit(this.add.image(1780,64,'ui_coin'),46,46).setDepth(20);
+      this.add.text(1820,64,String(save.coins||0),{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#fff3c4',stroke:'#5a2e18',strokeThickness:4}).setOrigin(.5).setDepth(20);
+      const settings=fit(this.add.image(1880,64,'ui_settings'),48,48).setDepth(20).setInteractive({useHandCursor:true});
+      settings.on('pointerdown',()=>this.fx.click());
+      fit(this.add.image(285,850,'panel_championat'),330,150).setDepth(2);
+    };
+    if(this.textures.exists('ui_back'))addTop();
+    else{
+      ['ui_back','ui_life','ui_coin','ui_settings'].forEach(key=>this.load.image(key,`assets/ui/icons/${key}.png`));
+      this.load.image('panel_championat','assets/ui/panels/panel_championat.png');
+      this.load.once('complete',addTop);this.load.start();
+    }
+  };
+
+  p.resultPopup=function resultPopupStable(win){
+    const shade=this.add.rectangle(W/2,H/2,W,H,0x061008,.76).setDepth(30);
+    const box=this.add.container(W/2,H/2).setDepth(31);
+    box.add(fit(this.add.image(0,0,win?'popup_win':'popup_lose'),860,700));
+    const hit=(x,y,w,h,cb)=>{
+      const area=this.add.rectangle(x,y,w,h,0xffffff,.001).setInteractive({useHandCursor:true});
+      box.add(area);area.on('pointerdown',()=>{this.fx.click();cb(area)});return area;
+    };
+    hit(292,-226,78,78,()=>this.scene.start('Map'));
+    if(win){
+      hit(0,112,455,96,async area=>{
+        if(this.winRewardDoubled)return;
+        area.disableInteractive();
+        const ok=await window.BerriesYandex?.showRewardedVideo?.();
+        if(ok){
+          const reward=this.no<=5?80:this.no<=10?100:this.no<=15?120:this.no<=20?140:this.no<=25?160:180;
+          let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
+          save.coins=(save.coins||0)+reward;localStorage.setItem('berries_vs_04',JSON.stringify(save));window.BerriesYandex?.saveCloudData?.(save,false);
+          this.winRewardDoubled=true;this.fx.reward();
+        }else area.setInteractive({useHandCursor:true});
+      });
+      hit(0,235,350,92,()=>{
+        const levels=[1,6,11,16,21,30],index=levels.indexOf(this.no),next=index>=0?levels[index+1]:null;
+        if(next)this.scene.start('Play',{n:next});else this.scene.start('Map');
+      });
+    }else{
+      hit(0,90,465,104,async area=>{
+        if(this.continueUsed)return;
+        area.disableInteractive();
+        const ok=await window.BerriesYandex?.showRewardedVideo?.();
+        if(ok){
+          this.continueUsed=true;this.moves+=5;this.fx.reward();shade.destroy();box.destroy();this.busy=false;
+          window.__berriesGameplayShouldRun=true;window.BerriesYandex?.gameplayStart?.();
+          this.kingAnim('idle');this.updateHud();this.scheduleHint();
+        }else area.setInteractive({useHandCursor:true});
+      });
+      hit(-150,223,260,82,()=>this.scene.restart({n:this.no}));
+      hit(150,223,260,82,()=>this.scene.start('Map'));
+    }
+    box.setScale(.84).setAlpha(0);
+    this.tweens.add({targets:box,scale:1,alpha:1,duration:250,ease:'Back.out'});
+  };
+
+  const basePickBooster=p.pickBooster;
+  p.pickBooster=function(id){
+    basePickBooster.call(this,id);
+    if(!this.boosterMode)return;
+    const label=this.boosterMode==='hammer'?'МОЛОТОК — выбери одну клетку':this.boosterMode==='fan'?'ВЕЕР — выбери ряд':'';
+    if(label)this.boosterHint.setText(label);
+  };
+
   p.toggleDebugGrid=function(force){
     const enabled=force??!this.__debugGrid;
     this.__debugGrid?.destroy?.();this.__debugGrid=null;
