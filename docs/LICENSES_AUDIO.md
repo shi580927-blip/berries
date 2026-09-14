@@ -142,25 +142,55 @@
 `Licensed under Creative Commons: By Attribution 4.0`  
 `https://creativecommons.org/licenses/by/4.0/`
 
-### Музыка — текущие кандидаты
+### Музыка — фавориты пользователя
 
-1. `Adventures in Adventureland` — Kevin MacLeod
-   - Страница каталога Incompetech, CC BY 4.0.
-   - Характер: bright / grooving / cartoony adventure, оркестровые деревянные духовые, marimba, bells.
-   - Возможная роль: основной gameplay или более активные уровни.
-   - Статус: сильный кандидат.
+1. `Morning` — Kevin MacLeod
+   - Источник: https://incompetech.com/music/royalty-free/index.html?Search=Search&isrc=USUAN2300003
+   - Лицензия: CC BY 4.0.
+   - Длительность: 2:33.
+   - Feel: Bright, Calm, Relaxed.
+   - Инструменты: Classical Guitar, Harp, Flutes.
+   - ISRC: USUAN2300003.
+   - Возможная роль: главный экран / карта / спокойная часть игры.
+   - Статус: **фаворит пользователя**.
 
-2. `Almost Bliss` — Kevin MacLeod
-   - Страница каталога Incompetech, CC BY 4.0.
-   - Характер: bright / calm / relaxed.
-   - Возможная роль: карта / меню.
-   - Статус: кандидат.
+2. `Devonshire Waltz` — Kevin MacLeod
+   - Пользователь отметил серию `Devonshire Waltz`; конкретный темп выбираем после теста в игре.
+   - `Devonshire Waltz Moderato`: https://incompetech.com/music/royalty-free/index.html?Search=Search&isrc=USUAN2100016 — 5:50, 93 bpm, ISRC USUAN2100016.
+   - `Devonshire Waltz Allegretto`: https://incompetech.com/music/royalty-free/index.html?Search=Search&isrc=USUAN2100017 — 5:13, 104 bpm, ISRC USUAN2100017.
+   - `Devonshire Waltz Andante`: https://incompetech.com/music/royalty-free/index.html?Search=Search&isrc=USUAN2100015 — 6:28, 84 bpm, ISRC USUAN2100015.
+   - Feel для серии: Relaxed, Calm, Grooving.
+   - Лицензия: CC BY 4.0.
+   - Возможная роль: основной спокойный gameplay / карта.
+   - Статус: **фаворит пользователя; стартовый тест — Moderato**.
 
-3. `Equatorial Complex` — Kevin MacLeod
-   - Страница каталога Incompetech, CC BY 4.0.
-   - Характер: bright / mystical / relaxed.
-   - Возможная роль: спокойный gameplay / лесная магия.
-   - Статус: кандидат.
+3. `Magic Escape Room` — Kevin MacLeod
+   - Источник: https://incompetech.com/music/royalty-free/index.html?Search=Search&isrc=USUAN2200005
+   - Лицензия: CC BY 4.0.
+   - Длительность: 14:23.
+   - Feel: Driving, Grooving, Bouncy.
+   - ISRC: USUAN2200005.
+   - В треке есть Celesta, Xylophone, Glockenspiel, Chimes, bells и оркестр; композиция постепенно наращивает напряжение и имеет естественные точки монтажа.
+   - Возможная роль: магические / сложные / поздние уровни; использовать отредактированный фрагмент или loop, а не весь трек целиком.
+   - Статус: **фаворит пользователя**.
+
+4. `Adventures in Adventureland` — Kevin MacLeod
+   - Источник: https://incompetech.com/music/royalty-free/index.html?Search=Search&isrc=USUAN2100029
+   - Лицензия: CC BY 4.0.
+   - Длительность: 4:21.
+   - Feel: Action, Bright, Grooving.
+   - ISRC: USUAN2100029.
+   - Возможная роль: более активный gameplay / специальные уровни / открытие главы.
+   - Статус: резервный сильный кандидат.
+
+### Текущая музыкальная гипотеза MVP
+
+- `music_menu`: **Morning**.
+- `music_gameplay_calm`: **Devonshire Waltz Moderato** как первый тест; при необходимости сравнить с Allegretto/Andante.
+- `music_gameplay_magic`: **Magic Escape Room**, отредактированный мягкий фрагмент/loop.
+- `music_event` / активный уровень: **Adventures in Adventureland** либо `Wonders of the Earth` после сравнения внутри игры.
+
+Эта схема фиксирует предпочтения и роли, но не финализирует конкретные аудиофайлы до прослушивания внутри игры.
 
 ## 3. ASMR / tactile sound rule
 
