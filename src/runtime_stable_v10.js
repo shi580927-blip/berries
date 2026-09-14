@@ -597,15 +597,19 @@ function install(){
         const key=completed?'lvl_completed':unlocked?'lvl_current':'lvl_locked';
         const major=n%5===0||n===1||n===30,size=major?76:58;
         const button=fit(this.add.image(0,0,key),size,size);
-        const number=this.add.text(0,0,String(n),{fontFamily:FONT,fontSize:major?'21px':'16px',fontStyle:'bold',color:unlocked?'#fff8dc':'#c2b49d',stroke:'#512814',strokeThickness:major?4:3}).setOrigin(.5);
-        const node=this.add.container(q.x,q.y,[button,number]).setDepth(5).setSize(size,size).setScale(q.scale);
-        node.setData({level:n,size});nodes.push(node);
+        const node=this.add.container(q.x,q.y,[button]).setDepth(5).setSize(size,size).setScale(q.scale);
+        const number=this.add.text(q.x,q.y,String(n),{
+          fontFamily:FONT,fontSize:'24px',fontStyle:'bold',
+          color:unlocked?'#fff8dc':'#c2b49d',stroke:'#512814',strokeThickness:5
+        }).setOrigin(.5).setDepth(7).setResolution(3);
+        node.setData({level:n,size,number});nodes.push(node);
         if(editor){
           node.setInteractive(new Phaser.Geom.Rectangle(-size/2,-size/2,size,size),Phaser.Geom.Rectangle.Contains);
           this.input.setDraggable(node);
           node.on('pointerdown',()=>select(node));
           node.on('drag',(pointer,x,y)=>{
             node.x=Phaser.Math.Clamp(x,35,W-35);node.y=Phaser.Math.Clamp(y,175,H-35);
+            number.setPosition(Math.round(node.x),Math.round(node.y));
             layout[index].x=node.x;layout[index].y=node.y;
             if(selection){selection.x=node.x;selection.y=node.y}
             status?.setText(`Уровень ${n}  x:${Math.round(node.x)}  y:${Math.round(node.y)}  ×${node.scaleX.toFixed(2)}`);
