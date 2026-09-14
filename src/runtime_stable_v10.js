@@ -333,9 +333,9 @@ function install(){
     fit(this.add.image(W/2,67,'plevel'),500,108).setDepth(18);
     this.add.text(W/2,64,`УРОВЕНЬ ${this.no}`,{fontFamily:FONT,fontSize:'39px',fontStyle:'bold',color:'#fff3b8',stroke:'#633017',strokeThickness:7}).setOrigin(.5).setDepth(20);
 
-    plaque(1248,66,150,88);
-    fit(this.add.image(1215,66,'ui_life'),43,43).setDepth(20);
-    this.add.text(1262,66,'5',{fontFamily:FONT,fontSize:'27px',fontStyle:'bold',color:'#fff5d0',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
+    plaque(600,66,245,98);
+    fit(this.add.image(562,66,'ui_life'),50,50).setDepth(20);
+    this.add.text(620,66,'5',{fontFamily:FONT,fontSize:'27px',fontStyle:'bold',color:'#fff5d0',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
 
     plaque(1450,66,245,98);
     this.st=this.add.text(1450,66,'',{fontFamily:FONT,fontSize:'24px',fontStyle:'bold',color:'#fff4c9',stroke:'#552914',strokeThickness:5}).setOrigin(.5).setDepth(20);
@@ -358,25 +358,26 @@ function install(){
     });
 
     // Goals: smaller panel with visual target icons, no giant empty card.
-    const goalsPanel=fit(this.add.image(270,405,'pgoals'),390,510).setDepth(3);
-    const goalCount=Math.max(1,this.goals.length),gap=goalCount===1?0:Math.min(100,250/(goalCount-1));
-    const firstY=405-(goalCount-1)*gap/2;
+    const goalsPanel=fit(this.add.image(270,430,'pgoals'),450,590).setDepth(3);
+    const goalCount=Math.max(1,this.goals.length),gap=goalCount===1?0:Math.min(115,280/(goalCount-1));
+    const firstY=430-(goalCount-1)*gap/2;
     this.gt=this.goals.map((goal,index)=>{
       const y=firstY+index*gap;
       const key=goal.type==='berry'?'b_'+goal.id:goal.type==='ice'?'ice1':goal.type==='acorn'?'acorn':goal.type==='roots'?'roots':null;
-      if(key&&this.textures.exists(key))fit(this.add.image(225,y,key),74,74).setDepth(5);
-      return this.add.text(key?305:270,y,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',align:'center',color:'#49331f',stroke:'#fff4dc',strokeThickness:2,wordWrap:{width:key?145:240}}).setOrigin(.5).setDepth(6);
+      if(key&&this.textures.exists(key))fit(this.add.image(215,y,key),80,80).setDepth(5);
+      return this.add.text(key?315:270,y,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',align:'center',color:'#49331f',stroke:'#fff4dc',strokeThickness:2,wordWrap:{width:key?160:260}}).setOrigin(.5).setDepth(6);
     });
 
     // Boosters aligned to the three painted slots.
-    const boostersPanel=fit(this.add.image(1640,370,'pboost'),350,420).setDepth(3);
+    const boostersPanel=fit(this.add.image(1640,370,'pboost'),400,480).setDepth(3);
     this.boosterButtons={};
-    [['hammer',1640,282],['shuffle',1640,371],['fan',1640,460]].forEach(([id,x,y])=>{
-      const im=fit(this.add.image(x,y,id),66,66).setDepth(5).setInteractive({useHandCursor:true});
-      const tx=this.add.text(1700,y+24,'',{fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff4ca',stroke:'#4b2915',strokeThickness:4,backgroundColor:'#59321d',padding:{x:6,y:3}}).setOrigin(.5).setDepth(6);
+    [['hammer',1640,269],['shuffle',1640,371],['fan',1640,473]].forEach(([id,x,y])=>{
+      const im=fit(this.add.image(x,y,id),72,72).setDepth(5).setInteractive({useHandCursor:true});
+      fit(this.add.image(1744,y,'btn'),82,52).setDepth(5);
+      const tx=this.add.text(1744,y,'',{fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff4ca',stroke:'#4b2915',strokeThickness:4}).setOrigin(.5).setDepth(6);
       im.on('pointerdown',()=>this.pickBooster(id));this.boosterButtons[id]={im,tx};
     });
-    this.boosterHint=this.add.text(1640,548,'',{fontFamily:FONT,fontSize:'17px',fontStyle:'bold',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:310}}).setOrigin(.5).setDepth(6);
+    this.boosterHint=this.add.text(1640,630,'',{fontFamily:FONT,fontSize:'17px',fontStyle:'bold',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:310}}).setOrigin(.5).setDepth(6);
 
     this.king=fit(this.add.image(1650,790,'king_idle'),330,330).setDepth(4);
     this.kingBaseY=790;this.kingBaseScale=this.king.scaleX;
