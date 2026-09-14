@@ -245,47 +245,60 @@ function install(){
   p.select=function(r,c){baseSelect.call(this,r,c);const sp=this.board?.[r]?.[c]?.sp;if(sp)this.showSpecialInfo(sp,3200)};
 
 
-  p.hud=function hudStable(){
-    fit(this.add.image(W/2,64,'plevel'),560,125);
-    this.add.text(W/2,64,`УРОВЕНЬ ${this.no}`,{fontFamily:FONT,fontSize:'42px',fontStyle:'bold',color:'#fff0b7',stroke:'#6a3219',strokeThickness:7}).setOrigin(.5);
-    this.mt=this.add.text(1510,64,'',{fontFamily:FONT,fontSize:'32px',fontStyle:'bold',color:'#fff3c4',stroke:'#5b2d18',strokeThickness:5}).setOrigin(.5);
-    this.st=this.add.text(1695,64,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff0b7',stroke:'#5b2d18',strokeThickness:4}).setOrigin(.5);
-
-    fit(this.add.image(285,410,'pgoals'),430,570);
-    this.gt=this.goals.map((goal,index)=>this.add.text(285,290+index*102,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',align:'center',color:'#49331f',stroke:'#fff0cf',strokeThickness:1,wordWrap:{width:300}}).setOrigin(.5));
-
-    fit(this.add.image(1640,365,'pboost'),375,445);
-    this.boosterButtons={};
-    [['hammer',1640,274],['shuffle',1640,364],['fan',1640,454]].forEach(([id,x,y])=>{
-      const im=fit(this.add.image(x,y,id),68,68).setInteractive({useHandCursor:true});
-      const tx=this.add.text(x+82,y,'',{fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff4ca',stroke:'#4b2915',strokeThickness:4}).setOrigin(.5);
-      im.on('pointerdown',()=>this.pickBooster(id));this.boosterButtons[id]={im,tx};
-    });
-    this.boosterHint=this.add.text(1640,537,'',{fontFamily:FONT,fontSize:'18px',fontStyle:'bold',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:320}}).setOrigin(.5);
-    this.king=fit(this.add.image(1650,760,'king_idle'),330,330);this.kingBaseY=760;this.kingBaseScale=this.king.scaleX;
-
-    const boardFrame=this.add.graphics();boardFrame.fillStyle(0x302014,.72);boardFrame.fillRoundedRect(BX-25,BY-25,C*CELL+50,R*CELL+50,32);boardFrame.lineStyle(6,0xd2a45c,.85);boardFrame.strokeRoundedRect(BX-25,BY-25,C*CELL+50,R*CELL+50,32);
-    for(let r=0;r<R;r++)for(let c=0;c<C;c++){boardFrame.fillStyle((r+c)%2?0x4a6d3c:0x557b43,.68);boardFrame.fillRoundedRect(BX+c*CELL+4,BY+r*CELL+4,CELL-8,CELL-8,16)}
-
-    const addTop=()=>{
-      if(this.__topUiAdded)return;this.__topUiAdded=true;
-      const back=fit(this.add.image(92,66,'ui_back'),62,62).setDepth(20).setInteractive({useHandCursor:true});
-      back.on('pointerdown',()=>{this.fx.click();window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
-      fit(this.add.image(1285,64,'ui_life'),50,50).setDepth(20);
-      this.add.text(1320,64,'5',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff3c4',stroke:'#5a2e18',strokeThickness:4}).setOrigin(.5).setDepth(20);
-      let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
-      fit(this.add.image(1780,64,'ui_coin'),46,46).setDepth(20);
-      this.add.text(1820,64,String(save.coins||0),{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#fff3c4',stroke:'#5a2e18',strokeThickness:4}).setOrigin(.5).setDepth(20);
-      const settings=fit(this.add.image(1880,64,'ui_settings'),48,48).setDepth(20).setInteractive({useHandCursor:true});
-      settings.on('pointerdown',()=>this.fx.click());
-      fit(this.add.image(285,850,'panel_championat'),330,150).setDepth(2);
-    };
-    if(this.textures.exists('ui_back'))addTop();
-    else{
-      ['ui_back','ui_life','ui_coin','ui_settings'].forEach(key=>this.load.image(key,`assets/ui/icons/${key}.png`));
-      this.load.image('panel_championat','assets/ui/panels/panel_championat.png');
-      this.load.once('complete',addTop);this.load.start();
+  p.hud=function hudPolished(){
+    // Board first: production frame replaces the temporary programmatic brown rectangle.
+    fit(this.add.image(BX+C*CELL/2,BY+R*CELL/2,'pboard'),C*CELL+82,R*CELL+82).setDepth(1);
+    const boardCells=this.add.graphics().setDepth(1.2);
+    for(let r=0;r<R;r++)for(let c=0;c<C;c++){
+      boardCells.fillStyle((r+c)%2?0x426838:0x507943,.58);
+      boardCells.fillRoundedRect(BX+c*CELL+5,BY+r*CELL+5,CELL-10,CELL-10,18);
+      boardCells.lineStyle(1,0xffefbd,.10);
+      boardCells.strokeRoundedRect(BX+c*CELL+6,BY+r*CELL+6,CELL-12,CELL-12,17);
     }
+
+    // Top hierarchy: navigation, level, progress, resources, settings.
+    fit(this.add.image(W/2,62,'plevel'),510,112).setDepth(10);
+    this.add.text(W/2,58,`УРОВЕНЬ ${this.no}`,{fontFamily:FONT,fontSize:'39px',fontStyle:'bold',color:'#fff4c2',stroke:'#6a3219',strokeThickness:7}).setOrigin(.5).setDepth(11);
+
+    fit(this.add.image(1258,62,'plives'),240,92).setDepth(10);
+    fit(this.add.image(1538,62,'pcoins'),265,92).setDepth(10);
+    this.add.text(1276,61,'5',{fontFamily:FONT,fontSize:'28px',fontStyle:'bold',color:'#fff8d8',stroke:'#5a2e18',strokeThickness:5}).setOrigin(.5).setDepth(12);
+    let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
+    this.coinText=this.add.text(1560,61,String(save.coins||0),{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff8d8',stroke:'#5a2e18',strokeThickness:5}).setOrigin(.5).setDepth(12);
+
+    const back=fit(this.add.image(76,62,'ui_back'),64,64).setDepth(15).setInteractive({useHandCursor:true});
+    back.on('pointerdown',()=>{this.fx.click();window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
+    const settings=fit(this.add.image(1845,62,'ui_settings'),58,58).setDepth(15).setInteractive({useHandCursor:true});
+    settings.on('pointerdown',()=>{this.fx.click();this.tweens.add({targets:settings,angle:90,duration:220,yoyo:true})});
+
+    // Compact progress ribbon above the board.
+    fit(this.add.image(W/2,125,'pprogress'),700,82).setDepth(8);
+    this.mt=this.add.text(770,124,'',{fontFamily:FONT,fontSize:'26px',fontStyle:'bold',color:'#fff4c4',stroke:'#5b2d18',strokeThickness:5}).setOrigin(.5).setDepth(9);
+    this.st=this.add.text(1125,124,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#fff4c4',stroke:'#5b2d18',strokeThickness:5}).setOrigin(.5).setDepth(9);
+
+    // Left column.
+    fit(this.add.image(286,383,'pgoals'),420,545).setDepth(3);
+    this.gt=this.goals.map((goal,index)=>this.add.text(286,278+index*96,'',{fontFamily:FONT,fontSize:'24px',fontStyle:'bold',align:'center',color:'#49331f',stroke:'#fff4dc',strokeThickness:2,wordWrap:{width:292}}).setOrigin(.5).setDepth(5));
+    fit(this.add.image(286,822,'pchamp'),350,165).setDepth(3);
+    this.add.text(286,860,'СКОРО',{fontFamily:FONT,fontSize:'18px',fontStyle:'bold',color:'#fff1bd',stroke:'#5a2d17',strokeThickness:4}).setOrigin(.5).setDepth(5).setAlpha(.86);
+
+    // Right column.
+    fit(this.add.image(1642,348,'pboost'),365,430).setDepth(3);
+    this.boosterButtons={};
+    [['hammer',1640,260],['shuffle',1640,350],['fan',1640,440]].forEach(([id,x,y])=>{
+      const halo=this.add.circle(x,y,43,0xffdc75,.08).setStrokeStyle(2,0xffedac,.25).setDepth(4);
+      const im=fit(this.add.image(x,y,id),72,72).setDepth(5).setInteractive({useHandCursor:true});
+      const tx=this.add.text(x+84,y,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#fff7d5',stroke:'#4b2915',strokeThickness:4}).setOrigin(.5).setDepth(6);
+      im.on('pointerover',()=>this.tweens.add({targets:[im,halo],scaleX:'*=1.05',scaleY:'*=1.05',duration:100}));
+      im.on('pointerout',()=>{const sx=im.getData('baseSX')||im.scaleX/1.05,sy=im.getData('baseSY')||im.scaleY/1.05;im.setScale(sx,sy);halo.setScale(1)});
+      im.setData('baseSX',im.scaleX);im.setData('baseSY',im.scaleY);
+      im.on('pointerdown',()=>{this.tweens.add({targets:im,scaleX:im.scaleX*.92,scaleY:im.scaleY*.92,duration:75,yoyo:true});this.pickBooster(id)});
+      this.boosterButtons[id]={im,tx,halo};
+    });
+    this.boosterHint=this.add.text(1642,526,'',{fontFamily:FONT,fontSize:'17px',fontStyle:'bold',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:315}}).setOrigin(.5).setDepth(6);
+
+    this.king=fit(this.add.image(1645,785,'king_idle'),350,350).setDepth(4);
+    this.kingBaseY=785;this.kingBaseScale=this.king.scaleX;
   };
 
   p.resultPopup=function resultPopupStable(win){
@@ -339,6 +352,60 @@ function install(){
     if(label)this.boosterHint.setText(label);
   };
 
+  const baseClearCells=p.clearCells;
+  p.clearCells=async function clearCellsPolished(initial,chain=1){
+    const beforeGoals=this.goals.map(g=>g.done);
+    const keys=[...initial];
+    keys.slice(0,18).forEach((key,index)=>{
+      const [r,c]=String(key).split(',').map(Number),q=this.pos(r,c);
+      this.time.delayedCall(index*10,()=>{
+        const glow=this.add.circle(q.x,q.y,14,chain>=3?0xfff2a1:0xffc85a,.24).setDepth(11);
+        this.tweens.add({targets:glow,scale:3.1,alpha:0,duration:260,ease:'Quad.out',onComplete:()=>glow.destroy()});
+      });
+    });
+    await baseClearCells.call(this,initial,chain);
+    this.goals.forEach((goal,index)=>{
+      if(goal.done>beforeGoals[index]){
+        const target=this.gt?.[index];
+        if(target)this.tweens.add({targets:target,scale:1.12,duration:115,yoyo:true,ease:'Back.out'});
+      }
+    });
+    if(chain>=2){
+      const words=['СОЧНО!','КОМБО!','ЕЩЁ!','ВЕЛИКОЛЕПНО!'];
+      const label=this.add.text(W/2,178,words[Math.min(chain-2,words.length-1)],{fontFamily:FONT,fontSize:chain>=4?'45px':'37px',fontStyle:'bold',color:'#fff5a8',stroke:'#743416',strokeThickness:8}).setOrigin(.5).setDepth(30).setScale(.65).setAlpha(0);
+      this.tweens.add({targets:label,y:154,scale:1.08,alpha:1,duration:180,ease:'Back.out',yoyo:true,hold:210,onComplete:()=>label.destroy()});
+    }
+  };
+
+  p.lineFx=function lineFxPolished(r,c,dir){
+    const q=this.pos(r,c),horizontal=dir==='h';
+    for(let i=0;i<3;i++){
+      const beam=this.add.rectangle(q.x,q.y,horizontal?C*CELL:10,horizontal?10:R*CELL,0xfff1a0,.75-i*.16).setDepth(13);
+      if(!horizontal)beam.setSize(10,R*CELL);
+      beam.setScale(horizontal?.1:1,horizontal?1:.1);
+      this.tweens.add({targets:beam,scaleX:1,scaleY:1,alpha:0,duration:260+i*55,ease:'Cubic.out',onComplete:()=>beam.destroy()});
+    }
+    this.burst(q.x,q.y,0xffe477,18);this.fx.whoosh();
+  };
+
+  p.bombFx=function bombFxPolished(r,c){
+    const q=this.pos(r,c);
+    [0xfff09a,0xffa43f,0xff6688].forEach((color,index)=>{
+      const ring=this.add.circle(q.x,q.y,15,0xffffff,.02).setStrokeStyle(8-index*2,color,.95).setDepth(14);
+      this.tweens.add({targets:ring,scale:5.8+index,alpha:0,duration:280+index*70,ease:'Quad.out',onComplete:()=>ring.destroy()});
+    });
+    this.burst(q.x,q.y,0xffc052,24);this.cameras.main.shake(125,.0045);this.fx.bomb();
+  };
+
+  p.rainbowFx=function rainbowFxPolished(){
+    const x=BX+C*CELL/2,y=BY+R*CELL/2,colors=[0xff6f91,0xffd966,0x77e9a6,0x72cfff,0xc88cff];
+    colors.forEach((color,index)=>{
+      const ring=this.add.circle(x,y,28,0xffffff,.01).setStrokeStyle(7,color,.8).setDepth(14);
+      this.tweens.add({targets:ring,scale:7+index*.7,alpha:0,duration:440+index*55,delay:index*25,ease:'Quad.out',onComplete:()=>ring.destroy()});
+    });
+    this.fx.whoosh();this.kingReact?.('celebrate',900);
+  };
+
   p.toggleDebugGrid=function(force){
     const enabled=force??!this.__debugGrid;
     this.__debugGrid?.destroy?.();this.__debugGrid=null;
@@ -362,10 +429,18 @@ function install(){
   };
 
   const baseCreate=p.create;
-  p.create=function createStable(){
+  p.create=function createPolished(){
     baseCreate.call(this);
     this.input.keyboard?.on('keydown-G',()=>this.toggleDebugGrid());
     if(new URLSearchParams(location.search).get('debugGrid')==='1')this.time.delayedCall(50,()=>this.toggleDebugGrid(true));
+    this.ambientFx=[];
+    for(let i=0;i<18;i++){
+      const x=70+Math.random()*(W-140),y=150+Math.random()*(H-210);
+      if(x>BX-70&&x<BX+C*CELL+70&&y>BY-70&&y<BY+R*CELL+70)continue;
+      const mote=this.add.circle(x,y,1.5+Math.random()*2.2,Math.random()>.5?0xffed8b:0x9dffb8,.18+Math.random()*.3).setDepth(2);
+      this.ambientFx.push(mote);
+      this.tweens.add({targets:mote,x:x-25+Math.random()*50,y:y-35-Math.random()*45,alpha:{from:mote.alpha,to:.05},duration:2200+Math.random()*2800,yoyo:true,repeat:-1,delay:Math.random()*1600,ease:'Sine.inOut'});
+    }
   };
 
   return true;
