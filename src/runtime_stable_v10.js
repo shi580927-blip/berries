@@ -150,9 +150,11 @@ function install(){
     if(!direct){
       try{return await baseSwap.call(this,a,b)}
       catch(error){
-        console.error('[berries] normal swap failed; restarting level safely',error);
-        this.busy=true;
-        this.scene.restart({n:this.no});
+        console.error('[berries] normal swap failed',error);
+        try{this.drawAll(false,false);this.updateHud?.()}catch{}
+        this.busy=false;
+        this.endCheck?.();
+        if(this.moves>0&&!this.allDone?.())this.scheduleHint?.();
       }
       return;
     }
@@ -175,13 +177,17 @@ function install(){
       await this.fallRefill();
       await this.resolve();
       if(!this.scene?.isActive?.())return;
-      this.updateHud();this.endCheck();this.scheduleHint?.();
+      this.updateHud();
+      this.busy=false;
+      this.endCheck();
+      if(this.scene?.isActive?.()&&!this.allDone?.()&&this.moves>0)this.scheduleHint?.();
     }catch(error){
-      console.error('[berries] special swap failed; restarting level safely',error);
-      this.scene.restart({n:this.no});
-      return;
+      console.error('[berries] special swap failed',error);
+      try{this.drawAll(false,false);this.updateHud?.()}catch{}
+      this.busy=false;
+      this.endCheck?.();
+      if(this.scene?.isActive?.()&&this.moves>0&&!this.allDone?.())this.scheduleHint?.();
     }
-    if(this.scene?.isActive?.()&&!this.allDone?.()&&this.moves>0)this.busy=false;
   };
 
   p.hideHint=function hideHintStable(){
