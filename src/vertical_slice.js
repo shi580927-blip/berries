@@ -50,7 +50,7 @@ class Boot extends Phaser.Scene{
     ['normal','current','completed','locked'].forEach(x=>I('lvl_'+x,'assets/ui/buttons/level_'+x+'.png'));['idle','point','celebrate','sad'].forEach(x=>I('king_'+x,'assets/characters/king/king_'+x+'.png'));
     I('ice1','assets/blockers/blocker_ice_1.png');I('ice2','assets/blockers/blocker_ice_2.png');I('acorn','assets/blockers/goal_acorn.png');I('roots','assets/blockers/blocker_roots.png');
     I('line_h','assets/specials/special_line_h.png');I('line_v','assets/specials/special_line_v.png');I('rainbow','assets/specials/special_rainbow.png');I('bombsp','assets/specials/special_bomb.png');
-    I('hammer','assets/boosters/booster_hammer.png');I('shuffle','assets/boosters/booster_shuffle.png');I('fan','assets/boosters/booster_fan.png');TYPES.forEach(x=>I('b_'+x,'assets/berries/berry_'+x+'.png'));
+    I('hammer','assets/boosters/booster_hammer.png');I('shuffle','assets/boosters/booster_shuffle.png');I('fan','assets/boosters/booster_fan.png');['back','close','coin','life','pause','plus','settings','shop'].forEach(x=>I('ui_'+x,'assets/ui/icons/ui_'+x+'.png'));TYPES.forEach(x=>I('b_'+x,'assets/berries/berry_'+x+'.png'));
   }
   async create(){await window.BerriesYandex?.init?.();await window.BerriesYandex?.loadingReady?.();this.scene.start('Title')}
 }
