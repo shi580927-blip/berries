@@ -14,14 +14,19 @@ function saveLocal(data){localStorage.setItem(KEY,JSON.stringify(data));window.B
 function fit(img,maxW,maxH){const s=Math.min(maxW/img.width,maxH/img.height);img.setScale(s);return img}
 
 class Sfx{
-  constructor(scene){this.s=scene;this.muted=false;this.master=2.35;this.last={};this.voices={};scene.events.once('shutdown',()=>{for(const sound of Object.values(this.voices))sound.destroy()})}
+  constructor(scene){this.s=scene;this.muted=false;this.master=2.35;this.last={};this.voices={};scene.events.once('shutdown',()=>{for(const pool of Object.values(this.voices))for(const sound of pool)sound.destroy()})}
   sample(key,volume=.5){
     if(!this.s.cache.audio.exists(key))return false;
     if(this.muted)return true;
     this.unlock();
-    let voice=this.voices[key];
-    if(!voice)voice=this.voices[key]=this.s.sound.add(key);
-    if(voice.isPlaying)return true;
+    const now=performance.now(),stamp='sample:'+key;
+    // Coalesce simultaneous hits, not later hits during the previous file's tail.
+    if(this.last[stamp]!=null&&now-this.last[stamp]<60)return true;
+    this.last[stamp]=now;
+    const pool=this.voices[key]||(this.voices[key]=[]);
+    let voice=pool.find(sound=>!sound.isPlaying);
+    if(!voice&&pool.length<3){voice=this.s.sound.add(key);pool.push(voice)}
+    if(!voice){voice=pool.shift();voice.stop();pool.push(voice)}
     voice.play({volume});return true;
   }
   iceBreak(){if(!this.sample('sfx_ice_break',.45))this.crack()}
