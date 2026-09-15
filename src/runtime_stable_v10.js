@@ -720,6 +720,19 @@ function install(){
   if(mapProto&&!mapProto.__berriesMapV11){
     mapProto.__berriesMapV11=true;
     mapProto.openShop=p.openShop;
+    mapProto.openLevel=function(n){
+      const state=Campaign.read();
+      if(state.lives<=0){
+        if(!this._mapNotice?.scene)this._mapNotice=this.add.text(W/2,944,'',{
+          fontFamily:FONT,fontSize:'26px',fontStyle:'bold',color:'#fff4cf',
+          backgroundColor:'#542f20',padding:{x:22,y:14},align:'center'
+        }).setOrigin(.5).setDepth(60);
+        this._mapNotice.setText('Жизни закончились. До +1 жизни: '+Campaign.lifeLabel().split(' • ')[1]+'\nВнизу карты можно получить жизнь за рекламу.').setVisible(true);
+        return;
+      }
+      this._mapNotice?.setVisible(false);
+      this.scene.start('Play',{n});
+    };
     mapProto.create=function createMapWithEditor(){
       this.music=new window.BerriesMusicBus(this);
       window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();
@@ -804,7 +817,7 @@ function install(){
           });
           node.on('dragend',saveLayout);
         }else if(unlocked){
-          node.setInteractive({useHandCursor:true}).on('pointerdown',()=>{if(Campaign.read().lives>0)this.scene.start('Play',{n})});
+          node.setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openLevel(n));
         }
       });
 
