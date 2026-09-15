@@ -45,8 +45,10 @@ function read(){
 let s;try{s=JSON.parse(storage.getItem(KEY)||'null')}catch{}
 if(!s||s.version!==1){
 let old;try{old=JSON.parse(storage.getItem(LEGACY)||'{}')}catch{}
-s={version:1,done:[],coins:number(old?.coins),inventory:{hammer:2,shuffle:2,fan:2},lives:5,nextLifeAt:null,active:null,serial:0,lastWin:null};return write(s);
+s={version:1,lifePolicy:2,done:[],coins:number(old?.coins),inventory:{hammer:2,shuffle:2,fan:2},lives:5,nextLifeAt:null,active:null,serial:0,lastWin:null};return write(s);
 }
+// One-time compensation: old saves did not distinguish losses from exits.
+if(s.lifePolicy!==2){s.lives=MAX_LIVES;s.nextLifeAt=null;s.lifePolicy=2;write(s)}
 s.done=[...new Set((s.done||[]).filter(n=>Number.isInteger(n)&&n>=1&&n<=30))];
 s.coins=number(s.coins);s.inventory??={};
 for(const id of Object.keys(PRICES))s.inventory[id]=number(s.inventory[id]);
@@ -55,7 +57,7 @@ const old=JSON.stringify(s);tick(s);if(JSON.stringify(s)!==old)write(s);return s
 }
 function unlocked(s=read()){let n=1;const done=new Set(s.done);while(n<30&&done.has(n))n++;return n}
 function debit(s){s.lives=Math.max(0,s.lives-1);if(!s.nextLifeAt)s.nextLifeAt=now()+REGEN_MS}
-function abandon(token){const s=read();if(!s.active||(token&&s.active.id!==token))return s;if(!s.active.lost)debit(s);s.active=null;return write(s)}
+function abandon(token){const s=read();if(!s.active||(token&&s.active.id!==token))return s;s.active=null;return write(s)}
 function begin(n){
 let s=read();if(!LEVELS[n]||n>unlocked(s))return null;
 if(s.active)s=abandon(s.active.id);
