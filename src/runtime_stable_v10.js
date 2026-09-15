@@ -1,6 +1,7 @@
 (() => {
 'use strict';
 
+const Campaign=window.BerriesCampaign;
 const W=1920,H=1080,R=8,C=8,CELL=96,BX=576,BY=150;
 const TYPES=['strawberry','raspberry','blueberry','gooseberry','blackberry','cloudberry'];
 const FONT='Arial Rounded MT Bold, Trebuchet MS, Arial, sans-serif';
@@ -322,12 +323,13 @@ function install(){
     };
     fit(this.add.image(960,73,'plevel'),610,140).setDepth(18);
     label(960,70,`УРОВЕНЬ ${this.no}`,42);
-    let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
+    let save=Campaign.read();
     const coinPanel=fit(this.add.image(300,77,'pcoins'),380,104).setDepth(18).setInteractive({useHandCursor:true});
     this.coinText=label(310,77,String(save.coins||0),32,'#57301d');
     coinPanel.on('pointerdown',()=>this.openShop());
     const lifePanel=fit(this.add.image(1610,77,'plives'),380,104).setDepth(18).setInteractive({useHandCursor:true});
-    label(1620,77,'5',32,'#57301d');
+    this.lifeText=label(1620,77,Campaign.lifeLabel(),23,'#57301d');
+    this.time.addEvent({delay:1000,loop:true,callback:()=>this.lifeText.setText(Campaign.lifeLabel())});
     lifePanel.on('pointerdown',()=>this.openShop());
     wood(300,180,300,88);this.mt=label(300,180,'',29);
     wood(1610,180,300,88);this.st=label(1610,180,'',27);
@@ -412,8 +414,9 @@ function install(){
   const referenceUpdateHud=p.updateHud;
   p.updateHud=function(){
     referenceUpdateHud.call(this);
+    const state=Campaign.read();this.coinText?.setText(String(state.coins));this.lifeText?.setText(Campaign.lifeLabel());
     // Fit text to fixed slots; never change panel dimensions.
-    for(const [text,width,size] of [[this.mt,245,29],[this.st,245,27],[this.coinText,165,32]]){
+    for(const [text,width,size] of [[this.mt,245,29],[this.st,245,27],[this.coinText,165,32],[this.lifeText,165,23]]){
       if(!text)continue;text.setFontSize(size);
       if(text.width>width)text.setFontSize(Math.max(16,Math.floor(size*width/text.width)));
     }
@@ -423,16 +426,24 @@ function install(){
   p.openShop=function(){
     if(this._shopModal?.active)return;
     const box=this.add.container(0,0).setDepth(70);this._shopModal=box;
-    const close=()=>{box.destroy();this._shopModal=null};
-    const shade=this.add.rectangle(W/2,H/2,W,H,0x102419,.78).setInteractive();
-    box.add(shade);shade.on('pointerdown',close);
-    const art=fit(this.add.image(W/2,515,'popup_shop'),720,850).setInteractive();
-    box.add(art);
-    const cross=this.add.zone(W/2+(1260-720.5)*art.scaleX,515+(330-900)*art.scaleY,100,100).setInteractive({useHandCursor:true});
-    cross.on('pointerdown',close);box.add(cross);
-    const info=this.add.text(W/2,991,'Магазин готовится к открытию — покупки пока недоступны',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff6d4',stroke:'#59331c',strokeThickness:4,align:'center'}).setOrigin(.5);
-    box.add(info);
-    // Product prices are part of the source art; no payment handlers until SDK purchases are implemented.
+    const close=()=>{box.destroy();this._shopModal=null;this.updateHud?.()};
+    const shade=this.add.rectangle(W/2,H/2,W,H,0x102419,.8).setInteractive();box.add(shade);
+    shade.on('pointerdown',close);
+    const panel=this.add.rectangle(960,540,1020,650,0xfff2d9,1).setStrokeStyle(5,0x945022).setInteractive();box.add(panel);
+    const text=(x,y,t,size=28)=>this.add.text(x,y,t,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color:'#59331d',align:'center'}).setOrigin(.5);
+    box.add(text(960,260,'БУСТЕРЫ ЗА МОНЕТЫ',36));
+    const coins=text(960,315,'',28),message=text(960,790,'Бустеры сохраняются между уровнями',23);box.add([coins,message]);
+    const counts=[];
+    const refresh=()=>{const state=Campaign.read();coins.setText('Монеты: '+state.coins);counts.forEach(([id,t])=>t.setText('В запасе: '+state.inventory[id]));if(this.inventory)this.inventory={...state.inventory};this.refreshBoosters?.()};
+    [['hammer','Молоток'],['shuffle','Перемешивание'],['fan','Вентилятор']].forEach(([id,title],i)=>{
+      const x=650+i*310;box.add(fit(this.add.image(x,435,id),115,115));box.add(text(x,525,title,25));
+      const count=text(x,570,'',23);counts.push([id,count]);box.add(count);
+      const buy=fit(this.add.image(x,650,'wood_flat'),260,88).setInteractive({useHandCursor:true});
+      const price=text(x,650,Campaign.PRICES[id]+' монет',26);price.setColor('#fff3c3').setStroke('#60331c',4);
+      buy.on('pointerdown',()=>{if(Campaign.buy(id)){this.fx?.reward?.();message.setText('Куплено: '+title);refresh();this.updateHud?.()}else message.setText('Не хватает монет — их можно заработать на уровнях')});
+      box.add([buy,price]);
+    });
+    const exit=text(1415,260,'×',42).setInteractive({useHandCursor:true});exit.on('pointerdown',close);box.add(exit);refresh();
   };
 
   p.resultPopup=function resultPopupStable(win){
@@ -447,25 +458,27 @@ function install(){
     if(win){
       hit(0,112,455,96,async area=>{
         if(this.winRewardDoubled)return;
+        const attempt=this.attemptId;
         area.disableInteractive();
         const ok=await window.BerriesYandex?.showRewardedVideo?.();
-        if(ok){
-          const reward=this.no<=5?80:this.no<=10?100:this.no<=15?120:this.no<=20?140:this.no<=25?160:180;
-          let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
-          save.coins=(save.coins||0)+reward;localStorage.setItem('berries_vs_04',JSON.stringify(save));window.BerriesYandex?.saveCloudData?.(save,false);
+        if(!this.scene.isActive()||this.attemptId!==attempt)return;
+        if(ok&&Campaign.doubleReward(attempt)){
+          this.updateHud();
           this.winRewardDoubled=true;this.fx.reward();
         }else area.setInteractive({useHandCursor:true});
       });
       hit(0,235,350,92,()=>{
-        const levels=[1,6,11,16,21,30],index=levels.indexOf(this.no),next=index>=0?levels[index+1]:null;
+        const next=this.no<30?this.no+1:null;
         if(next)this.scene.start('Play',{n:next});else this.scene.start('Map');
       });
     }else{
       hit(0,90,465,104,async area=>{
         if(this.continueUsed)return;
+        const attempt=this.attemptId;
         area.disableInteractive();
         const ok=await window.BerriesYandex?.showRewardedVideo?.();
-        if(ok){
+        if(!this.scene.isActive()||this.attemptId!==attempt)return;
+        if(ok&&Campaign.resume(attempt)){
           this.continueUsed=true;this.moves+=5;this.fx.reward();shade.destroy();box.destroy();this.busy=false;
           window.__berriesGameplayShouldRun=true;window.BerriesYandex?.gameplayStart?.();
           this.kingAnim('idle');this.updateHud();this.scheduleHint();
@@ -480,6 +493,7 @@ function install(){
 
   const basePickBooster=p.pickBooster;
   p.pickBooster=function(id){
+    if(!this.busy&&this.inventory[id]<=0){this.openShop();return}
     basePickBooster.call(this,id);
     if(!this.boosterMode)return;
     const label=this.boosterMode==='hammer'?'МОЛОТОК — выбери одну клетку':this.boosterMode==='fan'?'ВЕЕР — выбери ряд':'';
@@ -530,6 +544,13 @@ function install(){
       this.fxBits(BX+C*CELL/2,BY+72,[0xffd45a,0xff759e,0xfff6d0],18,175,23);
       this.kingReact('celebrate',900);
       if(chain>=3)this.music?.accent('combo');
+    }
+  };
+  p.iceShards=function(x,y){
+    for(let i=0;i<12;i++){
+      const angle=Math.PI*2*i/12,d=45+Math.random()*65;
+      const shard=this.add.triangle(x,y,0,-10,-6,6,7,4,i%2?0xc6f4ff:0xffffff,.9).setStrokeStyle(1,0x7cd9ed,.8).setDepth(15);
+      this.fxTween(shard,{x:x+Math.cos(angle)*d,y:y+Math.sin(angle)*d+30,angle:90+i*23,alpha:0,scale:.2,duration:470+Math.random()*130,ease:'Cubic.out'});
     }
   };
   p.specialCreateFx=function(cell){
@@ -611,7 +632,7 @@ function install(){
   p.create=function createPolished(){
     this.specialInfoText=null;
     this._fxObjects=new Set();this._fxTimes={};
-    baseCreate.call(this);
+    if(baseCreate.call(this)===false)return;
     this.events.once('shutdown',()=>{clearTimeout(this.hintTimer);clearTimeout(this.hintCleanupTimer);clearTimeout(this.specialInfoTimer);this.specialInfoText=null});
     this.input.keyboard?.on('keydown-G',()=>this.toggleDebugGrid());
     if(new URLSearchParams(location.search).get('debugGrid')==='1')this.time.delayedCall(50,()=>this.toggleDebugGrid(true));
@@ -658,14 +679,16 @@ function install(){
   const mapProto=mapScene?Object.getPrototypeOf(mapScene):null;
   if(mapProto&&!mapProto.__berriesMapV11){
     mapProto.__berriesMapV11=true;
+    mapProto.openShop=p.openShop;
     mapProto.create=function createMapWithEditor(){
       this.music=new window.BerriesMusicBus(this);
       window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();
       this.add.image(W/2,H/2,'mapbg').setDisplaySize(W,H);
       fit(this.add.image(W/2,100,'map_header_levels'),560,175).setDepth(8);
 
-      let save={};try{save=JSON.parse(localStorage.getItem('berries_vs_04')||'{}')}catch{}
-      const done=new Set(save.done||[]),highest=Math.max(0,...done);
+      let save=Campaign.read();
+      Campaign.abandon();save=Campaign.read();
+      const done=new Set(save.done||[]),highest=Campaign.unlocked(save);
       const defaults=[
         [303,759,1.67],[417,804,1.56],[503,873,1.48],[622,939,1.56],[741,966,1.20],
         [192,398,2.04],[317,400,1.48],[406,450,1.40],[464,531,1.48],[553,605,1.12],
@@ -682,6 +705,24 @@ function install(){
       }));
       const editor=new URLSearchParams(location.search).get('mapEditor')==='1';
       const nodes=[];let selected=null,selection=null,status=null;
+      if(!editor){
+        const footer=this.add.rectangle(W/2,1026,1460,70,0x173a25,.93).setDepth(40).setInteractive();
+        const lives=this.add.text(290,1026,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff4cf'}).setOrigin(0,.5).setDepth(41);
+        const shop=this.add.text(950,1026,'МАГАЗИН',{fontFamily:FONT,fontSize:'26px',fontStyle:'bold',color:'#ffe5a1'}).setOrigin(.5).setDepth(41).setInteractive({useHandCursor:true});
+        shop.on('pointerdown',()=>this.openShop());
+        const extra=this.add.text(1490,1026,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#ffe5a1'}).setOrigin(.5).setDepth(41).setInteractive({useHandCursor:true});
+        let pending=false;
+        extra.on('pointerdown',async()=>{
+          if(pending||Campaign.read().lives!==0)return;pending=true;extra.setText('Загрузка…');
+          try{const ok=await window.BerriesYandex?.showRewardedVideo?.();if(ok)Campaign.addLife();else extra.setText('Реклама недоступна')}
+          finally{pending=false}
+        });
+        const update=()=>{const state=Campaign.read();lives.setText('Жизни: '+Campaign.lifeLabel());shop.setText('МАГАЗИН • '+state.coins);
+          if(!pending)extra.setText(state.lives===0?'▶ +1 жизнь за рекламу':'Открыт уровень '+highest);
+        };
+        update();this.time.addEvent({delay:1000,loop:true,callback:update});
+      }
+
 
       const saveLayout=()=>{
         localStorage.setItem(LAYOUT_KEY,JSON.stringify(layout.map(q=>({x:Math.round(q.x),y:Math.round(q.y),scale:+q.scale.toFixed(2)}))));
@@ -700,7 +741,7 @@ function install(){
       };
 
       layout.forEach((q,index)=>{
-        const n=index+1,completed=done.has(n),unlocked=n===1||completed||n<=highest+1;
+        const n=index+1,completed=done.has(n),unlocked=n<=highest;
         const key=completed?'lvl_completed':unlocked?'lvl_current':'lvl_locked';
         const major=n%5===0||n===1||n===30,size=major?76:58;
         const button=fit(this.add.image(0,0,key),size,size);
@@ -723,7 +764,7 @@ function install(){
           });
           node.on('dragend',saveLayout);
         }else if(unlocked){
-          node.setInteractive({useHandCursor:true}).on('pointerdown',()=>this.scene.start('Play',{n}));
+          node.setInteractive({useHandCursor:true}).on('pointerdown',()=>{if(Campaign.read().lives>0)this.scene.start('Play',{n})});
         }
       });
 

@@ -77,20 +77,20 @@
             onRewarded: () => { rewarded = true; },
             onClose: () => {
               try { window.__berriesPauseAudio?.(false); } catch {}
-              gameplayStart();
+              if(window.__berriesGameplayShouldRun)gameplayStart();
               resolve(rewarded);
             },
             onError: (error) => {
               console.warn('[Yandex] rewarded error', error);
               try { window.__berriesPauseAudio?.(false); } catch {}
-              gameplayStart();
+              if(window.__berriesGameplayShouldRun)gameplayStart();
               resolve(false);
             },
           },
         });
       } catch (err) {
         console.warn('[Yandex] rewarded call failed', err);
-        gameplayStart();
+        if(window.__berriesGameplayShouldRun)gameplayStart();
         resolve(false);
       }
     });

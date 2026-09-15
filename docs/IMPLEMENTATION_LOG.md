@@ -1,3 +1,14 @@
+## 2026-09-15 — Normal 30-level campaign, coins, boosters and lives
+
+Replaced six test configurations/fallbacks with all 30 introductory/mixed levels from GAME_DESIGN. Level 6's unspecified berry target uses blackberry. Late masks use current destructible roots; balance and full-device playthrough remain outstanding.
+Added src/campaign.js as a data/economy module, not another runtime patch. New campaign save keeps old test save intact and carries over coins, starts sequential completion from 1 and grants 2/2/2 boosters only once. Legacy map editor positions remain intact.
+Next advances n+1, locking uses consecutive wins, inventory consumption/purchases persist. Coin shop uses documented 250/300/400 prices. Paid shop art retained, no real-money transactions.
+Lives now persist, debit once per loss or abandonment, refund after rewarded continue, regenerate every 30 minutes, block starts at zero; zero-life rewarded action is available on map. Stale rewarded callbacks cannot modify a later attempt.
+Ice sample/shards on both layers, goals count fully cleared cells; direct and adjacent damage supports frozen acorns without double-hitting a layer in one clear pass.
+Updated image URLs to load user-replaced art.
+Validation: tests/campaign.cjs covers configurations, persistence, progression, rewards, coins, life debit/refund/regeneration/gate, both ice layers and frozen acorns. Syntax checked. No complete browser playthrough performed.
+Follow-up requested by user: discuss popup design later; recorded prominently in PROJECT_STATE.
+
 ## 2026-09-15 — Special label lifecycle and softer berry sound
 
 - Root defect: Phaser reuses the Play instance after shutdown, but specialInfoText referred to a destroyed Text. A later special creation called setText on that object after clearCells and before fallRefill, interrupting resolve with holes remaining.
