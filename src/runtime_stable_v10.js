@@ -263,24 +263,46 @@ function install(){
     this.hintObjs=[];
   };
 
+  p.isHintCell=function(q){
+    const cell=this.cell?.[q.r]?.[q.c],sprite=this.spr?.[q.r]?.[q.c];
+    return !!(cell&&!cell.ice&&!cell.block&&this.board?.[q.r]?.[q.c]&&sprite?.active);
+  };
+  p.findHintMove=function(){
+    for(let r=0;r<R;r++)for(let c=0;c<C;c++){
+      const a={r,c};if(!this.isHintCell(a))continue;
+      for(const [dr,dc] of [[0,1],[1,0]]){
+        const b={r:r+dr,c:c+dc};if(!this.isHintCell(b))continue;
+        const A=this.board[r][c],B=this.board[b.r][b.c];
+        if(A.sp||B.sp)return [a,b];
+        if(A.id===B.id)continue;
+        let valid=false;
+        this.swapData(a,b);
+        try{valid=this.groups().some(g=>g.p.some(q=>(q.r===a.r&&q.c===a.c)||(q.r===b.r&&q.c===b.c)))}
+        finally{this.swapData(a,b)}
+        if(valid)return [a,b];
+      }
+    }
+    return null;
+  };
   p.showHint=function showHintStable(){
     if(this.busy||this.boosterMode||!this.scene?.isActive?.())return;
-    const move=this.findHintMove?.();if(!move)return;
-    this.hideHint();this.hintObjs=[];
+    this.hideHint();
+    const move=this.findHintMove();
+    if(!move||!move.every(q=>this.isHintCell(q)))return;
     move.forEach((q,index)=>{
-      const sprite=this.spr?.[q.r]?.[q.c];if(!sprite)return;
-      const ring1=this.add.circle(sprite.x,sprite.y,CELL*.43,0xffd65a,.015).setStrokeStyle(5,0xffd75a,.95).setDepth(8);
-      const ring2=this.add.circle(sprite.x,sprite.y,CELL*.50,0xffef9a,.005).setStrokeStyle(2,0xffffc7,.8).setDepth(8);
-      const glow=this.add.circle(sprite.x,sprite.y,CELL*.37,0xffc928,.10).setDepth(2.8);
-      this.hintObjs.push(ring1,ring2,glow);
-      this.tweens.add({targets:ring1,angle:360,scale:{from:.94,to:1.10},alpha:{from:.98,to:.28},duration:720+index*80,yoyo:true,repeat:3,ease:'Sine.inOut'});
-      this.tweens.add({targets:ring2,angle:-360,scale:{from:1.02,to:1.18},alpha:{from:.75,to:.12},duration:880+index*70,yoyo:true,repeat:2,ease:'Sine.inOut'});
-      this.tweens.add({targets:glow,alpha:{from:.18,to:.04},scale:{from:.96,to:1.09},duration:560,yoyo:true,repeat:4,ease:'Sine.inOut'});
+      const sprite=this.spr[q.r][q.c];
+      const halo=this.add.circle(sprite.x,sprite.y,CELL*.40,0xffb52b,.25).setDepth(2.8);
+      const rays=this.add.graphics().setPosition(sprite.x,sprite.y).setDepth(2.9);
+      for(let i=0;i<12;i++){
+        const angle=i*Math.PI/6,spread=.085,inner=CELL*.32,outer=CELL*.485;
+        rays.fillStyle(i%2?0xffb820:0xda7905,.95);
+        rays.fillTriangle(Math.cos(angle-spread)*inner,Math.sin(angle-spread)*inner,Math.cos(angle)*outer,Math.sin(angle)*outer,Math.cos(angle+spread)*inner,Math.sin(angle+spread)*inner);
+      }
+      this.hintObjs.push(halo,rays);
+      this.tweens.add({targets:rays,angle:360,duration:6500+index*500,repeat:-1,ease:'Linear'});
+      this.tweens.add({targets:rays,alpha:{from:.35,to:1},duration:1100,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+      this.tweens.add({targets:halo,alpha:{from:.12,to:.36},duration:1100,yoyo:true,repeat:-1,ease:'Sine.inOut'});
     });
-    this.hintCleanupTimer=setTimeout(()=>{
-      if(!this.scene?.isActive?.())return;
-      this.hideHint();this.scheduleHint?.();
-    },3100);
   };
 
   p.showSpecialInfo=function(sp,autoHide=3100){
@@ -328,8 +350,17 @@ function install(){
     this.coinText=label(310,77,String(save.coins||0),32,'#57301d');
     coinPanel.on('pointerdown',()=>this.openShop());
     const lifePanel=fit(this.add.image(1610,77,'plives'),380,104).setDepth(18).setInteractive({useHandCursor:true});
-    this.lifeText=label(1620,77,Campaign.lifeLabel(),23,'#57301d');
-    this.time.addEvent({delay:1000,loop:true,callback:()=>this.lifeText.setText(Campaign.lifeLabel())});
+    this.lifeText=label(1620,77,String(Campaign.read().lives),32,'#57301d');
+    this.lifeClockPanel=wood(960,1016,360,88);
+    this.lifeClock=label(960,1016,'',22);
+    this.refreshLifeDisplay=()=>{
+      const state=Campaign.read(),show=state.lives<5;
+      this.lifeText.setText(String(state.lives));
+      this.lifeClockPanel.setVisible(show);this.lifeClock.setVisible(show);
+      if(show)this.lifeClock.setText('До +1 жизни: '+Campaign.lifeLabel().split(' • ')[1]);
+    };
+    this.refreshLifeDisplay();
+    this.time.addEvent({delay:1000,loop:true,callback:()=>this.refreshLifeDisplay()});
     lifePanel.on('pointerdown',()=>this.openShop());
     wood(300,180,300,88);this.mt=label(300,180,'',29);
     wood(1610,180,300,88);this.st=label(1610,180,'',27);
@@ -414,9 +445,9 @@ function install(){
   const referenceUpdateHud=p.updateHud;
   p.updateHud=function(){
     referenceUpdateHud.call(this);
-    const state=Campaign.read();this.coinText?.setText(String(state.coins));this.lifeText?.setText(Campaign.lifeLabel());
+    const state=Campaign.read();this.coinText?.setText(String(state.coins));this.refreshLifeDisplay?.();
     // Fit text to fixed slots; never change panel dimensions.
-    for(const [text,width,size] of [[this.mt,245,29],[this.st,245,27],[this.coinText,165,32],[this.lifeText,165,23]]){
+    for(const [text,width,size] of [[this.mt,245,29],[this.st,245,27],[this.coinText,165,32],[this.lifeText,165,32]]){
       if(!text)continue;text.setFontSize(size);
       if(text.width>width)text.setFontSize(Math.max(16,Math.floor(size*width/text.width)));
     }
@@ -579,6 +610,15 @@ function install(){
     this.fxWave(q.x,q.y,0xffd268,CELL*1.5);
     this.fxWave(q.x,q.y,0xff7697,CELL*1.25);
     this.fxBits(q.x,q.y,[0xffc45e,0xfff7be,0xff7c99],28,CELL*1.7);
+    const colors=[0xf4a0c9,0xb8a5ef,0x8fd9d2,0xffcb94];
+    for(let i=0;i<8;i++){
+      const angle=i*Math.PI/4;
+      const cloud=this.add.graphics().setPosition(q.x,q.y).setDepth(12);
+      cloud.fillStyle(colors[i%colors.length],.34);
+      cloud.fillCircle(-15,0,20);cloud.fillCircle(6,-10,25);cloud.fillCircle(23,6,18);cloud.fillCircle(3,13,20);
+      cloud.setScale(.35);
+      this.fxTween(cloud,{x:q.x+Math.cos(angle)*110,y:q.y+Math.sin(angle)*95-30,scale:1.35,alpha:0,angle:(i%2?1:-1)*25,duration:950+i*45,ease:'Cubic.out'});
+    }
     const flash=this.add.circle(q.x,q.y,42,0xfff0b0,.5).setDepth(13);
     this.fxTween(flash,{scale:2.2,alpha:0,duration:190,ease:'Quad.out'});
   };
