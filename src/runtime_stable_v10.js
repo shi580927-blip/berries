@@ -288,7 +288,7 @@ function install(){
       sp==='bomb'?'БОМБА • поменяй с соседней ягодой → взрыв 3×3':
       sp==='rainbow'?'РАДУГА • поменяй с ягодой → уберёт весь её цвет':'';
     if(!label)return;
-    if(!this.specialInfoText)this.specialInfoText=this.add.text(W/2,955,'',{
+    if(!this.specialInfoText?.scene)this.specialInfoText=this.add.text(W/2,955,'',{
       fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff7c8',stroke:'#512715',
       strokeThickness:6,backgroundColor:'#3a2117dd',padding:{x:22,y:12},align:'center'
     }).setOrigin(.5).setDepth(25);
@@ -609,15 +609,16 @@ function install(){
 
   const baseCreate=p.create;
   p.create=function createPolished(){
+    this.specialInfoText=null;
     this._fxObjects=new Set();this._fxTimes={};
     baseCreate.call(this);
-    this.events.once('shutdown',()=>{clearTimeout(this.hintTimer);clearTimeout(this.hintCleanupTimer);clearTimeout(this.specialInfoTimer)});
+    this.events.once('shutdown',()=>{clearTimeout(this.hintTimer);clearTimeout(this.hintCleanupTimer);clearTimeout(this.specialInfoTimer);this.specialInfoText=null});
     this.input.keyboard?.on('keydown-G',()=>this.toggleDebugGrid());
     if(new URLSearchParams(location.search).get('debugGrid')==='1')this.time.delayedCall(50,()=>this.toggleDebugGrid(true));
     if(this.fx&&!this.fx.__juicyV12){
       this.fx.__juicyV12=true;
       this.fx.pop=(chain=1)=>{
-        if(this.fx.sample('sfx_berry_pop',.50))return;
+        if(this.fx.sample('sfx_berry_pop',.35))return;
         if(!this.fx.can?.('berry_pop',30))return;
         const ctx=this.sound?.context;if(!ctx||this.fx.muted)return;
         if(ctx.state==='suspended')ctx.resume().catch(()=>{});

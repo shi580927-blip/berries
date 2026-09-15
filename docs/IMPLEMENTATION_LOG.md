@@ -1,3 +1,12 @@
+## 2026-09-15 — Special label lifecycle and softer berry sound
+
+- Root defect: Phaser reuses the Play instance after shutdown, but specialInfoText referred to a destroyed Text. A later special creation called setText on that object after clearCells and before fallRefill, interrupting resolve with holes remaining.
+- Recreate the label when it has no scene; clear its reference on create/shutdown. No timer unlock, restart, or rule change.
+- Added tests/special-label-lifecycle.cjs: isolated actual resolve/showSpecialInfo methods with scene/render stubs. Before fix: Text context destroyed, zero refills, three holes. After fix: four refills, no holes. This is not a full browser reproduction.
+- Browser verification limitation: local QA URL was blocked by the browser client in the previous session.
+- Berry sample gain reduced from 0.50 to 0.35 (-30%); derivative MP3 uses 4500 Hz low-pass for a slightly duller tone. New asset path avoids reuse of the cached original. Original MP3 retained.
+- JavaScript syntax and derivative MP3 decoding checked.
+
 ## 2026-09-14 — Musical accents and stronger cosmetic FX
 
 - Added two MP3 excerpts from uploaded Adventures in Adventureland (Kevin MacLeod): combo 0.4568–2.2346 s; victory 7.5679–11.1235 s. Boundaries based on 135 BPM file metadata after intro silence; fade-in/out applied, encoded 128 kbps. Musical fit still needs listening in the actual game.

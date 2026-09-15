@@ -38,7 +38,7 @@ class Sfx{
   click(){if(this.can('click'))this.tone(560,.035,.020,'triangle',55)}
   bad(){if(this.can('bad',120)){this.tone(200,.09,.020,'triangle',-60);this.tone(125,.07,.010,'sine',-20,.025)}}
   swap(){if(this.can('swap',50)){this.tone(290,.055,.016,'sine',160);this.tone(430,.045,.010,'triangle',110,.024)}}
-  pop(chain=1){if(this.sample('sfx_berry_pop',.50))return;if(!this.can('pop',20))return;const p=1+Math.min(chain,5)*.04+(Math.random()-.5)*.08;this.tone(210*p,.07,.027,'sine',95);this.tone(420*p,.045,.009,'triangle',120,.012);if(chain>=3&&Math.random()>.35)this.tone(900+chain*45,.08,.008,'sine',190,.015)}
+  pop(chain=1){if(this.sample('sfx_berry_pop',.35))return;if(!this.can('pop',20))return;const p=1+Math.min(chain,5)*.04+(Math.random()-.5)*.08;this.tone(210*p,.07,.027,'sine',95);this.tone(420*p,.045,.009,'triangle',120,.012);if(chain>=3&&Math.random()>.35)this.tone(900+chain*45,.08,.008,'sine',190,.015)}
   crack(){if(this.can('crack',60)){this.tone(900,.045,.013,'square',-470);this.tone(430,.07,.013,'triangle',-180,.012)}}
   wood(){if(this.can('wood',70)){this.tone(225,.055,.018,'triangle',-95);this.tone(120,.07,.012,'sine',-30,.012)}}
   spark(){if(this.can('spark',55)){this.tone(920,.085,.012,'sine',330);this.tone(1320,.065,.009,'sine',130,.035)}}
@@ -118,7 +118,7 @@ class Boot extends Phaser.Scene{
   constructor(){super('Boot')}
   preload(){
     const t=this.add.text(W/2,H/2,'Загружаем лес…',{fontSize:'36px',color:'#fff7dc'}).setOrigin(.5);this.load.on('progress',v=>t.setText(`Загружаем лес… ${Math.round(v*100)}%`));
-    this.load.audio('sfx_berry_pop','audio/sfx/berry_pop.mp3');
+    this.load.audio('sfx_berry_pop','audio/sfx/berry_pop_soft.mp3');
     this.load.audio('sfx_ice_break','audio/sfx/ice_break.mp3');
     this.load.audio('music_combo_accent','audio/music/accents/combo.mp3');
     this.load.audio('music_victory_accent','audio/music/accents/victory.mp3');
