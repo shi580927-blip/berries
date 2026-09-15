@@ -7,6 +7,15 @@ const blocked=new Set([...l.root,...l.ac].map(x=>x.join(',')));assert.equal(bloc
 for(const p of [...l.ice,...l.root,...l.ac])assert(p[0]>=0&&p[0]<8&&p[1]>=0&&p[1]<8);
 for(const [type,id,need] of l.g){if(type==='ice')assert(need<=l.ice.length,'ice '+n);if(type==='roots')assert(need<=l.root.length);if(type==='acorn')assert(need<=l.ac.length)}
 }
+assert.equal(api.read().lives,5);
+for(let i=0;i<10;i++){const attempt=api.begin(1);api.abandon(attempt)}
+assert.equal(api.read().lives,5,'unfinished exits are free');
+const legacyState=api.read();delete legacyState.lifePolicy;legacyState.lives=1;
+mem.berries_campaign_v1=JSON.stringify(legacyState);
+assert.equal(api.read().lives,5,'one-time old-save compensation');
+const loss=api.begin(1);api.lose(loss);api.abandon(loss);
+assert.equal(create(storage,()=>time).read().lives,4,'compensation cannot repeat');
+time+=REGEN_MS;assert.equal(api.read().lives,5);
 assert.equal(api.unlocked(),1);assert.equal(api.read().coins,1500);assert.equal(JSON.parse(mem.berries_vs_04).done.length,6);assert.equal(api.begin(6),null);
 let token=api.begin(1);assert(token);assert(api.consume('hammer'));assert(api.win(token));assert.equal(api.unlocked(),2);assert.equal(api.read().lives,5);assert(api.doubleReward(token));assert(!api.doubleReward(token));
 let next=api.begin(2);assert.equal(api.read().inventory.hammer,1);assert(api.lose(next));assert(!api.lose(next));assert.equal(api.read().lives,4);assert(api.resume(next));assert.equal(api.read().lives,5);assert(api.lose(next));api.abandon(next);assert.equal(api.read().lives,4);time+=REGEN_MS;assert.equal(api.read().lives,5);
