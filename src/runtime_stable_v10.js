@@ -348,7 +348,8 @@ function install(){
     let save=Campaign.read();
     const coinPanel=fit(this.add.image(300,77,'pcoins'),380,104).setDepth(18).setInteractive({useHandCursor:true});
     this.coinText=label(310,77,String(save.coins||0),32,'#57301d');
-    coinPanel.on('pointerdown',()=>this.openShop());
+    coinPanel.disableInteractive();
+    this.add.zone(445,77,76,86).setDepth(21).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openPaidShop());
     const lifePanel=fit(this.add.image(1610,77,'plives'),380,104).setDepth(18).setInteractive({useHandCursor:true});
     this.lifeText=label(1620,77,String(Campaign.read().lives),32,'#57301d');
     this.lifeClockPanel=wood(960,1016,360,88);
@@ -361,11 +362,12 @@ function install(){
     };
     this.refreshLifeDisplay();
     this.time.addEvent({delay:1000,loop:true,callback:()=>this.refreshLifeDisplay()});
-    lifePanel.on('pointerdown',()=>this.openShop());
+    lifePanel.disableInteractive();
+    this.add.zone(1755,77,76,86).setDepth(21).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openPaidShop());
     wood(300,180,300,88);this.mt=label(300,180,'',29);
     wood(1610,180,300,88);this.st=label(1610,180,'',27);
     nav(300,1016,'НАЗАД','ui_back',()=>{window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
-    nav(1610,1016,'МАГАЗИН','ui_shop',()=>this.openShop());
+    nav(1610,1016,'МАГАЗИН','ui_shop',()=>this.openPaidShop());
 
     const settingsBg=this.add.circle(1872,66,38,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(19);
     const settings=fit(this.add.image(1872,66,'ui_settings'),49,49).setDepth(20).setInteractive({useHandCursor:true});
@@ -424,6 +426,7 @@ function install(){
     });
     fit(this.add.image(1610,570,'pboost'),280,650).setDepth(3);
     wood(1610,302,225,66);label(1610,302,'БУСТЕРЫ',25);
+    fit(this.add.image(1750,302,'ui_plus'),62,62).setDepth(21).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
     this.boosterButtons={};
     [['hammer',441],['shuffle',582],['fan',722]].forEach(([id,y])=>{
       const im=fit(this.add.image(1610,y,id),96,96).setDepth(5).setInteractive({useHandCursor:true});
@@ -454,6 +457,30 @@ function install(){
     this.goals.forEach((g,i)=>this.gt[i].setText(`${g.type==='score'?Math.min(g.need,Math.round(this.score)):g.done} / ${g.need}`));
     for(const [id,b] of Object.entries(this.boosterButtons))b.tx.setText(String(this.inventory[id]));
   };
+  p.openPaidShop=function(){
+    if(this._paidShop?.scene)return;
+    const box=this.add.container(W/2,H/2).setDepth(70);this._paidShop=box;
+    const close=()=>{box.destroy();this._paidShop=null};
+    const shade=this.add.rectangle(0,0,W,H,0x102419,.8).setInteractive();
+    shade.on('pointerdown',close);box.add(shade);
+    const art=fit(this.add.image(0,-20,'popup_shop'),850,970);
+    box.add(art);
+    // Input follows the painted controls, independent of the source resolution.
+    const hit=(x,y,w,h,action)=>{
+      const area=this.add.zone((x-.5)*art.displayWidth,-20+(y-.5)*art.displayHeight,w*art.displayWidth,h*art.displayHeight).setInteractive({useHandCursor:true});
+      area.on('pointerdown',action);box.add(area);
+    };
+    box.add(this.add.zone(0,-20,art.displayWidth,art.displayHeight).setInteractive());
+    const note=this.add.text(0,505,'Покупки за деньги пока недоступны',{
+      fontFamily:FONT,fontSize:'23px',color:'#fff4cf',align:'center',
+      backgroundColor:'#542f20',padding:{x:14,y:7}
+    }).setOrigin(.5);box.add(note);
+    hit(.891,.187,.13,.105,close);
+    for(const y of [.448,.607,.767])hit(.767,y,.24,.09,()=>{
+      note.setText('Покупки за деньги пока недоступны');
+    });
+  };
+
   p.openShop=function(){
     if(this._shopModal?.active)return;
     const box=this.add.container(0,0).setDepth(70);this._shopModal=box;
@@ -720,6 +747,7 @@ function install(){
   if(mapProto&&!mapProto.__berriesMapV11){
     mapProto.__berriesMapV11=true;
     mapProto.openShop=p.openShop;
+    mapProto.openPaidShop=p.openPaidShop;
     mapProto.openLevel=function(n){
       const state=Campaign.read();
       if(state.lives<=0){
@@ -762,7 +790,7 @@ function install(){
         const footer=this.add.rectangle(W/2,1026,1460,70,0x173a25,.93).setDepth(40).setInteractive();
         const lives=this.add.text(290,1026,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff4cf'}).setOrigin(0,.5).setDepth(41);
         const shop=this.add.text(950,1026,'МАГАЗИН',{fontFamily:FONT,fontSize:'26px',fontStyle:'bold',color:'#ffe5a1'}).setOrigin(.5).setDepth(41).setInteractive({useHandCursor:true});
-        shop.on('pointerdown',()=>this.openShop());
+        shop.on('pointerdown',()=>this.openPaidShop());
         const extra=this.add.text(1490,1026,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#ffe5a1'}).setOrigin(.5).setDepth(41).setInteractive({useHandCursor:true});
         let pending=false;
         extra.on('pointerdown',async()=>{
