@@ -1,3 +1,13 @@
+## 2026-09-15 — Readable hints, bomb mist, separate life countdown
+
+- Replaced pale rings with warm amber/gold rays behind each suggested berry. Rays remain inside the cell, pulse and rotate on their own objects until the next action.
+- Hint candidates require a live sprite and a non-frozen, non-blocked cell on both ends. Swaps are restored in finally. Normal hints require a match involving a swapped endpoint; direct special swaps supported.
+- Bomb adds eight translucent coloured cloud shapes, drifting and fading for about one second through the existing bounded FX lifecycle.
+- Level life counter shows only the number again. A bottom-centre wooden plaque shows time to +1 life only below the cap of five.
+- Map footer unchanged, redesign deferred for discussion. Score remains per-level; coin balance persists.
+- Checks: syntax, legal hints, board restoration, ice HP 1/2 exclusion, destroyed sprite exclusion, special hints. No browser visual validation performed.
+- Gravity was inspected: column segments split at ice/blockers. No gravity logic was changed; the earlier report of sprites passing through ice has not been reproduced here.
+
 ## 2026-09-15 — Normal 30-level campaign, coins, boosters and lives
 
 Replaced six test configurations/fallbacks with all 30 introductory/mixed levels from GAME_DESIGN. Level 6's unspecified berry target uses blackberry. Late masks use current destructible roots; balance and full-device playthrough remain outstanding.
