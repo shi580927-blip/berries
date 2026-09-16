@@ -349,7 +349,6 @@ function install(){
     const coinPanel=fit(this.add.image(300,77,'pcoins'),380,104).setDepth(18).setInteractive({useHandCursor:true});
     this.coinText=label(310,77,String(save.coins||0),32,'#57301d');
     coinPanel.disableInteractive();
-    fit(this.add.image(445,77,'ui_coin'),62,62).setDepth(21);
     const lifePanel=fit(this.add.image(1610,77,'plives'),380,104).setDepth(18).setInteractive({useHandCursor:true});
     this.lifeText=label(1620,77,String(Campaign.read().lives),32,'#57301d');
     this.lifeClockPanel=wood(960,1016,360,88);
@@ -363,7 +362,6 @@ function install(){
     this.refreshLifeDisplay();
     this.time.addEvent({delay:1000,loop:true,callback:()=>this.refreshLifeDisplay()});
     lifePanel.disableInteractive();
-    fit(this.add.image(1755,77,'ui_life'),62,62).setDepth(21);
     wood(300,180,300,88);this.mt=label(300,180,'',29);
     this.st=null;
     nav(300,1016,'НАЗАД','ui_back',()=>{window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
