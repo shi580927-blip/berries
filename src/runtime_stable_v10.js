@@ -416,7 +416,7 @@ function install(){
 
     // Fixed-size panels and slot centres in the 1920x1080 reference grid.
     fit(this.add.image(300,500,'pgoals'),280,560).setDepth(3);
-    wood(300,325,210,66);label(300,325,'ЦЕЛЬ',26);
+    fit(this.add.image(300,325,'head_goals'),350,106).setDepth(20);
     const count=Math.max(1,this.goals.length),gap=Math.min(112,300/count);
     this.gt=this.goals.map((goal,index)=>{
       const y=510+(index-(count-1)/2)*gap;
@@ -425,8 +425,8 @@ function install(){
       return label(345,y,'',25,'#57301d');
     });
     fit(this.add.image(1610,570,'pboost'),280,650).setDepth(3);
-    wood(1610,302,225,66);label(1610,302,'БУСТЕРЫ',25);
-    fit(this.add.image(1750,302,'ui_plus'),62,62).setDepth(21).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
+    const boosterHead=fit(this.add.image(1610,302,'head_boosters'),380,110).setDepth(20);
+    this.add.zone(1610+boosterHead.displayWidth*.338,302,70,70).setDepth(21).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
     this.boosterButtons={};
     [['hammer',441],['shuffle',582],['fan',722]].forEach(([id,y])=>{
       const im=fit(this.add.image(1610,y,id),96,96).setDepth(5).setInteractive({useHandCursor:true});
@@ -501,20 +501,21 @@ function install(){
       buy.on('pointerdown',()=>{if(Campaign.buy(id)){this.fx?.reward?.();message.setText('Куплено: '+title);refresh();this.updateHud?.()}else message.setText('Не хватает монет — их можно заработать на уровнях')});
       box.add([buy,price]);
     });
-    const exit=text(1415,260,'×',42).setInteractive({useHandCursor:true});exit.on('pointerdown',close);box.add(exit);refresh();
+    const exit=fit(this.add.image(1415,260,'ui_close'),64,64);box.add(exit);
+    const closeHit=this.add.zone(1415,260,86,86).setInteractive({useHandCursor:true});closeHit.on('pointerdown',close);box.add(closeHit);refresh();
   };
 
   p.resultPopup=function resultPopupStable(win){
-    const shade=this.add.rectangle(W/2,H/2,W,H,0x061008,.76).setDepth(30);
+    const shade=this.add.rectangle(W/2,H/2,W,H,0x061008,.76).setDepth(30).setInteractive();
     const box=this.add.container(W/2,H/2).setDepth(31);
-    box.add(fit(this.add.image(0,0,win?'popup_win':'popup_lose'),860,700));
+    const art=fit(this.add.image(0,0,win?'popup_win':'popup_lose'),860,820);box.add(art);
     const hit=(x,y,w,h,cb)=>{
-      const area=this.add.rectangle(x,y,w,h,0xffffff,.001).setInteractive({useHandCursor:true});
+      const area=this.add.zone((x-.5)*art.displayWidth,(y-.5)*art.displayHeight,w*art.displayWidth,h*art.displayHeight).setInteractive({useHandCursor:true});
       box.add(area);area.on('pointerdown',()=>{this.fx.click();cb(area)});return area;
     };
-    hit(292,-226,78,78,()=>this.scene.start('Map'));
+    hit(win?.891:.918,win?.172:.237,.14,.115,()=>this.scene.start('Map'));
     if(win){
-      hit(0,112,455,96,async area=>{
+      hit(.5,.737,.74,.16,async area=>{
         if(this.winRewardDoubled)return;
         const attempt=this.attemptId;
         area.disableInteractive();
@@ -525,12 +526,12 @@ function install(){
           this.winRewardDoubled=true;this.fx.reward();
         }else area.setInteractive({useHandCursor:true});
       });
-      hit(0,235,350,92,()=>{
+      hit(.5,.899,.55,.13,()=>{
         const next=this.no<30?this.no+1:null;
         if(next)this.scene.start('Play',{n:next});else this.scene.start('Map');
       });
     }else{
-      hit(0,90,465,104,async area=>{
+      hit(.5,.697,.74,.16,async area=>{
         if(this.continueUsed)return;
         const attempt=this.attemptId;
         area.disableInteractive();
@@ -542,8 +543,8 @@ function install(){
           this.kingAnim('idle');this.updateHud();this.scheduleHint();
         }else area.setInteractive({useHandCursor:true});
       });
-      hit(-150,223,260,82,()=>this.scene.restart({n:this.no}));
-      hit(150,223,260,82,()=>this.scene.start('Map'));
+      hit(.294,.873,.40,.105,()=>this.scene.restart({n:this.no}));
+      hit(.714,.873,.40,.105,()=>this.scene.start('Map'));
     }
     box.setScale(.84).setAlpha(0);
     this.tweens.add({targets:box,scale:1,alpha:1,duration:250,ease:'Back.out'});
@@ -787,13 +788,13 @@ function install(){
       const editor=new URLSearchParams(location.search).get('mapEditor')==='1';
       const nodes=[];let selected=null,selection=null,status=null;
       if(!editor){
-        const footer=this.add.rectangle(W/2,1026,1460,70,0x173a25,.93).setDepth(40).setInteractive();
-        const lives=this.add.text(290,1026,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff4cf'}).setOrigin(0,.5).setDepth(41);
-        const shop=this.add.text(950,1026,'МАГАЗИН',{fontFamily:FONT,fontSize:'26px',fontStyle:'bold',color:'#ffe5a1'}).setOrigin(.5).setDepth(41).setInteractive({useHandCursor:true});
-        shop.on('pointerdown',()=>this.openPaidShop());
-        const extra=this.add.text(1490,1026,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#ffe5a1'}).setOrigin(.5).setDepth(41).setInteractive({useHandCursor:true});
+        for(const x of [400,960,1520])fit(this.add.image(x,1026,'wood_flat'),490,92).setDepth(40);
+        const lives=this.add.text(400,1026,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff4cf'}).setOrigin(.5).setDepth(41);
+        const shop=this.add.text(960,1026,'МАГАЗИН',{fontFamily:FONT,fontSize:'26px',fontStyle:'bold',color:'#ffe5a1'}).setOrigin(.5).setDepth(41).setInteractive({useHandCursor:true});
+        this.add.zone(960,1026,490,92).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openPaidShop());
+        const extra=this.add.text(1520,1026,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#ffe5a1'}).setOrigin(.5).setDepth(41).setInteractive({useHandCursor:true});
         let pending=false;
-        extra.on('pointerdown',async()=>{
+        this.add.zone(1520,1026,490,92).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
           if(pending||Campaign.read().lives!==0)return;pending=true;extra.setText('Загрузка…');
           try{const ok=await window.BerriesYandex?.showRewardedVideo?.();if(ok)Campaign.addLife();else extra.setText('Реклама недоступна')}
           finally{pending=false}
