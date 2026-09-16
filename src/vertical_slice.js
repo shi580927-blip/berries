@@ -1,7 +1,10 @@
 (() => {
 'use strict';
 
-const W=1920,H=1080,R=8,C=8,CELL=96,BX=576,BY=150;
+const W=1920,H=1080,R=8,C=8;
+const MOBILE_LAYOUT=!!(window.matchMedia?.('(pointer: coarse)').matches||window.navigator?.maxTouchPoints>0);
+const CELL=MOBILE_LAYOUT?106:96,BX=(W-C*CELL)/2,BY=MOBILE_LAYOUT?118:150;
+const BERRY_SIZE=MOBILE_LAYOUT ? .90 : .82;
 const TYPES=['strawberry','raspberry','blueberry','gooseberry','blackberry','cloudberry'];
 const Campaign=window.BerriesCampaign;
 const KEY=Campaign.KEY;
@@ -168,7 +171,7 @@ class Play extends Phaser.Scene{
   }
   seed(){const a=TYPES.slice(0,this.cfg.n);for(let r=0;r<R;r++)for(let c=0;c<C;c++){if(this.cell[r][c].block)continue;let id,t=0;do{id=Phaser.Utils.Array.GetRandom(a);t++}while(t<30&&((c>1&&this.board[r][c-1]?.id===id&&this.board[r][c-2]?.id===id)||(r>1&&this.board[r-1][c]?.id===id&&this.board[r-2][c]?.id===id)));this.board[r][c]={id,sp:null}}if(!this.hasMove())this.shuffleBoard()}
   pos(r,c){return{x:BX+c*CELL+CELL/2,y:BY+r*CELL+CELL/2}}
-  render(r,c,first=false,fall=false){const ce=this.cell[r][c],p=this.pos(r,c);if(this.spr[r][c])this.spr[r][c].destroy();if(ce.over)ce.over.destroy();this.spr[r][c]=null;ce.over=null;if(ce.block){this.spr[r][c]=fit(this.add.image(p.x,p.y,ce.block),CELL*.84,CELL*.84).setDepth(4).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.tap(r,c))}else if(this.board[r][c]){const it=this.board[r][c],key=it.sp==='bomb'?'bombsp':(it.sp||'b_'+it.id),im=fit(this.add.image(p.x,p.y,key),CELL*.82,CELL*.82).setDepth(3).setInteractive({useHandCursor:true});if(it.id==='strawberry'&&!it.sp)im.setAngle(-13);const sx=im.scaleX,sy=im.scaleY,ang=im.angle;im.setData({r,c,sx,sy,ang});im.on('pointerdown',()=>this.tap(r,c));this.spr[r][c]=im;if(first){im.setScale(sx*.25,sy*.25);this.tweens.add({targets:im,scaleX:sx,scaleY:sy,duration:260+r*24,ease:'Back.out'})}else if(fall){const ty=im.y;im.y=BY-100-r*12;im.angle=ang+(Math.random()-.5)*18;this.tweens.add({targets:im,y:ty,angle:ang,duration:300+r*34,ease:'Bounce.out'})}}
+  render(r,c,first=false,fall=false){const ce=this.cell[r][c],p=this.pos(r,c);if(this.spr[r][c])this.spr[r][c].destroy();if(ce.over)ce.over.destroy();this.spr[r][c]=null;ce.over=null;if(ce.block){this.spr[r][c]=fit(this.add.image(p.x,p.y,ce.block),CELL*.84,CELL*.84).setDepth(4).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.tap(r,c))}else if(this.board[r][c]){const it=this.board[r][c],key=it.sp==='bomb'?'bombsp':(it.sp||'b_'+it.id),im=fit(this.add.image(p.x,p.y,key),CELL*BERRY_SIZE,CELL*BERRY_SIZE).setDepth(3).setInteractive({useHandCursor:true});if(it.id==='strawberry'&&!it.sp)im.setAngle(-13);const sx=im.scaleX,sy=im.scaleY,ang=im.angle;im.setData({r,c,sx,sy,ang});im.on('pointerdown',()=>this.tap(r,c));this.spr[r][c]=im;if(first){im.setScale(sx*.25,sy*.25);this.tweens.add({targets:im,scaleX:sx,scaleY:sy,duration:260+r*24,ease:'Back.out'})}else if(fall){const ty=im.y;im.y=BY-100-r*12;im.angle=ang+(Math.random()-.5)*18;this.tweens.add({targets:im,y:ty,angle:ang,duration:300+r*34,ease:'Bounce.out'})}}
     if(ce.ice){ce.over=fit(this.add.image(p.x,p.y,ce.ice>1?'ice2':'ice1'),CELL*.98,CELL*.98).setDepth(6).setAlpha(1);const ring=this.add.circle(p.x,p.y,CELL*.43,0x8cdcff,.08).setStrokeStyle(3,0xcdf4ff,.9).setDepth(5.5);ce.over._ring=ring;ce.over.once('destroy',()=>ring.destroy())}
   }
   drawAll(first=false,fall=false){for(let r=0;r<R;r++)for(let c=0;c<C;c++)this.render(r,c,first,fall)}
