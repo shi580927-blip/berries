@@ -2,7 +2,9 @@
 'use strict';
 
 const Campaign=window.BerriesCampaign;
-const W=1920,H=1080,R=8,C=8,CELL=96,BX=576,BY=150;
+const W=1920,H=1080,R=8,C=8;
+const MOBILE_LAYOUT=!!(window.matchMedia?.('(pointer: coarse)').matches||window.navigator?.maxTouchPoints>0);
+const CELL=MOBILE_LAYOUT?106:96,BX=(W-C*CELL)/2,BY=MOBILE_LAYOUT?118:150;
 const TYPES=['strawberry','raspberry','blueberry','gooseberry','blackberry','cloudberry'];
 const FONT='Arial Rounded MT Bold, Trebuchet MS, Arial, sans-serif';
 const pause=ms=>window.BerriesLifecycle.wait(ms);
@@ -351,8 +353,9 @@ function install(){
     coinPanel.disableInteractive();
     const lifePanel=fit(this.add.image(1610,77,'plives'),380,104).setDepth(18).setInteractive({useHandCursor:true});
     this.lifeText=label(1620,77,String(Campaign.read().lives),32,'#57301d');
-    this.lifeClockPanel=wood(960,1016,360,88);
-    this.lifeClock=label(960,1016,'',22);
+    const clockX=MOBILE_LAYOUT?1610:960,clockY=MOBILE_LAYOUT?168:1016;
+    this.lifeClockPanel=wood(clockX,clockY,MOBILE_LAYOUT?340:360,MOBILE_LAYOUT?72:88);
+    this.lifeClock=label(clockX,clockY,'',MOBILE_LAYOUT?20:22);
     this.refreshLifeDisplay=()=>{
       const state=Campaign.read(),show=state.lives<5;
       this.lifeText.setText(String(state.lives));
@@ -873,4 +876,3 @@ function install(){
 let attempts=0;
 const timer=setInterval(()=>{attempts++;if(install()||attempts>250)clearInterval(timer)},20);
 })();
-
