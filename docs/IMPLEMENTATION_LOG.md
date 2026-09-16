@@ -1,3 +1,7 @@
+## 2026-09-16 — First Yandex draft package
+
+See RELEASE_2026-09-16.md for implemented release changes, cloud snapshot conflict policy, test evidence and remaining live validation. Paid shop deferred and hidden. No match/gravity rules changed. Browser localhost blocked by client; no live browser pass claimed.
+
 ## 2026-09-15 — Readable hints, bomb mist, separate life countdown
 
 - Replaced pale rings with warm amber/gold rays behind each suggested berry. Rays remain inside the cell, pulse and rotate on their own objects until the next action.
@@ -287,3 +291,4 @@ QA-правки по первому визуальному прогону:
 - полные 30 уровней ещё не перенесены в runtime JSON;
 - production RU/EN popups ещё не разделены на фон + динамический текст;
 - special+special combinations будут расширены после QA базового ядра.
+

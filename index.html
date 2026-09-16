@@ -8,16 +8,22 @@
   <link rel="stylesheet" href="styles.css" />
   <!-- На Яндекс Играх /sdk.js доступен платформой. В standalone может вернуть 404 — игра продолжит работу. -->
   <script src="/sdk.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
+  <script src="vendor/phaser.min.js"></script>
 </head>
 <body>
   <main id="game-shell" aria-label="Безумные ягодки">
     <div id="game"></div>
     <div id="rotate-hint" role="status">Поверните устройство горизонтально 🌿</div>
   </main>
+  <script src="src/lifecycle.js"></script>
   <script src="src/sdk/yandex.js"></script>
-  <script src="src/campaign.js?v=2"></script>
-  <script src="src/vertical_slice.js?v=headers-3"></script>
-  <script src="src/runtime_stable_v10.js?v=headers-3"></script>
+  <script src="src/campaign.js?v=mvp-20260916-1"></script>
+  <script src="src/vertical_slice.js?v=mvp-20260916-1"></script>
+  <script src="src/runtime_stable_v10.js?v=mvp-20260916-1"></script>
+<script>
+const field=document.getElementById('game-shell');
+for(const event of ['contextmenu','dragstart','selectstart'])field.addEventListener(event,e=>e.preventDefault());
+</script>
 </body>
 </html>
+

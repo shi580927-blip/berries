@@ -34,7 +34,7 @@ return [i+1,{m,n,g,ice:[...iceSlots.slice(0,ic).map(([y,x],k)=>[y,x,h==='mixed'?
 }));
 function create(storage,now=Date.now,cloud=()=>{}){
 const number=(v,f=0)=>Number.isFinite(Number(v))?Math.max(0,Math.floor(Number(v))):f;
-function write(s){storage.setItem(KEY,JSON.stringify(s));cloud(s);return s}
+function write(s){s.updatedAt=now();storage.setItem(KEY,JSON.stringify(s));cloud(s);return s}
 function tick(s){
 if(s.lives<MAX_LIVES&&s.nextLifeAt&&now()>=s.nextLifeAt){
 const gain=1+Math.floor((now()-s.nextLifeAt)/REGEN_MS);
@@ -55,6 +55,14 @@ for(const id of Object.keys(PRICES))s.inventory[id]=number(s.inventory[id]);
 s.lives=Math.min(5,number(s.lives,5));if(s.lives<5&&!s.nextLifeAt)s.nextLifeAt=now()+REGEN_MS;
 const old=JSON.stringify(s);tick(s);if(JSON.stringify(s)!==old)write(s);return s;
 }
+function restore(remote){
+let local;try{local=JSON.parse(storage.getItem(KEY)||'null')}catch{}
+if(!remote||remote.version!==1||!Array.isArray(remote.done)||!remote.inventory||!Number.isFinite(remote.coins)||!Number.isFinite(remote.lives))return read();
+const remoteTime=number(remote.updatedAt),localTime=number(local?.updatedAt);
+const useRemote=!local||local.version!==1||remoteTime>localTime||(!remoteTime&&!localTime&&remote.done.length>(local.done?.length||0));
+if(useRemote){if(local)storage.setItem(KEY+'_before_cloud',JSON.stringify(local));const copy=JSON.parse(JSON.stringify(remote));copy.active=null;storage.setItem(KEY,JSON.stringify(copy))}
+return read();
+}
 function unlocked(s=read()){let n=1;const done=new Set(s.done);while(n<30&&done.has(n))n++;return n}
 function debit(s){s.lives=Math.max(0,s.lives-1);if(!s.nextLifeAt)s.nextLifeAt=now()+REGEN_MS}
 function abandon(token){const s=read();if(!s.active||(token&&s.active.id!==token))return s;s.active=null;return write(s)}
@@ -73,9 +81,10 @@ function consume(id){const s=read();if(!PRICES[id]||s.inventory[id]<=0)return fa
 function buy(id){const s=read(),price=PRICES[id];if(!price||s.coins<price)return false;s.coins-=price;s.inventory[id]++;write(s);return true}
 function addLife(){const s=read();if(s.lives!==0)return false;s.lives=1;write(s);return true}
 function lifeLabel(){const s=read();if(s.lives===5)return '5 / 5';const sec=Math.max(0,Math.ceil((s.nextLifeAt-now())/1000));return s.lives+' / 5  • '+Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
-return {read,unlocked,begin,abandon,lose,resume,win,doubleReward,consume,buy,addLife,lifeLabel};
+return {read,restore,unlocked,begin,abandon,lose,resume,win,doubleReward,consume,buy,addLife,lifeLabel};
 }
 const api={KEY,LEVELS,PRICES,create,REGEN_MS};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 else root.BerriesCampaign={...api,...create(root.localStorage,Date.now,s=>root.BerriesYandex?.saveCloudData?.(s,false))};
 })(typeof window!=='undefined'?window:this);
+

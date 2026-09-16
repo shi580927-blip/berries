@@ -5,7 +5,7 @@ const Campaign=window.BerriesCampaign;
 const W=1920,H=1080,R=8,C=8,CELL=96,BX=576,BY=150;
 const TYPES=['strawberry','raspberry','blueberry','gooseberry','blackberry','cloudberry'];
 const FONT='Arial Rounded MT Bold, Trebuchet MS, Arial, sans-serif';
-const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const pause=ms=>window.BerriesLifecycle.wait(ms);
 const fit=(img,maxW,maxH)=>{const s=Math.min(maxW/img.width,maxH/img.height);img.setScale(s);return img};
 
 function getProto(){
@@ -285,7 +285,7 @@ function install(){
     return null;
   };
   p.showHint=function showHintStable(){
-    if(this.busy||this.boosterMode||!this.scene?.isActive?.())return;
+    if(window.BerriesLifecycle.paused||this.busy||this.boosterMode||!this.scene?.isActive?.())return;
     this.hideHint();
     const move=this.findHintMove();
     if(!move||!move.every(q=>this.isHintCell(q)))return;
@@ -349,7 +349,7 @@ function install(){
     const coinPanel=fit(this.add.image(300,77,'pcoins'),380,104).setDepth(18).setInteractive({useHandCursor:true});
     this.coinText=label(310,77,String(save.coins||0),32,'#57301d');
     coinPanel.disableInteractive();
-    this.add.zone(445,77,76,86).setDepth(21).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openPaidShop());
+    fit(this.add.image(445,77,'ui_coin'),62,62).setDepth(21);
     const lifePanel=fit(this.add.image(1610,77,'plives'),380,104).setDepth(18).setInteractive({useHandCursor:true});
     this.lifeText=label(1620,77,String(Campaign.read().lives),32,'#57301d');
     this.lifeClockPanel=wood(960,1016,360,88);
@@ -363,11 +363,11 @@ function install(){
     this.refreshLifeDisplay();
     this.time.addEvent({delay:1000,loop:true,callback:()=>this.refreshLifeDisplay()});
     lifePanel.disableInteractive();
-    this.add.zone(1755,77,76,86).setDepth(21).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openPaidShop());
+    fit(this.add.image(1755,77,'ui_life'),62,62).setDepth(21);
     wood(300,180,300,88);this.mt=label(300,180,'',29);
-    wood(1610,180,300,88);this.st=label(1610,180,'',27);
+    this.st=null;
     nav(300,1016,'НАЗАД','ui_back',()=>{window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
-    nav(1610,1016,'МАГАЗИН','ui_shop',()=>this.openPaidShop());
+    nav(1610,1016,'МАГАЗИН','ui_shop',()=>this.openShop());
 
     const settingsBg=this.add.circle(1872,66,38,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(19);
     const settings=fit(this.add.image(1872,66,'ui_settings'),49,49).setDepth(20).setInteractive({useHandCursor:true});
@@ -457,29 +457,8 @@ function install(){
     this.goals.forEach((g,i)=>this.gt[i].setText(`${g.type==='score'?Math.min(g.need,Math.round(this.score)):g.done} / ${g.need}`));
     for(const [id,b] of Object.entries(this.boosterButtons))b.tx.setText(String(this.inventory[id]));
   };
-  p.openPaidShop=function(){
-    if(this._paidShop?.scene)return;
-    const box=this.add.container(W/2,H/2).setDepth(70);this._paidShop=box;
-    const close=()=>{box.destroy();this._paidShop=null};
-    const shade=this.add.rectangle(0,0,W,H,0x102419,.8).setInteractive();
-    shade.on('pointerdown',close);box.add(shade);
-    const art=fit(this.add.image(0,-20,'popup_shop'),850,970);
-    box.add(art);
-    // Input follows the painted controls, independent of the source resolution.
-    const hit=(x,y,w,h,action)=>{
-      const area=this.add.zone((x-.5)*art.displayWidth,-20+(y-.5)*art.displayHeight,w*art.displayWidth,h*art.displayHeight).setInteractive({useHandCursor:true});
-      area.on('pointerdown',action);box.add(area);
-    };
-    box.add(this.add.zone(0,-20,art.displayWidth,art.displayHeight).setInteractive());
-    const note=this.add.text(0,505,'Покупки за деньги пока недоступны',{
-      fontFamily:FONT,fontSize:'23px',color:'#fff4cf',align:'center',
-      backgroundColor:'#542f20',padding:{x:14,y:7}
-    }).setOrigin(.5);box.add(note);
-    hit(.891,.187,.13,.105,close);
-    for(const y of [.448,.607,.767])hit(.767,y,.24,.09,()=>{
-      note.setText('Покупки за деньги пока недоступны');
-    });
-  };
+  // Paid shop is in development; unavailable in the MVP build.
+  p.openPaidShop=function(){};
 
   p.openShop=function(){
     if(this._shopModal?.active)return;
@@ -509,6 +488,21 @@ function install(){
     const shade=this.add.rectangle(W/2,H/2,W,H,0x061008,.76).setDepth(30).setInteractive();
     const box=this.add.container(W/2,H/2).setDepth(31);
     const art=fit(this.add.image(0,0,win?'popup_win':'popup_lose'),860,820);box.add(art);
+    const X=x=>(x-.5)*art.displayWidth,Y=y=>(y-.5)*art.displayHeight;
+    const info=this.add.graphics();box.add(info);
+    info.fillStyle(0xffe1a5,1);info.lineStyle(2,0xc18b48,1);
+    const rect=win?[.46,.422,.43,.21]:[.48,.433,.425,.173];
+    info.fillRoundedRect(X(rect[0]),Y(rect[1]),rect[2]*art.displayWidth,rect[3]*art.displayHeight,12);
+    info.strokeRoundedRect(X(rect[0]),Y(rect[1]),rect[2]*art.displayWidth,rect[3]*art.displayHeight,12);
+    const infoText=this.add.text(X(win?.675:.692),Y(win?.525:.52),'',{
+      fontFamily:FONT,fontSize:(win?26:20)+'px',fontStyle:'bold',color:'#59331d',align:'center',wordWrap:{width:art.displayWidth*.39}
+    }).setOrigin(.5);box.add(infoText);
+    const names={strawberry:'Клубника',raspberry:'Малина',blueberry:'Черника',gooseberry:'Крыжовник',blackberry:'Ежевика',cloudberry:'Морошка',ice:'Лёд',roots:'Корни',acorn:'Жёлуди',score:'Очки'};
+    const refreshInfo=()=>{
+      if(win){const reward=Campaign.read().lastWin;infoText.setText('Награда\n'+(reward?.id===this.attemptId?reward.reward*(reward.doubled?2:1):0)+' монет')}
+      else infoText.setText('Осталось собрать:\n'+this.goals.map(g=>({g,left:Math.max(0,g.need-(g.type==='score'?Math.round(this.score):g.done))})).filter(q=>q.left>0).map(q=>(names[q.g.id||q.g.type]||'Цель')+': '+q.left).join('\n'));
+    };refreshInfo();
+    const adStatus=this.add.text(0,art.displayHeight/2+25,'',{fontFamily:FONT,fontSize:'23px',color:'#fff4cf',align:'center',stroke:'#402515',strokeThickness:4}).setOrigin(.5);box.add(adStatus);
     const hit=(x,y,w,h,cb)=>{
       const area=this.add.zone((x-.5)*art.displayWidth,(y-.5)*art.displayHeight,w*art.displayWidth,h*art.displayHeight).setInteractive({useHandCursor:true});
       box.add(area);area.on('pointerdown',()=>{this.fx.click();cb(area)});return area;
@@ -523,8 +517,8 @@ function install(){
         if(!this.scene.isActive()||this.attemptId!==attempt)return;
         if(ok&&Campaign.doubleReward(attempt)){
           this.updateHud();
-          this.winRewardDoubled=true;this.fx.reward();
-        }else area.setInteractive({useHandCursor:true});
+          this.winRewardDoubled=true;this.fx.reward();refreshInfo();adStatus.setText("Монеты удвоены");
+        }else{area.setInteractive({useHandCursor:true});adStatus.setText('Реклама недоступна. Попробуй позже.')}
       });
       hit(.5,.899,.55,.13,()=>{
         const next=this.no<30?this.no+1:null;
@@ -532,7 +526,7 @@ function install(){
       });
     }else{
       hit(.5,.697,.74,.16,async area=>{
-        if(this.continueUsed)return;
+        if(this.continueUsed){adStatus.setText('Продолжение уже использовано');return}
         const attempt=this.attemptId;
         area.disableInteractive();
         const ok=await window.BerriesYandex?.showRewardedVideo?.();
@@ -541,7 +535,7 @@ function install(){
           this.continueUsed=true;this.moves+=5;this.fx.reward();shade.destroy();box.destroy();this.busy=false;
           window.__berriesGameplayShouldRun=true;window.BerriesYandex?.gameplayStart?.();
           this.kingAnim('idle');this.updateHud();this.scheduleHint();
-        }else area.setInteractive({useHandCursor:true});
+        }else{area.setInteractive({useHandCursor:true});adStatus.setText('Реклама недоступна. Попробуй позже.')}
       });
       hit(.294,.873,.40,.105,()=>this.scene.restart({n:this.no}));
       hit(.714,.873,.40,.105,()=>this.scene.start('Map'));
@@ -702,8 +696,8 @@ function install(){
     this._fxObjects=new Set();this._fxTimes={};
     if(baseCreate.call(this)===false)return;
     this.events.once('shutdown',()=>{clearTimeout(this.hintTimer);clearTimeout(this.hintCleanupTimer);clearTimeout(this.specialInfoTimer);this.specialInfoText=null});
-    this.input.keyboard?.on('keydown-G',()=>this.toggleDebugGrid());
-    if(new URLSearchParams(location.search).get('debugGrid')==='1')this.time.delayedCall(50,()=>this.toggleDebugGrid(true));
+    // Production: debug keyboard shortcut disabled.
+    if(false)this.time.delayedCall(50,()=>this.toggleDebugGrid(true));
     if(this.fx&&!this.fx.__juicyV12){
       this.fx.__juicyV12=true;
       this.fx.pop=(chain=1)=>{
@@ -785,13 +779,13 @@ function install(){
         x:Number(stored[index]?.x??base[0]),y:Number(stored[index]?.y??base[1]),
         scale:Number(stored[index]?.scale??base[2])
       }));
-      const editor=new URLSearchParams(location.search).get('mapEditor')==='1';
+      const editor=false;
       const nodes=[];let selected=null,selection=null,status=null;
       if(!editor){
         for(const x of [400,960,1520])fit(this.add.image(x,1026,'wood_flat'),490,92).setDepth(40);
         const lives=this.add.text(400,1026,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff4cf'}).setOrigin(.5).setDepth(41);
         const shop=this.add.text(960,1026,'МАГАЗИН',{fontFamily:FONT,fontSize:'26px',fontStyle:'bold',color:'#ffe5a1'}).setOrigin(.5).setDepth(41).setInteractive({useHandCursor:true});
-        this.add.zone(960,1026,490,92).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openPaidShop());
+        this.add.zone(960,1026,490,92).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
         const extra=this.add.text(1520,1026,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#ffe5a1'}).setOrigin(.5).setDepth(41).setInteractive({useHandCursor:true});
         let pending=false;
         this.add.zone(1520,1026,490,92).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
@@ -881,3 +875,4 @@ function install(){
 let attempts=0;
 const timer=setInterval(()=>{attempts++;if(install()||attempts>250)clearInterval(timer)},20);
 })();
+

@@ -7,17 +7,20 @@ const Campaign=window.BerriesCampaign;
 const KEY=Campaign.KEY;
 const TEST_LEVELS=Object.keys(Campaign.LEVELS).map(Number);
 const LV=Campaign.LEVELS;
-const pause=ms=>new Promise(r=>setTimeout(r,ms));
+const pause=ms=>window.BerriesLifecycle.wait(ms);
 const inBounds=(r,c)=>r>=0&&r<R&&c>=0&&c<C;
 function loadSave(){return Campaign.read()}
 function saveLocal(data){localStorage.setItem(KEY,JSON.stringify(data));window.BerriesYandex?.saveCloudData?.(data,false)}
 function fit(img,maxW,maxH){const s=Math.min(maxW/img.width,maxH/img.height);img.setScale(s);return img}
 
 class Sfx{
-  constructor(scene){this.s=scene;this.muted=false;this.master=2.35;this.last={};this.voices={};scene.events.once('shutdown',()=>{for(const pool of Object.values(this.voices))for(const sound of pool)sound.destroy()})}
+  constructor(scene){this.s=scene;this.nodes=new Set();this._muted=localStorage.getItem("berries_sfx_muted")==="1";this.master=2.35;this.last={};this.voices={};scene.events.once('shutdown',()=>{this.stopAll();for(const pool of Object.values(this.voices))for(const sound of pool)sound.destroy()})}
+  get muted(){return this._muted}
+  set muted(v){this._muted=!!v;localStorage.setItem("berries_sfx_muted",v?"1":"0");if(v)this.stopAll()}
+  stopAll(){for(const pool of Object.values(this.voices))for(const sound of pool)sound.stop();for(const node of this.nodes){try{node.stop()}catch{}}this.nodes.clear()}
   sample(key,volume=.5){
     if(!this.s.cache.audio.exists(key))return false;
-    if(this.muted)return true;
+    if(this.muted||window.BerriesLifecycle.paused)return true;
     this.unlock();
     const now=performance.now(),stamp='sample:'+key;
     // Coalesce simultaneous hits, not later hits during the previous file's tail.
@@ -31,9 +34,9 @@ class Sfx{
   }
   iceBreak(){if(!this.sample('sfx_ice_break',.45))this.crack()}
   ctx(){return this.s.sound?.context}
-  unlock(){const c=this.ctx();if(c?.state==='suspended')c.resume().catch(()=>{})}
+  unlock(){const c=this.ctx();if(!window.BerriesLifecycle.paused&&c?.state==='suspended')c.resume().catch(()=>{})}
   can(name,ms=28){const n=performance.now();if((this.last[name]||0)+ms>n)return false;this.last[name]=n;return true}
-  tone(f,d=.06,g=.02,t='sine',end=0,delay=0){if(this.muted)return;this.unlock();const c=this.ctx();if(!c)return;const n=c.currentTime+delay,o=c.createOscillator(),a=c.createGain();o.type=t;o.frequency.setValueAtTime(f,n);if(end)o.frequency.exponentialRampToValueAtTime(Math.max(55,f+end),n+d);a.gain.setValueAtTime(.0001,n);a.gain.exponentialRampToValueAtTime(g*this.master,n+.004);a.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(a).connect(c.destination);o.start(n);o.stop(n+d+.03)}
+  tone(f,d=.06,g=.02,t='sine',end=0,delay=0){if(this.muted||window.BerriesLifecycle.paused)return;this.unlock();const c=this.ctx();if(!c)return;const n=c.currentTime+delay,o=c.createOscillator(),a=c.createGain();o.type=t;o.frequency.setValueAtTime(f,n);if(end)o.frequency.exponentialRampToValueAtTime(Math.max(55,f+end),n+d);a.gain.setValueAtTime(.0001,n);a.gain.exponentialRampToValueAtTime(g*this.master,n+.004);a.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(a).connect(c.destination);this.nodes.add(o);o.onended=()=>this.nodes.delete(o);o.start(n);o.stop(n+d+.03)}
   click(){if(this.can('click'))this.tone(560,.035,.020,'triangle',55)}
   bad(){if(this.can('bad',120)){this.tone(200,.09,.020,'triangle',-60);this.tone(125,.07,.010,'sine',-20,.025)}}
   swap(){if(this.can('swap',50)){this.tone(290,.055,.016,'sine',160);this.tone(430,.045,.010,'triangle',110,.024)}}
@@ -61,7 +64,8 @@ this.onVisibility=()=>this.applyPause();
 document.addEventListener('visibilitychange',this.onVisibility);
 scene.events.once('shutdown',()=>{this.closed=true;this.stop();document.removeEventListener('visibilitychange',this.onVisibility)});
 this.play(scene.sys.settings.key==='Play'?(scene.no>=21?'music_gameplay_magic':'music_gameplay_calm'):'music_menu');
-window.__berriesPauseAudio=v=>this.pause(v);
+window.__berriesPauseAudio=v=>window.BerriesLifecycle.set("legacy-audio",v);
+window.BerriesLifecycle.register(scene);
 }
 get muted(){return this._muted}
 set muted(v){this._muted=!!v;try{localStorage.setItem('berries_music_muted',v?'1':'0')}catch{}if(v)this.stop()}
@@ -85,7 +89,7 @@ if(this.cueSound){this.cueSound.destroy();this.cueSound=null}
 if(this.sound){this.sound.destroy();this.sound=null}this.current=null;
 }
 accent(kind){
-if(this.closed||this.muted||this.paused||document.hidden)return false;
+if(this.closed||this.muted||this.paused||window.BerriesLifecycle.paused||document.hidden)return false;
 const key=kind==='victory'?'music_victory_accent':'music_combo_accent';
 if(!this.s.cache.audio.exists(key))return false;
 const now=this.s.time.now;
@@ -106,7 +110,7 @@ return true;
 applyPause(){
 for(const sound of [this.sound,this.cueSound]){
 if(!sound)continue;
-if(this.paused||document.hidden)sound.pause();else if(!this.muted&&sound.isPaused)sound.resume();
+if(this.paused||window.BerriesLifecycle.paused||document.hidden)sound.pause();else if(!this.muted&&sound.isPaused)sound.resume();
 }
 }
 pause(v){this.paused=!!v;this.applyPause()}
@@ -123,7 +127,7 @@ class Boot extends Phaser.Scene{
     this.load.audio('music_victory_accent','audio/music/accents/victory.mp3');
     const I=(k,p)=>this.load.image(k,p+'?v=campaign-20260915');
     I('head_goals','assets/ui/panels/panel_head_goals.png');I('head_boosters','assets/ui/panels/panel_head_boosters.png');
-    I('wood_flat','assets/ui/panels/panel_3.png');I('wood_button','assets/ui/panels/panel_buttom1.png');I('popup_shop','assets/ui/popups/popup_shop_main.png');
+    I('wood_flat','assets/ui/panels/panel_3.png');I('wood_button','assets/ui/panels/panel_buttom1.png');
     I('title','assets/backgrounds/background_title_forest.jpg');I('gamebg','assets/backgrounds/background_game_forest.jpg');I('mapbg','assets/map/map_forest_background.jpg');I('logo','assets/ui/panels/logo_main.png');I('plevel','assets/ui/panels/panel_level_title.png');I('pgoals','assets/ui/panels/panel_goals.png');I('pboost','assets/ui/panels/panel_boosters.png');I('pboard','assets/ui/panels/board_frame_forest.png');I('pprogress','assets/ui/panels/panel_progress.png');I('pchamp','assets/ui/panels/panel_championat.png');I('plives','assets/ui/panels/panel_lives.png');I('pcoins','assets/ui/panels/panel_coins.png');I('btn','assets/ui/buttons/button_wood.png');I('btnblue','assets/ui/buttons/button_blue.png');
     I('popup_win','assets/ui/popups/popup_level_win.png');I('popup_lose','assets/ui/popups/popup_level_lose.png');
     I('map_header_levels','assets/map/map_header_levels.png');['normal','current','completed','locked'].forEach(x=>I('lvl_'+x,'assets/map/level_'+x+'.png'));['idle','point','celebrate','sad'].forEach(x=>I('king_'+x,'assets/characters/king/king_'+x+'.png'));
@@ -131,11 +135,11 @@ class Boot extends Phaser.Scene{
     I('line_h','assets/specials/special_line_h.png');I('line_v','assets/specials/special_line_v.png');I('rainbow','assets/specials/special_rainbow.png');I('bombsp','assets/specials/special_bomb.png');
     I('hammer','assets/boosters/booster_hammer.png');I('shuffle','assets/boosters/booster_shuffle.png');I('fan','assets/boosters/booster_fan.png');['back','close','coin','life','pause','plus','settings','shop'].forEach(x=>I('ui_'+x,'assets/ui/icons/ui_'+x+'.png'));TYPES.forEach(x=>I('b_'+x,'assets/berries/berry_'+x+'.png'));
   }
-  async create(){await window.BerriesYandex?.init?.();await window.BerriesYandex?.loadingReady?.();this.scene.start('Title')}
+  async create(){await window.BerriesYandex.init();await window.BerriesYandex.restoreCampaign();window.BerriesLanguage=window.BerriesYandex.language;this.scene.start('Title')}
 }
 class Title extends Phaser.Scene{
   constructor(){super('Title')}
-  create(){window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();this.fx=new Sfx(this);this.music=new MusicBus(this);window.__berriesPauseAudio=v=>this.music.pause(v);this.add.image(W/2,H/2,'title').setDisplaySize(W,H);fit(this.add.image(W/2,345,'logo'),820,560);this.makeButton(W/2,810,'ИГРАТЬ',()=>this.scene.start('Map'))}
+  create(){window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();this.fx=new Sfx(this);this.music=new MusicBus(this);this.add.image(W/2,H/2,'title').setDisplaySize(W,H);fit(this.add.image(W/2,345,'logo'),820,560);this.makeButton(W/2,810,'ИГРАТЬ',()=>this.scene.start('Map'));window.BerriesYandex.loadingReady();this.add.text(W/2,970,'Меняй соседние ягоды местами и собирай от трёх в ряд.\nВыполняй цели слева, пока не закончатся ходы.',{fontSize:'27px',align:'center',color:'#fff5d5',stroke:'#422713',strokeThickness:5}).setOrigin(.5)}
   makeButton(x,y,label,cb){const c=this.add.container(x,y),b=fit(this.add.image(0,0,'btn'),360,130).setInteractive({useHandCursor:true}),tx=this.add.text(0,0,label,{fontSize:'42px',fontStyle:'bold',color:'#ffe9a0',stroke:'#6b2e17',strokeThickness:8}).setOrigin(.5);c.add([b,tx]);b.on('pointerdown',()=>{this.fx.click();this.tweens.add({targets:c,scale:.95,duration:75,yoyo:true,onComplete:cb})})}
 }
 class Map extends Phaser.Scene{
@@ -151,7 +155,7 @@ class Play extends Phaser.Scene{
     if(!this.attemptId){this.scene.start('Map');return false}
     const attemptId=this.attemptId;this.events.once('shutdown',()=>Campaign.abandon(attemptId));
     this.winRewardDoubled=false;
-    window.__berriesGameplayShouldRun=true;window.BerriesYandex?.gameplayStart?.();this.fx=new Sfx(this);this.music=new MusicBus(this);window.__berriesPauseAudio=v=>this.music.pause(v);
+    window.__berriesGameplayShouldRun=true;window.BerriesYandex?.gameplayStart?.();this.fx=new Sfx(this);this.music=new MusicBus(this);
     this.moves=this.cfg.m;this.score=0;this.busy=false;this.sel=null;this.last=null;this.boosterMode=null;this.continueUsed=false;this.hintTimer=null;this.hintObjs=[];
     this.goals=this.cfg.g.map(x=>({type:x[0],id:x[1],need:x[2],done:0}));this.inventory=Campaign.read().inventory;this.board=Array.from({length:R},()=>Array(C).fill(null));this.cell=Array.from({length:R},()=>Array.from({length:C},()=>({ice:0,block:null,over:null})));this.spr=Array.from({length:R},()=>Array(C).fill(null));
     this.add.image(W/2,H/2,'gamebg').setDisplaySize(W,H);this.add.rectangle(W/2,H/2,W,H,0x06140a,.08);this.hud();this.cfg.ice.forEach(([r,c,h])=>this.cell[r][c].ice=h);this.cfg.ac.forEach(([r,c])=>this.cell[r][c].block='acorn');this.cfg.root.forEach(([r,c])=>this.cell[r][c].block='roots');this.seed();this.drawAll(true);this.updateHud();this.kingAnim('idle');this.scheduleHint();
@@ -202,16 +206,17 @@ class Play extends Phaser.Scene{
   async useShuffle(){if(this.busy||this.inventory.shuffle<=0||!Campaign.consume('shuffle'))return;this.busy=true;this.inventory.shuffle--;for(let k=0;k<30;k++){this.shuffleBoard();if(this.groups().length===0&&this.hasMove())break}this.fx.whoosh();this.drawAll(false,true);await pause(600);this.busy=false;this.refreshBoosters();this.scheduleHint()}
   refreshBoosters(){for(const id of Object.keys(this.boosterButtons)){const b=this.boosterButtons[id];b.tx.setText(`×${this.inventory[id]}`);b.im.clearTint();if(this.boosterMode===id)b.im.setTint(0xffe29a);b.im.setAlpha(this.inventory[id]<=0?.4:1)}}
   bumpGoal(type,id,n){for(const g of this.goals)if(g.type===type&&(id==null||g.id===id))g.done=Math.min(g.need,g.done+n)}
-  updateHud(){this.mt.setText(`ХОДЫ  ${this.moves}`);this.st.setText(`СЧЁТ ${Math.round(this.score)}`);this.goals.forEach((g,i)=>{const name=g.type==='berry'?({'strawberry':'Клубника','raspberry':'Малина','blueberry':'Черника','gooseberry':'Крыжовник','blackberry':'Ежевика','cloudberry':'Морошка'}[g.id]||g.id):g.type==='ice'?'Лёд':g.type==='acorn'?'Жёлуди':g.type==='roots'?'Корни':'Очки',done=g.type==='score'?Math.min(g.need,Math.round(this.score)):g.done;this.gt[i].setText(`${name}\n${done} / ${g.need}`)});this.refreshBoosters()}
+  updateHud(){this.mt.setText(`ХОДЫ  ${this.moves}`);this.st?.setText(`СЧЁТ ${Math.round(this.score)}`);this.goals.forEach((g,i)=>{const name=g.type==='berry'?({'strawberry':'Клубника','raspberry':'Малина','blueberry':'Черника','gooseberry':'Крыжовник','blackberry':'Ежевика','cloudberry':'Морошка'}[g.id]||g.id):g.type==='ice'?'Лёд':g.type==='acorn'?'Жёлуди':g.type==='roots'?'Корни':'Очки',done=g.type==='score'?Math.min(g.need,Math.round(this.score)):g.done;this.gt[i].setText(`${name}\n${done} / ${g.need}`)});this.refreshBoosters()}
   allDone(){return this.goals.every(g=>g.type==='score'?this.score>=g.need:g.done>=g.need)}
   endCheck(){if(this.allDone())this.win();else if(this.moves<=0)this.lose()}
   kingAnim(state){if(!this.king)return;this.king.setTexture('king_'+state);this.tweens.killTweensOf(this.king);this.king.y=this.kingBaseY;this.king.setScale(this.kingBaseScale);this.tweens.add({targets:this.king,y:this.kingBaseY-10,scaleX:this.kingBaseScale*1.035,scaleY:this.kingBaseScale*.975,angle:{from:-1.2,to:1.2},duration:1050,yoyo:true,repeat:-1,ease:'Sine.inOut'})}
   kingReact(state='point',ms=650){if(!this.king||this.busy&&state==='idle')return;this.king.setTexture('king_'+state);this.tweens.killTweensOf(this.king);this.king.setScale(this.kingBaseScale);this.tweens.add({targets:this.king,y:this.kingBaseY-28,scaleX:this.kingBaseScale*1.08,scaleY:this.kingBaseScale*1.08,duration:180,yoyo:true,repeat:1,ease:'Back.out',onComplete:()=>{if(this.scene.isActive())this.kingAnim('idle')}});setTimeout(()=>{if(this.scene.isActive()&&this.king.texture.key!=='king_sad'&&this.king.texture.key!=='king_celebrate')this.kingAnim('idle')},ms)}
   async win(){if(this.busy)return;this.busy=true;clearTimeout(this.hintTimer);window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();this.kingAnim('celebrate');this.fx.win();Campaign.win(this.attemptId);this.updateHud();this.resultPopup(true,Campaign.read())}
   async lose(){if(this.busy)return;this.busy=true;clearTimeout(this.hintTimer);window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();Campaign.lose(this.attemptId);this.updateHud();this.kingAnim('sad');this.fx.lose();this.resultPopup(false,Campaign.read())}
-  resultPopup(win){const shade=this.add.rectangle(W/2,H/2,W,H,0x061008,.74).setDepth(30),box=this.add.container(W/2,H/2).setDepth(31),art=fit(this.add.image(0,0,win?'popup_win':'popup_lose'),860,700);box.add(art);const invisible=(x,y,w,h,cb)=>{const z=this.add.rectangle(x,y,w,h,0xffffff,.001).setInteractive({useHandCursor:true});box.add(z);z.on('pointerdown',cb);return z};if(win){invisible(0,180,360,120,()=>this.scene.start('Map'));this.add.text(W/2,H/2+305,'Нажми кнопку на попапе, чтобы вернуться на карту',{fontSize:'18px',color:'#fff2cf'}).setOrigin(.5).setDepth(32)}else{const ad=invisible(0,40,360,120,async()=>{if(this.continueUsed)return;ad.disableInteractive();const ok=await window.BerriesYandex?.showRewardedVideo?.();if(ok){this.continueUsed=true;this.moves+=5;this.fx.reward();shade.destroy();box.destroy();this.busy=false;window.__berriesGameplayShouldRun=true;window.BerriesYandex?.gameplayStart?.();this.kingAnim('idle');this.updateHud();this.scheduleHint()}else ad.setInteractive({useHandCursor:true})});invisible(-185,185,300,105,()=>this.scene.start('Map'));invisible(185,185,300,105,()=>this.scene.restart({n:this.no}));if(!window.BerriesYandex?.sdk&&!new URLSearchParams(location.search).has('mockAds'))this.add.text(W/2,H/2+320,'Для теста +5 ходов вне Яндекс Игр добавь ?mockAds=1',{fontSize:'18px',color:'#e9ddbd'}).setOrigin(.5).setDepth(32)}box.setScale(.84).setAlpha(0);this.tweens.add({targets:box,scale:1,alpha:1,duration:260,ease:'Back.out'})}
+
 }
 
 const game=new Phaser.Game({type:Phaser.AUTO,parent:'game',width:W,height:H,backgroundColor:'#183d24',scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH,width:W,height:H},render:{antialias:true,pixelArt:false,roundPixels:false},scene:[Boot,Title,Map,Play]});
+game.sound.pauseOnBlur=false;
 window.__berriesGame=game;
 })();
