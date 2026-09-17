@@ -806,10 +806,10 @@ function install(){
       this.updateHud=()=>topCoinText.setText(String(Campaign.read().coins));
       this.updateHud();
 
-      this.add.circle(1848,68,45*TOUCH_SCALE,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(40);
-      const mapSettings=fit(this.add.image(1848,68,'ui_settings'),58*TOUCH_SCALE,58*TOUCH_SCALE).setDepth(41).setInteractive({useHandCursor:true});
-      const royalShop=fit(this.add.image(1738,68,'king_shop_icon'),92*TOUCH_SCALE,92*TOUCH_SCALE).setDepth(41).setInteractive({useHandCursor:true});
+      const royalShop=fit(this.add.image(1648,72,'panel_king_shop'),350*TOUCH_SCALE,108*TOUCH_SCALE).setDepth(41).setInteractive({useHandCursor:true});
       royalShop.on('pointerdown',()=>this.openPaidShop());
+      this.add.circle(1848,166,45*TOUCH_SCALE,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(40);
+      const mapSettings=fit(this.add.image(1848,166,'ui_settings'),58*TOUCH_SCALE,58*TOUCH_SCALE).setDepth(41).setInteractive({useHandCursor:true});
       mapSettings.on('pointerdown',()=>{
         if(this._mapSettings?.active){this._mapSettings.destroy();this._mapSettings=null;return}
         const box=this.add.container(1635,245).setDepth(70);this._mapSettings=box;
