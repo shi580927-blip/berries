@@ -375,6 +375,7 @@ function install(){
     const coinPanel=fit(this.add.image(300,77,'pcoins'),380,104).setDepth(18).setInteractive({useHandCursor:true});
     this.coinText=label(310,77,String(save.coins||0),32,'#57301d');
     coinPanel.disableInteractive();
+    this.add.zone(coinPanel.x+coinPanel.displayWidth*.39,coinPanel.y,coinPanel.displayWidth*.22,coinPanel.displayHeight*.9).setDepth(21).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openPaidShop());
     const lifePanel=fit(this.add.image(1610,77,'plives'),380,104).setDepth(18).setInteractive({useHandCursor:true});
     this.lifeText=label(1627,84,String(Campaign.read().lives),32,'#57301d');
     const clockX=1610,clockY=172;
@@ -385,6 +386,7 @@ function install(){
     this.refreshLifeDisplay();
     this.time.addEvent({delay:1000,loop:true,callback:()=>this.refreshLifeDisplay()});
     lifePanel.disableInteractive();
+    this.add.zone(lifePanel.x+lifePanel.displayWidth*.39,lifePanel.y,lifePanel.displayWidth*.22,lifePanel.displayHeight*.9).setDepth(21).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openPaidShop());
     wood(300,180,300,88);this.mt=label(300,180,'',29);
     this.st=null;
     nav(MOBILE_LAYOUT?250:300,MOBILE_LAYOUT?1000:1016,'НАЗАД','ui_back',()=>{window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
@@ -800,6 +802,7 @@ function install(){
       const topCoinPanel=fit(this.add.image(250,72,'pcoins'),400,108).setDepth(40).setInteractive({useHandCursor:true});
       const topCoinText=this.add.text(264,72,'',{fontFamily:FONT,fontSize:'31px',fontStyle:'bold',color:'#57301d',align:'center'}).setOrigin(.5).setDepth(41);
       topCoinPanel.disableInteractive(); // Plus reserved for the forthcoming royal shop.
+      this.add.zone(topCoinPanel.x+topCoinPanel.displayWidth*.39,topCoinPanel.y,topCoinPanel.displayWidth*.22,topCoinPanel.displayHeight*.9).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openPaidShop());
       this.updateHud=()=>topCoinText.setText(String(Campaign.read().coins));
       this.updateHud();
 
@@ -848,7 +851,8 @@ function install(){
       const editor=new URLSearchParams(window.location.search).get('mapEditor')==='1';
       const nodes=[];let selected=null,selection=null,status=null;
       if(!editor){
-        fit(this.add.image(710,1006,'plives'),420,126).setDepth(40);
+        const mapLivesPanel=fit(this.add.image(710,1006,'plives'),420,126).setDepth(40);
+        this.add.zone(mapLivesPanel.x+mapLivesPanel.displayWidth*.39,mapLivesPanel.y,mapLivesPanel.displayWidth*.22,mapLivesPanel.displayHeight*.9).setDepth(43).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openPaidShop());
         const timerPanel=fit(this.add.image(1100,1006,'time_panel'),390,140).setDepth(40);
         fit(this.add.image(1640,1006,'shop_plaque_new'),520,140).setDepth(40);
         const levelPanel=fit(this.add.image(250,1006,'map_level_panel'),470,150).setDepth(40);
