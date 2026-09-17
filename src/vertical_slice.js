@@ -158,8 +158,8 @@ class Boot extends Phaser.Scene{
     this.load.audio('sfx_ice_break','audio/sfx/ice_break.mp3');
     this.load.audio('music_combo_accent','audio/music/accents/combo.mp3');
     this.load.audio('music_victory_accent','audio/music/accents/victory.mp3');
-    const I=(k,p)=>this.load.image(k,p+'?v=ui-20260917-rounded');
-    I('head_goals','assets/ui/panels/panel_head_goals.png');I('head_boosters','assets/ui/panels/panel_head_boosters.png');
+    const I=(k,p)=>this.load.image(k,p+'?v=ui-20260917-royal-panel');
+    I('head_goals','assets/ui/panels/panel_head_goals.png');I('head_boosters','assets/ui/panels/panel_head_boosters.png');I('panel_king_shop','assets/ui/panels/panel_king_shop.png');
     I('goals_panel_new','assets/ui/panels/panel22.png');I('shop_plaque_new','assets/ui/panels/panel23.png');I('coin_shop_new','assets/ui/panels/popup33.png');
     I('map_level_panel','assets/ui/panels/panel_level.png');I('time_panel','assets/ui/panels/panel_time.png');
     I('wood_flat','assets/ui/panels/panel_3.png');I('wood_button','assets/ui/panels/panel_buttom1.png');
