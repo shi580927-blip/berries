@@ -6,10 +6,34 @@ const W=1920,H=1080,R=8,C=8;
 const MOBILE_LAYOUT=!!(window.matchMedia?.('(pointer: coarse)').matches||window.navigator?.maxTouchPoints>0);
 const CELL=MOBILE_LAYOUT?110:96,BX=(W-C*CELL)/2,BY=MOBILE_LAYOUT?130:150;
 const TYPES=['strawberry','raspberry','blueberry','gooseberry','blackberry','cloudberry'];
+const TOUCH_SCALE=MOBILE_LAYOUT?1.35:1;
 const FONT='Arial Rounded MT Bold, Trebuchet MS, Arial, sans-serif';
 const pause=ms=>window.BerriesLifecycle.wait(ms);
 const fit=(img,maxW,maxH)=>{const s=Math.min(maxW/img.width,maxH/img.height);img.setScale(s);return img};
 
+// Full lives on entry stay hidden; a newly restored fifth life displays briefly.
+function lifeTimer(scene,panel,text){
+  let previous=Campaign.read().lives,fullSince=null,fading=false;
+  return function(){
+    const lives=Campaign.read().lives;
+    if(previous<5&&lives>=5)fullSince=Date.now();
+    previous=lives;
+    if(lives<5){
+      fullSince=null;fading=false;scene.tweens.killTweensOf([panel,text]);
+      panel.setVisible(true).setAlpha(1);text.setVisible(true).setAlpha(1);
+      text.setText('+1 ЖИЗНЬ\\n'+(Campaign.lifeLabel().split(' • ')[1]||''));
+    }else if(fullSince!==null&&Date.now()-fullSince<5000){
+      panel.setVisible(true);text.setVisible(true).setText('МАКСИМУМ');
+    }else if(fullSince!==null&&!fading){
+      fading=true;scene.tweens.add({targets:[panel,text],alpha:0,duration:300,onComplete:()=>{panel.setVisible(false);text.setVisible(false)}});
+    }else if(fullSince===null){panel.setVisible(false);text.setVisible(false)}
+  };
+}
+function outsideClose(scene,box,x,y,close){
+  const blocker=scene.add.zone(W/2-x,H/2-y,W,H).setInteractive();
+  blocker.on('pointerdown',(p,lx,ly,event)=>{event?.stopPropagation();close()});
+  box.add(blocker);
+}
 function getProto(){
   const scene=window.__berriesGame?.scene?.keys?.Play;
   return scene?Object.getPrototypeOf(scene):null;
@@ -340,9 +364,9 @@ function install(){
     const label=(x,y,value,size=30,color='#fff4cf')=>this.add.text(x,y,value,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color,stroke:color==='#57301d'?'#fff4d5':'#63351e',strokeThickness:color==='#57301d'?1:5,align:'center'}).setOrigin(.5).setDepth(20);
     const wood=(x,y,w,h)=>fit(this.add.image(x,y,'wood_flat'),w,h).setDepth(17);
     const nav=(x,y,title,icon,action)=>{
-      const bg=wood(x,y,345,108).setInteractive({useHandCursor:true});
+      const bg=wood(x,y,345*TOUCH_SCALE,108*TOUCH_SCALE).setInteractive({useHandCursor:true});
       fit(this.add.image(x-115,y,icon),65,65).setDepth(20);
-      label(x+27,y,title,30);
+      label(x+27,y,title,30*TOUCH_SCALE);
       bg.on('pointerdown',()=>{this.fx.click();action()});
     };
     fit(this.add.image(960,73,'plevel'),610,140).setDepth(18);
@@ -352,30 +376,27 @@ function install(){
     this.coinText=label(310,77,String(save.coins||0),32,'#57301d');
     coinPanel.disableInteractive();
     const lifePanel=fit(this.add.image(1610,77,'plives'),380,104).setDepth(18).setInteractive({useHandCursor:true});
-    this.lifeText=label(1620,77,String(Campaign.read().lives),32,'#57301d');
-    const clockX=1610,clockY=184;
+    this.lifeText=label(1627,84,String(Campaign.read().lives),32,'#57301d');
+    const clockX=1610,clockY=172;
     this.lifeClockPanel=fit(this.add.image(clockX,clockY,'time_panel'),340,112).setDepth(17);
     this.lifeClock=label(clockX+this.lifeClockPanel.displayWidth*.11,clockY+this.lifeClockPanel.displayHeight*.04,'',21);
-    this.refreshLifeDisplay=()=>{
-      const state=Campaign.read(),show=state.lives<5;
-      this.lifeText.setText(String(state.lives));
-      this.lifeClockPanel.setVisible(show);this.lifeClock.setVisible(show);
-      if(show)this.lifeClock.setText('+1 ЖИЗНЬ\n'+Campaign.lifeLabel().split(' • ')[1]);
-    };
+    const updateClock=lifeTimer(this,this.lifeClockPanel,this.lifeClock);
+    this.refreshLifeDisplay=()=>{this.lifeText.setText(String(Campaign.read().lives));updateClock()};
     this.refreshLifeDisplay();
     this.time.addEvent({delay:1000,loop:true,callback:()=>this.refreshLifeDisplay()});
     lifePanel.disableInteractive();
     wood(300,180,300,88);this.mt=label(300,180,'',29);
     this.st=null;
-    nav(300,1016,'НАЗАД','ui_back',()=>{window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
-    const shopButton=fit(this.add.image(1610,1016,'shop_plaque_new'),390,96).setDepth(17).setInteractive({useHandCursor:true});
-    label(1650,1016,'МАГАЗИН',28);shopButton.on('pointerdown',()=>{this.fx.click();this.openShop()});
+    nav(MOBILE_LAYOUT?250:300,MOBILE_LAYOUT?1000:1016,'НАЗАД','ui_back',()=>{window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
+    const shopButton=fit(this.add.image(MOBILE_LAYOUT?1660:1610,MOBILE_LAYOUT?1000:1016,'shop_plaque_new'),390*TOUCH_SCALE,96*TOUCH_SCALE).setDepth(17).setInteractive({useHandCursor:true});
+    label(MOBILE_LAYOUT?1700:1650,MOBILE_LAYOUT?1000:1016,'МАГАЗИН',28*TOUCH_SCALE);shopButton.on('pointerdown',()=>{this.fx.click();this.openShop()});
 
-    const settingsBg=this.add.circle(1872,66,38,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(19);
-    const settings=fit(this.add.image(1872,66,'ui_settings'),49,49).setDepth(20).setInteractive({useHandCursor:true});
+    const settingsBg=this.add.circle(1858,66,38*TOUCH_SCALE,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(19);
+    const settings=fit(this.add.image(1858,66,'ui_settings'),49*TOUCH_SCALE,49*TOUCH_SCALE).setDepth(20).setInteractive({useHandCursor:true});
     settings.on('pointerdown',()=>{
       if(this._soundMenu?.active){this._soundMenu.destroy();this._soundMenu=null;return}
-      const box=this.add.container(1640,265).setDepth(40);
+      const box=this.add.container(1640,265).setDepth(80);
+      outsideClose(this,box,1640,265,()=>{box.destroy();this._soundMenu=null});
       const bg=this.add.graphics();
       bg.fillStyle(0xfff7e9,.95);bg.fillRoundedRect(-235,-145,470,290,24);
       bg.lineStyle(3,0xcda36a,1);bg.strokeRoundedRect(-235,-145,470,290,24);
@@ -431,7 +452,7 @@ function install(){
     this.add.zone(1610+boosterHead.displayWidth*.338,302,70,70).setDepth(21).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
     this.boosterButtons={};
     [['hammer',441],['shuffle',582],['fan',722]].forEach(([id,y])=>{
-      const im=fit(this.add.image(1610,y,id),96,96).setDepth(5).setInteractive({useHandCursor:true});
+      const im=fit(this.add.image(1610,y,id),96*TOUCH_SCALE,96*TOUCH_SCALE).setDepth(5).setInteractive({useHandCursor:true});
       this.add.circle(1660,y+39,24,0x237fbd,1).setStrokeStyle(3,0xffe9b0).setDepth(6);
       const tx=label(1660,y+39,'',24);tx.setDepth(7);
       im.on('pointerdown',()=>this.pickBooster(id));this.boosterButtons[id]={im,tx};
@@ -767,15 +788,16 @@ function install(){
 
       const topCoinPanel=fit(this.add.image(250,72,'pcoins'),400,108).setDepth(40).setInteractive({useHandCursor:true});
       const topCoinText=this.add.text(264,72,'',{fontFamily:FONT,fontSize:'31px',fontStyle:'bold',color:'#57301d',align:'center'}).setOrigin(.5).setDepth(41);
-      topCoinPanel.on('pointerdown',()=>this.openShop());
+      topCoinPanel.disableInteractive(); // Plus reserved for the forthcoming royal shop.
       this.updateHud=()=>topCoinText.setText(String(Campaign.read().coins));
       this.updateHud();
 
-      this.add.circle(1848,68,45,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(40);
-      const mapSettings=fit(this.add.image(1848,68,'ui_settings'),58,58).setDepth(41).setInteractive({useHandCursor:true});
+      this.add.circle(1848,68,45*TOUCH_SCALE,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(40);
+      const mapSettings=fit(this.add.image(1848,68,'ui_settings'),58*TOUCH_SCALE,58*TOUCH_SCALE).setDepth(41).setInteractive({useHandCursor:true});
       mapSettings.on('pointerdown',()=>{
         if(this._mapSettings?.active){this._mapSettings.destroy();this._mapSettings=null;return}
         const box=this.add.container(1635,245).setDepth(70);this._mapSettings=box;
+        outsideClose(this,box,1635,245,()=>{box.destroy();this._mapSettings=null});
         const bg=this.add.graphics();bg.fillStyle(0xfff7e9,.97);bg.fillRoundedRect(-235,-145,470,290,24);bg.lineStyle(4,0xcda36a,1);bg.strokeRoundedRect(-235,-145,470,290,24);box.add(bg);
         box.add(this.add.zone(0,0,470,290).setInteractive());
         const text=(x,y,value,size=26)=>this.add.text(x,y,value,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color:'#543922',align:'center'}).setOrigin(.5);
@@ -812,26 +834,27 @@ function install(){
       const editor=false;
       const nodes=[];let selected=null,selection=null,status=null;
       if(!editor){
-        fit(this.add.image(215,1022,'plives'),345,96).setDepth(40);
-        const timerPanel=fit(this.add.image(590,1022,'time_panel'),360,112).setDepth(40);
-        fit(this.add.image(1030,1022,'shop_plaque_new'),430,106).setDepth(40);
-        const levelPanel=fit(this.add.image(1530,1022,'map_level_panel'),450,112).setDepth(40);
+        fit(this.add.image(710,1006,'plives'),420,126).setDepth(40);
+        const timerPanel=fit(this.add.image(1100,1006,'time_panel'),390,140).setDepth(40);
+        fit(this.add.image(1640,1006,'shop_plaque_new'),520,140).setDepth(40);
+        const levelPanel=fit(this.add.image(250,1006,'map_level_panel'),470,150).setDepth(40);
         const footerStyle={fontFamily:FONT,fontStyle:'bold',color:'#fff4cf',align:'center',stroke:'#67371d',strokeThickness:4};
-        const lives=this.add.text(223,1022,'',{fontFamily:FONT,fontStyle:'bold',color:'#57301d',align:'center',fontSize:'28px'}).setOrigin(.5).setDepth(41);
+        const lives=this.add.text(727,1014,'',{fontFamily:FONT,fontStyle:'bold',color:'#57301d',align:'center',fontSize:'28px'}).setOrigin(.5).setDepth(41);
         const timer=this.add.text(timerPanel.x+.11*timerPanel.displayWidth,timerPanel.y+.04*timerPanel.displayHeight,'',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
-        const shop=this.add.text(1082,1022,'',{...footerStyle,fontSize:'22px'}).setOrigin(.5).setDepth(41);
-        this.add.zone(1030,1022,430,106).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
+        const shop=this.add.text(1700,1006,'',{...footerStyle,fontSize:'22px'}).setOrigin(.5).setDepth(41);
+        this.add.zone(1640,1006,520,140).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
         const levelNumber=this.add.text(levelPanel.x-.32*levelPanel.displayWidth,levelPanel.y+.10*levelPanel.displayHeight,'',{fontFamily:FONT,fontStyle:'bold',color:'#6b3218',align:'center',fontSize:'34px',stroke:'#fff1b8',strokeThickness:3}).setOrigin(.5).setDepth(41);
         const extra=this.add.text(levelPanel.x+.115*levelPanel.displayWidth,levelPanel.y+.075*levelPanel.displayHeight,'УРОВЕНЬ\nОТКРЫТ',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
+        const refreshTimer=lifeTimer(this,timerPanel,timer);
         let pending=false;
-        this.add.zone(590,1022,360,112).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
+        this.add.zone(1100,1006,390,140).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
           if(pending||Campaign.read().lives!==0)return;pending=true;timer.setText('ЗАГРУЗКА…');
           try{const ok=await window.BerriesYandex?.showRewardedVideo?.();if(ok)Campaign.addLife();else timer.setText('РЕКЛАМА\nНЕДОСТУПНА')}
           finally{pending=false}
         });
         const update=()=>{const state=Campaign.read(),lifeParts=Campaign.lifeLabel().split(' • ');
           lives.setText(String(state.lives));
-          if(!pending)timer.setText(state.lives===0?'▶ +1 ЖИЗНЬ\nЗА РЕКЛАМУ':state.lives>=5?'ЖИЗНИ\nМАКСИМУМ':`+1 ЖИЗНЬ\n${lifeParts[1]||''}`);
+          if(!pending)refreshTimer();
           shop.setText('МАГАЗИН');
           levelNumber.setText(String(highest));
         };
@@ -859,38 +882,15 @@ function install(){
         const n=index+1,completed=done.has(n),unlocked=n<=highest;
         const key=completed?'level_done_new':unlocked?'level_current_new':'level_locked_new';
         const major=n%5===0||n===1||n===30,size=major?88:70;
+        const nearest=Math.min(...layout.filter((_,j)=>j!==index).map(v=>Math.hypot(v.x-q.x,v.y-q.y)));
+        const mobileScale=MOBILE_LAYOUT?Math.max(1,Math.min(1.35,(nearest-8)/(size*q.scale))):1;
         const button=fit(this.add.image(0,0,key),size,size);
-        // Rounded vector numerals: identical on every device, without system-font fallback.
-        const digits=[
-          'M12 3 C2 3 3 13 3 18 C3 25 3 33 12 33 C21 33 21 25 21 18 C21 11 22 3 12 3 Z',
-          'M6 10 L13 3 L13 33',
-          'M3 9 C5 0 21 1 21 10 C21 16 13 21 4 29 L3 33 L21 33',
-          'M4 5 C11 0 21 3 21 10 C21 15 16 18 10 18 M10 18 C25 16 25 33 13 33 C9 33 5 32 3 29',
-          'M17 33 L17 3 L3 23 L22 23',
-          'M21 3 L5 3 L4 17 C24 11 26 33 12 33 C8 33 5 32 3 29',
-          'M20 5 C6 -2 3 10 3 22 C3 38 22 36 22 25 C22 14 5 14 3 23',
-          'M3 3 L22 3 L9 33',
-          'M12 18 C-1 17 0 3 12 3 C24 3 25 17 12 18 C-2 18 -1 33 12 33 C25 33 26 18 12 18',
-          'M4 31 C18 39 22 24 22 13 C22 -2 3 0 3 11 C3 22 20 22 22 12'
-        ];
-        const current=unlocked&&!completed;
-        const textureKey='map-rounded-v2-'+(current?'rose-':completed?'gold-':'stone-')+n;
-        const chars=String(n),width=chars.length*24+12;
-        if(!this.textures.exists(textureKey)){
-          const texture=this.textures.createCanvas(textureKey,width*4,44*4),ctx=texture.context;
-          ctx.scale(4,4);ctx.lineCap='round';ctx.lineJoin='round';
-          for(let j=0;j<chars.length;j++){
-            ctx.save();ctx.translate(8+j*24,4);ctx.scale(.84,1);const path=new Path2D(digits[Number(chars[j])]);
-            ctx.shadowColor=current?'rgba(66,13,59,.65)':'rgba(55,33,20,.3)';ctx.shadowBlur=5;ctx.shadowOffsetY=3;
-            ctx.strokeStyle=current?'#70345c':unlocked?'#80421e':'#445463';ctx.lineWidth=current?7.5:7;ctx.stroke(path);
-            ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-            const fill=ctx.createLinearGradient(0,0,0,36);fill.addColorStop(0,current?'#fffef1':unlocked?'#fff9cf':'#ffffff');fill.addColorStop(1,current?'#ffefc2':unlocked?'#ffd66b':'#dce5ea');
-            ctx.strokeStyle=fill;ctx.lineWidth=current?5.3:4.8;ctx.stroke(path);ctx.restore();
-          }
-          texture.refresh();
-        }
-        const number=this.add.image(0,button.displayHeight*.075,textureKey).setDisplaySize(width*(major?.65:.59),44*(major?.65:.59));
-        const node=this.add.container(q.x,q.y,[button,number]).setDepth(5).setSize(size,size).setScale(q.scale);
+        const number=this.add.text(0,button.displayHeight*.07,String(n),{
+          fontFamily:'BerriesDigits',fontSize:(major?31:27)+'px',fontStyle:'bold',
+          color:completed?'#794423':'#fff5df',stroke:completed?'#ffefb5':'#633452',strokeThickness:1.2,
+          shadow:{offsetX:0,offsetY:1,color:'rgba(45,20,35,.3)',blur:1,fill:true}
+        }).setOrigin(.5).setResolution(3);
+        const node=this.add.container(q.x,q.y,[button,number]).setDepth(5).setSize(size,size).setScale(q.scale*mobileScale);
         node.setData({level:n,size,number});nodes.push(node);
         if(editor){
           node.setInteractive(new Phaser.Geom.Rectangle(-size/2,-size/2,size,size),Phaser.Geom.Rectangle.Contains);
