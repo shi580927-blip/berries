@@ -873,20 +873,23 @@ function install(){
           'M12 18 C-1 17 0 3 12 3 C24 3 25 17 12 18 C-2 18 -1 33 12 33 C25 33 26 18 12 18',
           'M4 31 C18 39 22 24 22 13 C22 -2 3 0 3 11 C3 22 20 22 22 12'
         ];
-        const textureKey='map-rounded-'+(unlocked?'gold-':'stone-')+n;
-        const chars=String(n),width=chars.length*28+8;
+        const current=unlocked&&!completed;
+        const textureKey='map-rounded-v2-'+(current?'rose-':completed?'gold-':'stone-')+n;
+        const chars=String(n),width=chars.length*24+12;
         if(!this.textures.exists(textureKey)){
           const texture=this.textures.createCanvas(textureKey,width*4,44*4),ctx=texture.context;
           ctx.scale(4,4);ctx.lineCap='round';ctx.lineJoin='round';
           for(let j=0;j<chars.length;j++){
-            ctx.save();ctx.translate(6+j*28,4);const path=new Path2D(digits[Number(chars[j])]);
-            ctx.strokeStyle=unlocked?'#80421e':'#445463';ctx.lineWidth=7;ctx.stroke(path);
-            const fill=ctx.createLinearGradient(0,0,0,36);fill.addColorStop(0,unlocked?'#fff9cf':'#ffffff');fill.addColorStop(1,unlocked?'#ffd66b':'#dce5ea');
-            ctx.strokeStyle=fill;ctx.lineWidth=4.8;ctx.stroke(path);ctx.restore();
+            ctx.save();ctx.translate(8+j*24,4);ctx.scale(.84,1);const path=new Path2D(digits[Number(chars[j])]);
+            ctx.shadowColor=current?'rgba(66,13,59,.65)':'rgba(55,33,20,.3)';ctx.shadowBlur=5;ctx.shadowOffsetY=3;
+            ctx.strokeStyle=current?'#70345c':unlocked?'#80421e':'#445463';ctx.lineWidth=current?7.5:7;ctx.stroke(path);
+            ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+            const fill=ctx.createLinearGradient(0,0,0,36);fill.addColorStop(0,current?'#fffef1':unlocked?'#fff9cf':'#ffffff');fill.addColorStop(1,current?'#ffefc2':unlocked?'#ffd66b':'#dce5ea');
+            ctx.strokeStyle=fill;ctx.lineWidth=current?5.3:4.8;ctx.stroke(path);ctx.restore();
           }
           texture.refresh();
         }
-        const number=this.add.image(0,button.displayHeight*.055,textureKey).setDisplaySize(width*(major?.72:.65),44*(major?.72:.65));
+        const number=this.add.image(0,button.displayHeight*.075,textureKey).setDisplaySize(width*(major?.65:.59),44*(major?.65:.59));
         const node=this.add.container(q.x,q.y,[button,number]).setDepth(5).setSize(size,size).setScale(q.scale);
         node.setData({level:n,size,number});nodes.push(node);
         if(editor){
