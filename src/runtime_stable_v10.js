@@ -419,12 +419,14 @@ function install(){
     // Fixed-size panels and slot centres in the 1920x1080 reference grid.
     fit(this.add.image(300,560,'goals_panel_new'),345,646).setDepth(3);
     const count=Math.max(1,this.goals.length);
-    const slots=count===1?[612]:count===2?[500,700]:[474,612,738];
+    const slots=count===1?[612]:count===2?[474,738]:[474,612,738];
     this.gt=this.goals.map((goal,index)=>{
       const y=slots[index]??slots[slots.length-1];
       const key=goal.type==='berry'?'b_'+goal.id:goal.type==='ice'?'ice1':goal.type==='acorn'?'acorn':goal.type==='roots'?'roots':'ui_coin';
-      fit(this.add.image(245,y,key),78,78).setDepth(5);
-      return label(350,y,'',27,'#57301d');
+      fit(this.add.image(248,y,key),78,78).setDepth(5);
+      const value=label(358,y,'',27,'#57301d');
+      value.setFixedSize(126,50).setAlign('center');
+      return value;
     });
     fit(this.add.image(1610,570,'pboost'),280,650).setDepth(3);
     const boosterHead=fit(this.add.image(1610,302,'head_boosters'),380,110).setDepth(20);
@@ -470,7 +472,7 @@ function install(){
     shade.on('pointerdown',close);
     const panel=fit(this.add.image(960,540,'coin_shop_new'),720,960).setInteractive();box.add(panel);
     const text=(x,y,t,size=28)=>this.add.text(x,y,t,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color:'#59331d',align:'center'}).setOrigin(.5);
-    const coins=text(1020,377,'',24),message=text(960,914,'Бустеры сохраняются\nмежду уровнями',18);message.setLineSpacing(-3);box.add([coins,message]);
+    const coins=text(1020,377,'',24),message=text(960,892,'Бустеры сохраняются\nмежду уровнями',18);message.setLineSpacing(-3);box.add([coins,message]);
     const counts=[];
     const refresh=()=>{const state=Campaign.read();coins.setText('МОНЕТЫ\n'+state.coins);counts.forEach(([id,title,t])=>t.setText(title+'\nВ запасе: '+state.inventory[id]));if(this.inventory)this.inventory={...state.inventory};this.refreshBoosters?.()};
     [['hammer','Молоток'],['shuffle','Перемешивание'],['fan','Вентилятор']].forEach(([id,title],i)=>{
@@ -793,7 +795,8 @@ function install(){
         const timer=this.add.text(638,1022,'',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
         const shop=this.add.text(1082,1022,'',{...footerStyle,fontSize:'22px'}).setOrigin(.5).setDepth(41);
         this.add.zone(1030,1022,430,106).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
-        const extra=this.add.text(1584,1022,'',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
+        const levelNumber=this.add.text(1396,1022,'',{fontFamily:FONT,fontStyle:'bold',color:'#6b3218',align:'center',fontSize:'34px',stroke:'#fff1b8',strokeThickness:3}).setOrigin(.5).setDepth(41);
+        const extra=this.add.text(1592,1022,'УРОВЕНЬ ОТКРЫТ',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
         let pending=false;
         this.add.zone(590,1022,360,112).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
           if(pending||Campaign.read().lives!==0)return;pending=true;timer.setText('ЗАГРУЗКА…');
@@ -804,7 +807,7 @@ function install(){
           lives.setText(String(state.lives));
           if(!pending)timer.setText(state.lives===0?'▶ +1 ЖИЗНЬ\nЗА РЕКЛАМУ':state.lives>=5?'ЖИЗНИ\nМАКСИМУМ':`+1 ЖИЗНЬ\n${lifeParts[1]||''}`);
           shop.setText('МАГАЗИН\n'+state.coins+' МОНЕТ');
-          extra.setText('ОТКРЫТ УРОВЕНЬ\n'+highest);
+          levelNumber.setText(String(highest));
         };
         update();this.time.addEvent({delay:1000,loop:true,callback:update});
       }
