@@ -68,6 +68,20 @@ class Sfx{
   wood(){if(this.can('wood',70)){this.tone(225,.055,.018,'triangle',-95);this.tone(120,.07,.012,'sine',-30,.012)}}
   spark(){if(this.can('spark',55)){this.tone(920,.085,.012,'sine',330);this.tone(1320,.065,.009,'sine',130,.035)}}
   whoosh(){if(this.can('whoosh',65)){this.tone(270,.12,.015,'sine',500);this.tone(560,.10,.008,'triangle',280,.025)}}
+  specialLine(dir){
+    if(!this.can('special-line-'+dir,105))return;
+    if(dir==='h'){
+      this.tone(620,.105,.014,'sine',760);
+      this.tone(940,.075,.008,'triangle',430,.032);
+    }else{
+      this.tone(1180,.105,.013,'sine',-650);
+      this.tone(760,.085,.008,'triangle',-300,.028);
+    }
+  }
+  rainbow(){
+    if(!this.can('special-rainbow',420))return;
+    [720,960,1260,1680].forEach((f,i)=>this.tone(f,.10,.010,'sine',180,i*.038));
+  }
   bomb(){
     if(this.muted||window.BerriesLifecycle.paused||!this.can('bomb',120))return;
     this.tone(155,.27,.070,'sine',-95);this.tone(290,.12,.020,'triangle',-170,.008);
@@ -233,7 +247,7 @@ class Play extends Phaser.Scene{
   bombFx(r,c){const p=this.pos(r,c),ring=this.add.circle(p.x,p.y,12,0xffd36a,.18).setStrokeStyle(8,0xffc84b,1).setDepth(12);this.tweens.add({targets:ring,scale:7,alpha:0,duration:330,ease:'Quad.out',onComplete:()=>ring.destroy()});this.burst(p.x,p.y,0xff9b3d,18);this.cameras.main.shake(120,.005)}
   rainbowFx(){const ring=this.add.circle(BX+C*CELL/2,BY+R*CELL/2,40,0xffffff,.04).setStrokeStyle(12,0xffffff,.85).setDepth(12);this.tweens.add({targets:ring,scale:9,alpha:0,duration:480,onComplete:()=>ring.destroy()});this.fx.whoosh();this.kingReact('celebrate',850)}
   specialCreateFx(p){const q=this.pos(p.r,p.c),ring=this.add.circle(q.x,q.y,18,0xffffff,.04).setStrokeStyle(6,0xfff0a5,1).setDepth(12);this.tweens.add({targets:ring,scale:3,alpha:0,duration:300,onComplete:()=>ring.destroy()});this.burst(q.x,q.y,0xffffb0,14);this.fx.spark()}
-  async clearCells(initial,chain=1){const set=this.expandSpecials(new Set(initial)),damageRoots=new Set(),damageAcorns=new Set(),damagedIce=new Set();let berrySoundPlayed=false;for(const key of set){const [r,c]=key.split(',').map(Number),it=this.board[r][c];if(it?.sp==='line_h'){this.fx.whoosh();this.lineFx(r,c,'h')}if(it?.sp==='line_v'){this.fx.whoosh();this.lineFx(r,c,'v')}if(it?.sp==='bomb'){this.fx.bomb();this.bombFx(r,c)}if(it?.sp==='rainbow')this.rainbowFx();if(this.cell[r][c].block==='roots')damageRoots.add(key);if(this.cell[r][c].block==='acorn')damageAcorns.add(key);for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const rr=r+dr,cc=c+dc;if(!inBounds(rr,cc))continue;if(this.cell[rr][cc].block==='roots')damageRoots.add(`${rr},${cc}`);if(this.cell[rr][cc].block==='acorn')damageAcorns.add(`${rr},${cc}`)}}
+  async clearCells(initial,chain=1){const set=this.expandSpecials(new Set(initial)),damageRoots=new Set(),damageAcorns=new Set(),damagedIce=new Set();let berrySoundPlayed=false;for(const key of set){const [r,c]=key.split(',').map(Number),it=this.board[r][c];if(it?.sp==='line_h'){this.fx.specialLine('h');this.lineFx(r,c,'h')}if(it?.sp==='line_v'){this.fx.specialLine('v');this.lineFx(r,c,'v')}if(it?.sp==='bomb'){this.fx.bomb();this.bombFx(r,c)}if(it?.sp==='rainbow')this.rainbowFx();if(this.cell[r][c].block==='roots')damageRoots.add(key);if(this.cell[r][c].block==='acorn')damageAcorns.add(key);for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const rr=r+dr,cc=c+dc;if(!inBounds(rr,cc))continue;if(this.cell[rr][cc].block==='roots')damageRoots.add(`${rr},${cc}`);if(this.cell[rr][cc].block==='acorn')damageAcorns.add(`${rr},${cc}`)}}
     for(const key of set){const [r,c]=key.split(',').map(Number),it=this.board[r][c],ce=this.cell[r][c];const p=this.pos(r,c);if(ce.ice>0){damagedIce.add(key);ce.ice--;if(ce.ice===0)this.bumpGoal('ice',null,1);this.fx.iceBreak();this.iceShards(p.x,p.y);this.render(r,c);continue}if(!it)continue;this.bumpGoal('berry',it.id,1);this.score+=50*Math.min(2,1+(chain-1)*.25);if(!berrySoundPlayed){this.fx.pop(chain);berrySoundPlayed=true}this.burst(p.x,p.y,0xffd66f,6);const s=this.spr[r][c];if(s)await new Promise(z=>this.tweens.add({targets:s,scaleX:s.scaleX*1.22,scaleY:s.scaleY*.68,alpha:0,duration:145,ease:'Quad.in',onComplete:z}));this.board[r][c]=null;this.render(r,c)}
     for(const key of damageRoots){const [r,c]=key.split(',').map(Number);if(this.cell[r][c].block==='roots'){this.cell[r][c].block=null;this.bumpGoal('roots',null,1);this.fx.wood();const p=this.pos(r,c);this.burst(p.x,p.y,0x9c6b3c,10);this.render(r,c)}}
     for(const key of damageAcorns){const [r,c]=key.split(',').map(Number);if(damagedIce.has(key))continue;if(this.cell[r][c].block==='acorn'&&this.cell[r][c].ice>0){this.cell[r][c].ice--;if(!this.cell[r][c].ice)this.bumpGoal('ice',null,1);this.fx.iceBreak();const p=this.pos(r,c);this.iceShards(p.x,p.y);this.render(r,c);continue}if(this.cell[r][c].block==='acorn'&&!this.cell[r][c].ice){this.cell[r][c].block=null;this.bumpGoal('acorn',null,1);this.fx.spark();const p=this.pos(r,c);this.burst(p.x,p.y,0xffe48d,10);this.render(r,c)}}this.updateHud();if(chain>=2)this.kingReact('celebrate',520)}
