@@ -688,7 +688,7 @@ function install(){
       this.fxWave(x,y,color,170+i*42);
       this.fxBits(x,y,[color,0xffffff],9,180+i*30);
     });
-    this.music?.accent('combo');this.fx.whoosh();this.kingReact('celebrate',900);
+    this.music?.accent('combo');this.fx.rainbow();this.kingReact('celebrate',900);
   };
   const baseResultPopup=p.resultPopup;
   p.resultPopup=function(win,...args){
