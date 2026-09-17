@@ -831,7 +831,8 @@ function install(){
         x:Number(stored[index]?.x??base[0]),y:Number(stored[index]?.y??base[1]),
         scale:Number(stored[index]?.scale??base[2])
       }));
-      const editor=false;
+      // Opt-in visual map editor. Normal players never enter this mode.
+      const editor=new URLSearchParams(window.location.search).get('mapEditor')==='1';
       const nodes=[];let selected=null,selection=null,status=null;
       if(!editor){
         fit(this.add.image(710,1006,'plives'),420,126).setDepth(40);
