@@ -6,7 +6,10 @@ destination=root.parent/'berries_mvp_yandex_2026-09-16.zip'
 files=[root/'index.html',root/'styles.css']
 for directory in ['src','vendor','assets','audio']:
     files.extend(p for p in (root/directory).rglob('*') if p.is_file() and p.name!='.gitkeep' and (directory!='src' or p.relative_to(root).as_posix() in ['src/lifecycle.js','src/campaign.js','src/vertical_slice.js','src/runtime_stable_v10.js','src/sdk/yandex.js']))
-files=[p for p in files if p.relative_to(root).as_posix()!='audio/music/music_event_adventureland.mp3']
+files=[p for p in files if p.relative_to(root).as_posix() not in {
+    'audio/music/music_event_adventureland.mp3',
+    'assets/ui/panels/Магазин панель.png',
+}]
 files.extend([root/'docs/LICENSES_AUDIO.md'])
 files=sorted(set(files))
 for p in files:
