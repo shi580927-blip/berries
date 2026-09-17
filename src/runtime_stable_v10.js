@@ -353,14 +353,14 @@ function install(){
     coinPanel.disableInteractive();
     const lifePanel=fit(this.add.image(1610,77,'plives'),380,104).setDepth(18).setInteractive({useHandCursor:true});
     this.lifeText=label(1620,77,String(Campaign.read().lives),32,'#57301d');
-    const clockX=1610,clockY=180;
-    this.lifeClockPanel=wood(clockX,clockY,300,88);
-    this.lifeClock=label(clockX,clockY,'',22);
+    const clockX=1610,clockY=184;
+    this.lifeClockPanel=fit(this.add.image(clockX,clockY,'time_panel'),340,112).setDepth(17);
+    this.lifeClock=label(clockX+42,clockY,'',21);
     this.refreshLifeDisplay=()=>{
       const state=Campaign.read(),show=state.lives<5;
       this.lifeText.setText(String(state.lives));
       this.lifeClockPanel.setVisible(show);this.lifeClock.setVisible(show);
-      if(show)this.lifeClock.setText('До +1 жизни: '+Campaign.lifeLabel().split(' • ')[1]);
+      if(show)this.lifeClock.setText('+1 ЖИЗНЬ\n'+Campaign.lifeLabel().split(' • ')[1]);
     };
     this.refreshLifeDisplay();
     this.time.addEvent({delay:1000,loop:true,callback:()=>this.refreshLifeDisplay()});
@@ -470,9 +470,9 @@ function install(){
     shade.on('pointerdown',close);
     const panel=fit(this.add.image(960,540,'coin_shop_new'),720,960).setInteractive();box.add(panel);
     const text=(x,y,t,size=28)=>this.add.text(x,y,t,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color:'#59331d',align:'center'}).setOrigin(.5);
-    const coins=text(982,377,'',28),message=text(960,960,'Бустеры сохраняются между уровнями',20);box.add([coins,message]);
+    const coins=text(1020,377,'',24),message=text(960,948,'Бустеры сохраняются\nмежду уровнями',20);box.add([coins,message]);
     const counts=[];
-    const refresh=()=>{const state=Campaign.read();coins.setText('Монеты: '+state.coins);counts.forEach(([id,title,t])=>t.setText(title+'\nВ запасе: '+state.inventory[id]));if(this.inventory)this.inventory={...state.inventory};this.refreshBoosters?.()};
+    const refresh=()=>{const state=Campaign.read();coins.setText('МОНЕТЫ\n'+state.coins);counts.forEach(([id,title,t])=>t.setText(title+'\nВ запасе: '+state.inventory[id]));if(this.inventory)this.inventory={...state.inventory};this.refreshBoosters?.()};
     [['hammer','Молоток'],['shuffle','Перемешивание'],['fan','Вентилятор']].forEach(([id,title],i)=>{
       const y=[520,672,824][i];
       const count=text(945,y,'',22);counts.push([id,title,count]);box.add(count);
@@ -495,12 +495,14 @@ function install(){
     info.fillRoundedRect(X(rect[0]),Y(rect[1]),rect[2]*art.displayWidth,rect[3]*art.displayHeight,12);
     info.strokeRoundedRect(X(rect[0]),Y(rect[1]),rect[2]*art.displayWidth,rect[3]*art.displayHeight,12);
     const infoText=this.add.text(X(win?.675:.692),Y(win?.525:.52),'',{
-      fontFamily:FONT,fontSize:(win?26:20)+'px',fontStyle:'bold',color:'#59331d',align:'center',wordWrap:{width:art.displayWidth*.39}
+      fontFamily:FONT,fontSize:'29px',fontStyle:'bold',color:'#59331d',align:'center',wordWrap:{width:art.displayWidth*.39}
     }).setOrigin(.5);box.add(infoText);
     const names={strawberry:'Клубника',raspberry:'Малина',blueberry:'Черника',gooseberry:'Крыжовник',blackberry:'Ежевика',cloudberry:'Морошка',ice:'Лёд',roots:'Корни',acorn:'Жёлуди',score:'Очки'};
     const refreshInfo=()=>{
       if(win){const reward=Campaign.read().lastWin;infoText.setText('Награда\n'+(reward?.id===this.attemptId?reward.reward*(reward.doubled?2:1):0)+' монет')}
-      else infoText.setText('Осталось собрать:\n'+this.goals.map(g=>({g,left:Math.max(0,g.need-(g.type==='score'?Math.round(this.score):g.done))})).filter(q=>q.left>0).map(q=>(names[q.g.id||q.g.type]||'Цель')+': '+q.left).join('\n'));
+      else infoText.setText('Осталось собрать\n'+this.goals.map(g=>({g,left:Math.max(0,g.need-(g.type==='score'?Math.round(this.score):g.done))})).filter(q=>q.left>0).map(q=>(names[q.g.id||q.g.type]||'Цель')+': '+q.left).join('\n'));
+      infoText.setFontSize(29);
+      if(infoText.height>art.displayHeight*(win?.19:.155))infoText.setFontSize(23);
     };refreshInfo();
     const adStatus=this.add.text(0,art.displayHeight/2+25,'',{fontFamily:FONT,fontSize:'23px',color:'#fff4cf',align:'center',stroke:'#402515',strokeThickness:4}).setOrigin(.5);box.add(adStatus);
     const hit=(x,y,w,h,cb)=>{
@@ -782,19 +784,24 @@ function install(){
       const editor=false;
       const nodes=[];let selected=null,selection=null,status=null;
       if(!editor){
-        for(const x of [400,960,1520])fit(this.add.image(x,1026,'wood_flat'),490,92).setDepth(40);
-        const lives=this.add.text(400,1026,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff4cf'}).setOrigin(.5).setDepth(41);
-        const shop=this.add.text(960,1026,'МАГАЗИН',{fontFamily:FONT,fontSize:'26px',fontStyle:'bold',color:'#ffe5a1'}).setOrigin(.5).setDepth(41).setInteractive({useHandCursor:true});
-        this.add.zone(960,1026,490,92).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
-        const extra=this.add.text(1520,1026,'',{fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#ffe5a1'}).setOrigin(.5).setDepth(41).setInteractive({useHandCursor:true});
+        fit(this.add.image(400,1022,'time_panel'),470,124).setDepth(40);
+        fit(this.add.image(960,1022,'shop_plaque_new'),470,116).setDepth(40);
+        fit(this.add.image(1520,1022,'map_level_panel'),480,120).setDepth(40);
+        const footerStyle={fontFamily:FONT,fontStyle:'bold',color:'#fff4cf',align:'center',stroke:'#67371d',strokeThickness:4};
+        const lives=this.add.text(450,1022,'',{...footerStyle,fontSize:'22px'}).setOrigin(.5).setDepth(41);
+        const shop=this.add.text(1015,1022,'',{...footerStyle,fontSize:'23px'}).setOrigin(.5).setDepth(41);
+        this.add.zone(960,1022,470,116).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
+        const extra=this.add.text(1578,1022,'',{...footerStyle,fontSize:'22px'}).setOrigin(.5).setDepth(41);
         let pending=false;
-        this.add.zone(1520,1026,490,92).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
-          if(pending||Campaign.read().lives!==0)return;pending=true;extra.setText('Загрузка…');
-          try{const ok=await window.BerriesYandex?.showRewardedVideo?.();if(ok)Campaign.addLife();else extra.setText('Реклама недоступна')}
+        this.add.zone(400,1022,470,124).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
+          if(pending||Campaign.read().lives!==0)return;pending=true;lives.setText('ЗАГРУЗКА…');
+          try{const ok=await window.BerriesYandex?.showRewardedVideo?.();if(ok)Campaign.addLife();else lives.setText('РЕКЛАМА\nНЕДОСТУПНА')}
           finally{pending=false}
         });
-        const update=()=>{const state=Campaign.read();lives.setText('Жизни: '+Campaign.lifeLabel());shop.setText('МАГАЗИН • '+state.coins);
-          if(!pending)extra.setText(state.lives===0?'▶ +1 жизнь за рекламу':'Открыт уровень '+highest);
+        const update=()=>{const state=Campaign.read(),lifeParts=Campaign.lifeLabel().split(' • ');
+          if(!pending)lives.setText(state.lives===0?'ЖИЗНИ  0 / 5\n▶ +1 ЗА РЕКЛАМУ':state.lives>=5?'ЖИЗНИ  5 / 5\nМАКСИМУМ':`ЖИЗНИ  ${state.lives} / 5\n+1 через ${lifeParts[1]||''}`);
+          shop.setText('МАГАЗИН\n'+state.coins+' МОНЕТ');
+          extra.setText('ОТКРЫТ УРОВЕНЬ\n'+highest);
         };
         update();this.time.addEvent({delay:1000,loop:true,callback:update});
       }
