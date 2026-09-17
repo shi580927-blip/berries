@@ -1,7 +1,30 @@
 (() => {
 'use strict';
-const state={ysdk:null,player:null,payments:null,ready:false,gameplayActive:false,initPromise:null,paymentsPromise:null,purchasePromise:null,cloudLoaded:false,adPromise:null};
+const REWARDED_COOLDOWN_MS=2*60*1000,REWARDED_AT_KEY='berries_rewarded_last_at';
+const state={ysdk:null,player:null,payments:null,ready:false,gameplayActive:false,initPromise:null,paymentsPromise:null,purchasePromise:null,cloudLoaded:false,adPromise:null,rewardedBlock:{reason:null,remainingMs:0}};
 let queued=null,saveTimer=null,saving=false;
+function rewardedCooldownRemaining(){
+ let last=0;try{last=Number(localStorage.getItem(REWARDED_AT_KEY)||0)}catch{}
+ return Math.max(0,REWARDED_COOLDOWN_MS-(Date.now()-last));
+}
+function rewardedCooldownLabel(){
+ const ms=rewardedCooldownRemaining();if(ms<=0)return '';
+ const sec=Math.ceil(ms/1000),min=Math.floor(sec/60),rest=String(sec%60).padStart(2,'0');
+ return `${min}:${rest}`;
+}
+function markRewardedShown(){try{localStorage.setItem(REWARDED_AT_KEY,String(Date.now()))}catch{}}
+function rewardedOfferEligible(){
+ const campaign=window.BerriesCampaign?.read?.();
+ const game=window.__berriesGame,play=game?.scene?.keys?.Play,map=game?.scene?.keys?.Map;
+ if(play?.scene?.isActive?.()){
+  const attempt=play.attemptId;
+  if(campaign?.lastWin?.id===attempt)return !campaign.lastWin.doubled&&!play.winRewardDoubled;
+  if(campaign?.active?.id===attempt&&campaign.active.lost)return !play.continueUsed;
+  return false;
+ }
+ if(map?.scene?.isActive?.())return campaign?.lives===0;
+ return false;
+}
 async function init(){
  if(state.initPromise)return state.initPromise;
  state.initPromise=(async()=>{
@@ -76,23 +99,33 @@ function purchaseProduct(productID){
 }
 function showRewardedVideo(){
  if(state.adPromise)return state.adPromise;
+ if(!rewardedOfferEligible()){state.rewardedBlock={reason:'already_claimed',remainingMs:0};return Promise.resolve(false)}
+ const remaining=rewardedCooldownRemaining();
+ if(remaining>0){state.rewardedBlock={reason:'cooldown',remainingMs:remaining};return Promise.resolve(false)}
+ state.rewardedBlock={reason:null,remainingMs:0};
  state.adPromise=(async()=>{
-  await init();if(!state.ysdk?.adv?.showRewardedVideo)return false;
+  await init();if(!state.ysdk?.adv?.showRewardedVideo){state.rewardedBlock={reason:'unavailable',remainingMs:0};return false}
   window.BerriesLifecycle.set('advertisement',true);await gameplayStop();
   return new Promise(resolve=>{
    let rewarded=false,finished=false;
-   const finish=ok=>{if(finished)return;finished=true;window.BerriesLifecycle.set('advertisement',false);resolve(ok)};
+   const finish=ok=>{
+    if(finished)return;finished=true;
+    if(ok){markRewardedShown();state.rewardedBlock={reason:null,remainingMs:0}}
+    else state.rewardedBlock={reason:'not_rewarded',remainingMs:0};
+    window.BerriesLifecycle.set('advertisement',false);resolve(ok)
+   };
    try{state.ysdk.adv.showRewardedVideo({callbacks:{
     onOpen:()=>window.BerriesLifecycle.set('advertisement',true),
     onRewarded:()=>{if(!finished)rewarded=true},
     onClose:()=>finish(rewarded),onError:()=>finish(false)
-   }})}catch(e){console.warn('[Yandex] ad unavailable',e);finish(false)}
+   }})}catch(e){console.warn('[Yandex] ad unavailable',e);state.rewardedBlock={reason:'unavailable',remainingMs:0};finish(false)}
   });
  })().finally(()=>{state.adPromise=null});return state.adPromise;
 }
 document.addEventListener('visibilitychange',()=>{if(document.hidden)flushCloud()});
 window.addEventListener('pagehide',flushCloud);
-window.BerriesYandex={init,loadingReady,gameplayStart,gameplayStop,restoreCampaign,saveCloudData,flushCloud,showRewardedVideo,getPurchaseCatalog,purchaseProduct,restorePurchases,
+window.BerriesYandex={init,loadingReady,gameplayStart,gameplayStop,restoreCampaign,saveCloudData,flushCloud,showRewardedVideo,getPurchaseCatalog,purchaseProduct,restorePurchases,rewardedCooldownRemaining,rewardedCooldownLabel,rewardedOfferEligible,REWARDED_COOLDOWN_MS,
+ get rewardedBlock(){const remaining=rewardedCooldownRemaining();return remaining>0?{reason:'cooldown',remainingMs:remaining}:{...state.rewardedBlock,remainingMs:0}},
  get language(){const detected=state.ysdk?.environment?.i18n?.lang||navigator.language||'ru';return {detected,supported:['ru'],current:'ru'}},
  get sdk(){return state.ysdk},get player(){return state.player}};
 })();
