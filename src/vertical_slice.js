@@ -144,8 +144,11 @@ class Boot extends Phaser.Scene{
 }
 class Title extends Phaser.Scene{
   constructor(){super('Title')}
-  create(){window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();this.fx=new Sfx(this);this.music=new MusicBus(this);this.add.image(W/2,H/2,'title').setDisplaySize(W,H);fit(this.add.image(W/2,345,'logo'),820,560);this.makeButton(W/2,810,'ИГРАТЬ',()=>this.scene.start('Map'));window.BerriesYandex.loadingReady();this.add.text(W/2,970,'Меняй соседние ягоды местами и собирай от трёх в ряд.\nВыполняй цели слева, пока не закончатся ходы.',{fontSize:'27px',align:'center',color:'#fff5d5',stroke:'#422713',strokeThickness:5}).setOrigin(.5)}
-  makeButton(x,y,label,cb){const c=this.add.container(x,y),b=fit(this.add.image(0,0,'btn'),360,130).setInteractive({useHandCursor:true}),tx=this.add.text(0,0,label,{fontSize:'42px',fontStyle:'bold',color:'#ffe9a0',stroke:'#6b2e17',strokeThickness:8}).setOrigin(.5);c.add([b,tx]);b.on('pointerdown',()=>{this.fx.click();this.tweens.add({targets:c,scale:.95,duration:75,yoyo:true,onComplete:cb})})}
+  create(){window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();this.fx=new Sfx(this);this.music=new MusicBus(this);this.add.image(W/2,H/2,'title').setDisplaySize(W,H);fit(this.add.image(W/2,345,'logo'),820,560);this.makeButton(W/2,805,'ИГРАТЬ',()=>this.scene.start('Map'));window.BerriesYandex.loadingReady();
+    this.add.rectangle(W/2,974,1110,128,0x3a2417,.68).setStrokeStyle(3,0xe8c77d,.75);
+    this.add.text(W/2,974,'Меняй соседние ягоды местами и собирай от трёх в ряд.\nВыполняй цели слева, пока не закончатся ходы.',{fontFamily:FONT,fontSize:'31px',fontStyle:'bold',lineSpacing:8,align:'center',color:'#fff8d9',stroke:'#3b2012',strokeThickness:6}).setOrigin(.5)
+  }
+  makeButton(x,y,label,cb){const c=this.add.container(x,y),b=fit(this.add.image(0,0,'btn'),432,156).setInteractive({useHandCursor:true}),tx=this.add.text(0,0,label,{fontFamily:FONT,fontSize:'49px',fontStyle:'bold',color:'#ffe9a0',stroke:'#6b2e17',strokeThickness:9}).setOrigin(.5);c.add([b,tx]);b.on('pointerdown',()=>{this.fx.click();this.tweens.add({targets:c,scale:.95,duration:75,yoyo:true,onComplete:cb})})}
 }
 class Map extends Phaser.Scene{
   constructor(){super('Map')}
