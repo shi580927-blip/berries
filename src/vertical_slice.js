@@ -3,7 +3,7 @@
 
 const W=1920,H=1080,R=8,C=8;
 const MOBILE_LAYOUT=!!(window.matchMedia?.('(pointer: coarse)').matches||window.navigator?.maxTouchPoints>0);
-const CELL=MOBILE_LAYOUT?106:96,BX=(W-C*CELL)/2,BY=MOBILE_LAYOUT?118:150;
+const CELL=MOBILE_LAYOUT?110:96,BX=(W-C*CELL)/2,BY=MOBILE_LAYOUT?130:150;
 const BERRY_SIZE=MOBILE_LAYOUT ? .90 : .82;
 const TYPES=['strawberry','raspberry','blueberry','gooseberry','blackberry','cloudberry'];
 const Campaign=window.BerriesCampaign;
@@ -129,9 +129,11 @@ class Boot extends Phaser.Scene{
     this.load.audio('music_victory_accent','audio/music/accents/victory.mp3');
     const I=(k,p)=>this.load.image(k,p+'?v=campaign-20260915');
     I('head_goals','assets/ui/panels/panel_head_goals.png');I('head_boosters','assets/ui/panels/panel_head_boosters.png');
+    I('goals_panel_new','assets/ui/panels/panel22.png');I('shop_plaque_new','assets/ui/panels/panel23.png');I('coin_shop_new','assets/ui/panels/popup33.png');
     I('wood_flat','assets/ui/panels/panel_3.png');I('wood_button','assets/ui/panels/panel_buttom1.png');
     I('title','assets/backgrounds/background_title_forest.jpg');I('gamebg','assets/backgrounds/background_game_forest.jpg');I('mapbg','assets/map/map_forest_background.jpg');I('logo','assets/ui/panels/logo_main.png');I('plevel','assets/ui/panels/panel_level_title.png');I('pgoals','assets/ui/panels/panel_goals.png');I('pboost','assets/ui/panels/panel_boosters.png');I('pboard','assets/ui/panels/board_frame_forest.png');I('pprogress','assets/ui/panels/panel_progress.png');I('pchamp','assets/ui/panels/panel_championat.png');I('plives','assets/ui/panels/panel_lives.png');I('pcoins','assets/ui/panels/panel_coins.png');I('btn','assets/ui/buttons/button_wood.png');I('btnblue','assets/ui/buttons/button_blue.png');
     I('popup_win','assets/ui/popups/popup_level_win.png');I('popup_lose','assets/ui/popups/popup_level_lose.png');
+    I('level_done_new','assets/ui/buttons/level_completed5.png');I('level_current_new','assets/ui/buttons/level_current7.png');I('level_locked_new','assets/ui/buttons/level_completed7.png');
     I('map_header_levels','assets/map/map_header_levels.png');['normal','current','completed','locked'].forEach(x=>I('lvl_'+x,'assets/map/level_'+x+'.png'));['idle','point','celebrate','sad'].forEach(x=>I('king_'+x,'assets/characters/king/king_'+x+'.png'));
     I('ice1','assets/blockers/blocker_ice_1.png');I('ice2','assets/blockers/blocker_ice_2.png');I('acorn','assets/blockers/goal_acorn.png');I('roots','assets/blockers/blocker_roots.png');
     I('line_h','assets/specials/special_line_h.png');I('line_v','assets/specials/special_line_v.png');I('rainbow','assets/specials/special_rainbow.png');I('bombsp','assets/specials/special_bomb.png');
