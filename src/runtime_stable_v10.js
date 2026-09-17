@@ -822,7 +822,7 @@ function install(){
         const shop=this.add.text(1082,1022,'',{...footerStyle,fontSize:'22px'}).setOrigin(.5).setDepth(41);
         this.add.zone(1030,1022,430,106).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
         const levelNumber=this.add.text(levelPanel.x-.32*levelPanel.displayWidth,levelPanel.y+.10*levelPanel.displayHeight,'',{fontFamily:FONT,fontStyle:'bold',color:'#6b3218',align:'center',fontSize:'34px',stroke:'#fff1b8',strokeThickness:3}).setOrigin(.5).setDepth(41);
-        const extra=this.add.text(levelPanel.x+.12*levelPanel.displayWidth,levelPanel.y+.14*levelPanel.displayHeight,'УРОВЕНЬ\nОТКРЫТ',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
+        const extra=this.add.text(levelPanel.x+.115*levelPanel.displayWidth,levelPanel.y+.075*levelPanel.displayHeight,'УРОВЕНЬ\nОТКРЫТ',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
         let pending=false;
         this.add.zone(590,1022,360,112).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
           if(pending||Campaign.read().lives!==0)return;pending=true;timer.setText('ЗАГРУЗКА…');
@@ -860,15 +860,34 @@ function install(){
         const key=completed?'level_done_new':unlocked?'level_current_new':'level_locked_new';
         const major=n%5===0||n===1||n===30,size=major?88:70;
         const button=fit(this.add.image(0,0,key),size,size);
-        const numberShadow=this.add.text(0,3,String(n),{
-          fontFamily:FONT,fontSize:(major?31:28)+'px',fontStyle:'bold',color:'#6a2f13',stroke:'#6a2f13',strokeThickness:7
-        }).setOrigin(.5).setAlpha(.8).setResolution(4);
-        const number=this.add.text(0,0,String(n),{
-          fontFamily:FONT,fontSize:(major?31:28)+'px',fontStyle:'bold',
-          color:unlocked?'#fff1a8':'#f1f4f8',stroke:unlocked?'#7b2f12':'#394451',strokeThickness:5,
-          shadow:{offsetX:0,offsetY:2,color:'#7a3518',blur:2,fill:true}
-        }).setOrigin(.5).setResolution(4);
-        const node=this.add.container(q.x,q.y,[button,numberShadow,number]).setDepth(5).setSize(size,size).setScale(q.scale);
+        // Rounded vector numerals: identical on every device, without system-font fallback.
+        const digits=[
+          'M12 3 C2 3 3 13 3 18 C3 25 3 33 12 33 C21 33 21 25 21 18 C21 11 22 3 12 3 Z',
+          'M6 10 L13 3 L13 33',
+          'M3 9 C5 0 21 1 21 10 C21 16 13 21 4 29 L3 33 L21 33',
+          'M4 5 C11 0 21 3 21 10 C21 15 16 18 10 18 M10 18 C25 16 25 33 13 33 C9 33 5 32 3 29',
+          'M17 33 L17 3 L3 23 L22 23',
+          'M21 3 L5 3 L4 17 C24 11 26 33 12 33 C8 33 5 32 3 29',
+          'M20 5 C6 -2 3 10 3 22 C3 38 22 36 22 25 C22 14 5 14 3 23',
+          'M3 3 L22 3 L9 33',
+          'M12 18 C-1 17 0 3 12 3 C24 3 25 17 12 18 C-2 18 -1 33 12 33 C25 33 26 18 12 18',
+          'M4 31 C18 39 22 24 22 13 C22 -2 3 0 3 11 C3 22 20 22 22 12'
+        ];
+        const textureKey='map-rounded-'+(unlocked?'gold-':'stone-')+n;
+        const chars=String(n),width=chars.length*28+8;
+        if(!this.textures.exists(textureKey)){
+          const texture=this.textures.createCanvas(textureKey,width*4,44*4),ctx=texture.context;
+          ctx.scale(4,4);ctx.lineCap='round';ctx.lineJoin='round';
+          for(let j=0;j<chars.length;j++){
+            ctx.save();ctx.translate(6+j*28,4);const path=new Path2D(digits[Number(chars[j])]);
+            ctx.strokeStyle=unlocked?'#80421e':'#445463';ctx.lineWidth=7;ctx.stroke(path);
+            const fill=ctx.createLinearGradient(0,0,0,36);fill.addColorStop(0,unlocked?'#fff9cf':'#ffffff');fill.addColorStop(1,unlocked?'#ffd66b':'#dce5ea');
+            ctx.strokeStyle=fill;ctx.lineWidth=4.8;ctx.stroke(path);ctx.restore();
+          }
+          texture.refresh();
+        }
+        const number=this.add.image(0,button.displayHeight*.055,textureKey).setDisplaySize(width*(major?.72:.65),44*(major?.72:.65));
+        const node=this.add.container(q.x,q.y,[button,number]).setDepth(5).setSize(size,size).setScale(q.scale);
         node.setData({level:n,size,number});nodes.push(node);
         if(editor){
           node.setInteractive(new Phaser.Geom.Rectangle(-size/2,-size/2,size,size),Phaser.Geom.Rectangle.Contains);
