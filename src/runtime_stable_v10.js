@@ -369,7 +369,7 @@ function install(){
     this.st=null;
     nav(300,1016,'НАЗАД','ui_back',()=>{window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
     const shopButton=fit(this.add.image(1610,1016,'shop_plaque_new'),390,96).setDepth(17).setInteractive({useHandCursor:true});
-    label(1670,1016,'МАГАЗИН',28);shopButton.on('pointerdown',()=>{this.fx.click();this.openShop()});
+    label(1650,1016,'МАГАЗИН',28);shopButton.on('pointerdown',()=>{this.fx.click();this.openShop()});
 
     const settingsBg=this.add.circle(1872,66,38,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(19);
     const settings=fit(this.add.image(1872,66,'ui_settings'),49,49).setDepth(20).setInteractive({useHandCursor:true});
@@ -832,7 +832,7 @@ function install(){
         const update=()=>{const state=Campaign.read(),lifeParts=Campaign.lifeLabel().split(' • ');
           lives.setText(String(state.lives));
           if(!pending)timer.setText(state.lives===0?'▶ +1 ЖИЗНЬ\nЗА РЕКЛАМУ':state.lives>=5?'ЖИЗНИ\nМАКСИМУМ':`+1 ЖИЗНЬ\n${lifeParts[1]||''}`);
-          shop.setText('МАГАЗИН\n'+state.coins+' МОНЕТ');
+          shop.setText('МАГАЗИН');
           levelNumber.setText(String(highest));
         };
         update();this.time.addEvent({delay:1000,loop:true,callback:update});
