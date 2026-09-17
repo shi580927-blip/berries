@@ -863,8 +863,8 @@ function install(){
         this.add.zone(1640,1006,520,140).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
         const levelNumber=this.add.text(levelPanel.x-.32*levelPanel.displayWidth,levelPanel.y,'',{fontFamily:FONT,fontStyle:'bold',color:'#6b3218',align:'center',fontSize:'34px',stroke:'#fff1b8',strokeThickness:3}).setOrigin(.5).setDepth(41);
         const extra=this.add.text(levelPanel.x+.13*levelPanel.displayWidth,levelPanel.y,'УРОВЕНЬ',{...footerStyle,fontSize:'28px'}).setOrigin(.5).setDepth(41);
-        levelNumber.y+=levelNumber.height*.5;
-        extra.y+=extra.height*.5;
+        levelNumber.y+=levelNumber.height*.4;
+        extra.y+=extra.height*.4;
         const refreshTimer=lifeTimer(this,timerPanel,timer);
         let pending=false;
         this.add.zone(1100,1006,390,140).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
