@@ -806,10 +806,8 @@ function install(){
       this.updateHud=()=>topCoinText.setText(String(Campaign.read().coins));
       this.updateHud();
 
-      const royalShop=fit(this.add.image(1648,72,'panel_king_shop'),350*TOUCH_SCALE,108*TOUCH_SCALE).setDepth(41).setInteractive({useHandCursor:true});
-      royalShop.on('pointerdown',()=>this.openPaidShop());
-      this.add.circle(1848,166,45*TOUCH_SCALE,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(40);
-      const mapSettings=fit(this.add.image(1848,166,'ui_settings'),58*TOUCH_SCALE,58*TOUCH_SCALE).setDepth(41).setInteractive({useHandCursor:true});
+      this.add.circle(1848,68,45*TOUCH_SCALE,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(40);
+      const mapSettings=fit(this.add.image(1848,68,'ui_settings'),58*TOUCH_SCALE,58*TOUCH_SCALE).setDepth(41).setInteractive({useHandCursor:true});
       mapSettings.on('pointerdown',()=>{
         if(this._mapSettings?.active){this._mapSettings.destroy();this._mapSettings=null;return}
         const box=this.add.container(1635,245).setDepth(70);this._mapSettings=box;
@@ -851,20 +849,22 @@ function install(){
       const editor=new URLSearchParams(window.location.search).get('mapEditor')==='1';
       const nodes=[];let selected=null,selection=null,status=null;
       if(!editor){
+        const topLevelPanel=fit(this.add.image(1560,76,'map_level_panel'),470,150).setDepth(40);
+        const footerStyle={fontFamily:FONT,fontStyle:'bold',color:'#fff4cf',align:'center',stroke:'#67371d',strokeThickness:4};
+        const levelNumber=this.add.text(topLevelPanel.x-.32*topLevelPanel.displayWidth,topLevelPanel.y,'',{fontFamily:FONT,fontStyle:'bold',color:'#6b3218',align:'center',fontSize:'34px',stroke:'#fff1b8',strokeThickness:3}).setOrigin(.5).setDepth(41);
+        const extra=this.add.text(topLevelPanel.x+.13*topLevelPanel.displayWidth,topLevelPanel.y,'УРОВЕНЬ',{...footerStyle,fontSize:'28px'}).setOrigin(.5).setDepth(41);
+        levelNumber.y+=levelNumber.height*.4;
+        extra.y+=extra.height*.4;
+        const royalShop=fit(this.add.image(250,1006,'panel_king_shop'),520,140).setDepth(40).setInteractive({useHandCursor:true});
+        royalShop.on('pointerdown',()=>this.openPaidShop());
         const mapLivesPanel=fit(this.add.image(710,1006,'plives'),420,126).setDepth(40);
         this.add.zone(mapLivesPanel.x+mapLivesPanel.displayWidth*.39,mapLivesPanel.y,mapLivesPanel.displayWidth*.22,mapLivesPanel.displayHeight*.9).setDepth(43).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openPaidShop());
         const timerPanel=fit(this.add.image(1100,1006,'time_panel'),390,140).setDepth(40);
         fit(this.add.image(1640,1006,'shop_plaque_new'),520,140).setDepth(40);
-        const levelPanel=fit(this.add.image(250,1006,'map_level_panel'),470,150).setDepth(40);
-        const footerStyle={fontFamily:FONT,fontStyle:'bold',color:'#fff4cf',align:'center',stroke:'#67371d',strokeThickness:4};
         const lives=this.add.text(727,1014,'',{fontFamily:FONT,fontStyle:'bold',color:'#57301d',align:'center',fontSize:'28px'}).setOrigin(.5).setDepth(41);
         const timer=this.add.text(timerPanel.x+.11*timerPanel.displayWidth,timerPanel.y+.04*timerPanel.displayHeight,'',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
         const shop=this.add.text(1693,1006,'',{...footerStyle,fontSize:'28px'}).setOrigin(.5).setDepth(41);
         this.add.zone(1640,1006,520,140).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
-        const levelNumber=this.add.text(levelPanel.x-.32*levelPanel.displayWidth,levelPanel.y,'',{fontFamily:FONT,fontStyle:'bold',color:'#6b3218',align:'center',fontSize:'34px',stroke:'#fff1b8',strokeThickness:3}).setOrigin(.5).setDepth(41);
-        const extra=this.add.text(levelPanel.x+.13*levelPanel.displayWidth,levelPanel.y,'УРОВЕНЬ',{...footerStyle,fontSize:'28px'}).setOrigin(.5).setDepth(41);
-        levelNumber.y+=levelNumber.height*.4;
-        extra.y+=extra.height*.4;
         const refreshTimer=lifeTimer(this,timerPanel,timer);
         let pending=false;
         this.add.zone(1100,1006,390,140).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
