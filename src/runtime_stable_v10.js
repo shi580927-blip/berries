@@ -355,7 +355,7 @@ function install(){
     this.lifeText=label(1620,77,String(Campaign.read().lives),32,'#57301d');
     const clockX=1610,clockY=184;
     this.lifeClockPanel=fit(this.add.image(clockX,clockY,'time_panel'),340,112).setDepth(17);
-    this.lifeClock=label(clockX+42,clockY,'',21);
+    this.lifeClock=label(clockX+this.lifeClockPanel.displayWidth*.11,clockY+this.lifeClockPanel.displayHeight*.04,'',21);
     this.refreshLifeDisplay=()=>{
       const state=Campaign.read(),show=state.lives<5;
       this.lifeText.setText(String(state.lives));
@@ -417,15 +417,13 @@ function install(){
     });
 
     // Fixed-size panels and slot centres in the 1920x1080 reference grid.
-    fit(this.add.image(300,560,'goals_panel_new'),345,646).setDepth(3);
-    const count=Math.max(1,this.goals.length);
-    const slots=count===1?[612]:count===2?[474,738]:[474,612,738];
+    const goalsPanel=fit(this.add.image(300,560,'goals_panel_new'),345,646).setDepth(3);
+    const slots=[.369,.553,.738];
     this.gt=this.goals.map((goal,index)=>{
-      const y=slots[index]??slots[slots.length-1];
+      const y=goalsPanel.y+(slots[index]-.5)*goalsPanel.displayHeight;
       const key=goal.type==='berry'?'b_'+goal.id:goal.type==='ice'?'ice1':goal.type==='acorn'?'acorn':goal.type==='roots'?'roots':'ui_coin';
-      fit(this.add.image(248,y,key),78,78).setDepth(5);
-      const value=label(358,y,'',27,'#57301d');
-      value.setFixedSize(126,50).setAlign('center');
+      fit(this.add.image(goalsPanel.x-.16*goalsPanel.displayWidth,y,key),72,72).setDepth(5);
+      const value=label(goalsPanel.x+.16*goalsPanel.displayWidth,y,'',27,'#57301d');
       return value;
     });
     fit(this.add.image(1610,570,'pboost'),280,650).setDepth(3);
@@ -472,15 +470,16 @@ function install(){
     shade.on('pointerdown',close);
     const panel=fit(this.add.image(960,540,'coin_shop_new'),720,960).setInteractive();box.add(panel);
     const text=(x,y,t,size=28)=>this.add.text(x,y,t,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color:'#59331d',align:'center'}).setOrigin(.5);
-    const coins=text(1020,377,'',24),message=text(960,892,'Бустеры сохраняются\nмежду уровнями',18);message.setLineSpacing(-3);box.add([coins,message]);
+    const at=(u,v)=>[panel.x+(u-.5)*panel.displayWidth,panel.y+(v-.5)*panel.displayHeight];
+    const coins=text(...at(.635,.33),'',24),message=text(...at(.5,.92),'Бустеры сохраняются\nмежду уровнями',18);message.setLineSpacing(0);box.add([coins,message]);
     const counts=[];
     const refresh=()=>{const state=Campaign.read();coins.setText('МОНЕТЫ\n'+state.coins);counts.forEach(([id,title,t])=>t.setText(title+'\nВ запасе: '+state.inventory[id]));if(this.inventory)this.inventory={...state.inventory};this.refreshBoosters?.()};
     [['hammer','Молоток'],['shuffle','Перемешивание'],['fan','Вентилятор']].forEach(([id,title],i)=>{
-      const y=[520,672,824][i];
-      const count=text(945,y,'',22);counts.push([id,title,count]);box.add(count);
-      const buy=this.add.zone(1158,y,225,98).setInteractive({useHandCursor:true});
-      const price=text(1158,y,Campaign.PRICES[id]+' монет',24);price.setColor('#fff7c9').setStroke('#276318',4);
-      buy.on('pointerdown',()=>{if(Campaign.buy(id)){this.fx?.reward?.();message.setText('Куплено: '+title);refresh();this.updateHud?.()}else message.setText('Не хватает монет — их можно заработать на уровнях')});
+      const v=[.473,.632,.792][i];
+      const count=text(...at(.465,v),'',22);counts.push([id,title,count]);box.add(count);
+      const buy=this.add.zone(...at(.775,v),panel.displayWidth*.25,panel.displayHeight*.085).setInteractive({useHandCursor:true});
+      const price=text(...at(.775,v),Campaign.PRICES[id]+' монет',24);price.setColor('#fff7c9').setStroke('#276318',4);
+      buy.on('pointerdown',()=>{if(Campaign.buy(id)){this.fx?.reward?.();message.setText('Куплено:\n'+title);refresh();this.updateHud?.()}else message.setText('Не хватает монет\nЗаработайте их на уровнях')});
       box.add([buy,price]);
     });
     const closeHit=this.add.zone(1260,218,90,90).setInteractive({useHandCursor:true});closeHit.on('pointerdown',close);box.add(closeHit);refresh();
@@ -814,16 +813,16 @@ function install(){
       const nodes=[];let selected=null,selection=null,status=null;
       if(!editor){
         fit(this.add.image(215,1022,'plives'),345,96).setDepth(40);
-        fit(this.add.image(590,1022,'time_panel'),360,112).setDepth(40);
+        const timerPanel=fit(this.add.image(590,1022,'time_panel'),360,112).setDepth(40);
         fit(this.add.image(1030,1022,'shop_plaque_new'),430,106).setDepth(40);
-        fit(this.add.image(1530,1022,'map_level_panel'),450,112).setDepth(40);
+        const levelPanel=fit(this.add.image(1530,1022,'map_level_panel'),450,112).setDepth(40);
         const footerStyle={fontFamily:FONT,fontStyle:'bold',color:'#fff4cf',align:'center',stroke:'#67371d',strokeThickness:4};
         const lives=this.add.text(223,1022,'',{fontFamily:FONT,fontStyle:'bold',color:'#57301d',align:'center',fontSize:'28px'}).setOrigin(.5).setDepth(41);
-        const timer=this.add.text(638,1022,'',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
+        const timer=this.add.text(timerPanel.x+.11*timerPanel.displayWidth,timerPanel.y+.04*timerPanel.displayHeight,'',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
         const shop=this.add.text(1082,1022,'',{...footerStyle,fontSize:'22px'}).setOrigin(.5).setDepth(41);
         this.add.zone(1030,1022,430,106).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
-        const levelNumber=this.add.text(1396,1022,'',{fontFamily:FONT,fontStyle:'bold',color:'#6b3218',align:'center',fontSize:'34px',stroke:'#fff1b8',strokeThickness:3}).setOrigin(.5).setDepth(41);
-        const extra=this.add.text(1592,1022,'УРОВЕНЬ ОТКРЫТ',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
+        const levelNumber=this.add.text(levelPanel.x-.32*levelPanel.displayWidth,levelPanel.y+.10*levelPanel.displayHeight,'',{fontFamily:FONT,fontStyle:'bold',color:'#6b3218',align:'center',fontSize:'34px',stroke:'#fff1b8',strokeThickness:3}).setOrigin(.5).setDepth(41);
+        const extra=this.add.text(levelPanel.x+.12*levelPanel.displayWidth,levelPanel.y+.14*levelPanel.displayHeight,'УРОВЕНЬ\nОТКРЫТ',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
         let pending=false;
         this.add.zone(590,1022,360,112).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
           if(pending||Campaign.read().lives!==0)return;pending=true;timer.setText('ЗАГРУЗКА…');
