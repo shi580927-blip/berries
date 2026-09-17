@@ -13,8 +13,9 @@
   <script src="vendor/phaser.min.js"></script>
 </head>
 <body>
-  <main id="game-shell" aria-label="Безумные ягодки">
+  <main id="game-shell" class="booting" aria-label="Безумные ягодки">
     <div id="game"></div>
+    <div id="startup-loader" role="status" aria-live="polite">Загружаем лес…</div>
     <div id="rotate-hint" role="status">Поверните устройство горизонтально 🌿</div>
   </main>
   <script src="src/lifecycle.js"></script>
@@ -25,6 +26,55 @@
 <script>
 const field=document.getElementById('game-shell');
 for(const event of ['contextmenu','dragstart','selectstart'])field.addEventListener(event,e=>e.preventDefault());
+
+// Yandex may resize the game iframe shortly after the first paint. Keep the game hidden
+// until Phaser has fitted its 16:9 canvas to the final container size so the player never
+// sees the temporary half-size scene.
+(() => {
+  const shell=document.getElementById('game-shell');
+  const loader=document.getElementById('startup-loader');
+  const game=window.__berriesGame;
+  const started=performance.now();
+  let revealed=false,stableFrames=0;
+
+  const refresh=()=>{try{game?.scale?.refresh?.()}catch{}};
+  const fitsContainer=()=>{
+    const canvas=document.querySelector('#game canvas');
+    if(!canvas)return false;
+    const host=shell.getBoundingClientRect();
+    const actual=canvas.getBoundingClientRect();
+    if(host.width<2||host.height<2||actual.width<2||actual.height<2)return false;
+    const expectedW=Math.min(host.width,host.height*16/9);
+    const expectedH=expectedW*9/16;
+    return Math.abs(actual.width-expectedW)<=4&&Math.abs(actual.height-expectedH)<=4;
+  };
+  const reveal=()=>{
+    if(revealed)return;
+    revealed=true;
+    refresh();
+    shell.classList.remove('booting');
+    loader?.setAttribute('aria-hidden','true');
+  };
+  const tick=()=>{
+    if(revealed)return;
+    refresh();
+    stableFrames=fitsContainer()?stableFrames+1:0;
+    const elapsed=performance.now()-started;
+    if((stableFrames>=3&&elapsed>=250)||elapsed>=5000)reveal();
+    else requestAnimationFrame(tick);
+  };
+
+  if(window.ResizeObserver){
+    const observer=new ResizeObserver(()=>{
+      stableFrames=0;
+      refresh();
+    });
+    observer.observe(shell);
+  }
+  window.addEventListener('resize',refresh,{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(refresh,80),{passive:true});
+  requestAnimationFrame(tick);
+})();
 </script>
 </body>
 </html>
