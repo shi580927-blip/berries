@@ -130,6 +130,7 @@ class Boot extends Phaser.Scene{
     const I=(k,p)=>this.load.image(k,p+'?v=campaign-20260915');
     I('head_goals','assets/ui/panels/panel_head_goals.png');I('head_boosters','assets/ui/panels/panel_head_boosters.png');
     I('goals_panel_new','assets/ui/panels/panel22.png');I('shop_plaque_new','assets/ui/panels/panel23.png');I('coin_shop_new','assets/ui/panels/popup33.png');
+    I('map_level_panel','assets/ui/panels/panel_level.png');I('time_panel','assets/ui/panels/panel_time.png');
     I('wood_flat','assets/ui/panels/panel_3.png');I('wood_button','assets/ui/panels/panel_buttom1.png');
     I('title','assets/backgrounds/background_title_forest.jpg');I('gamebg','assets/backgrounds/background_game_forest.jpg');I('mapbg','assets/map/map_forest_background.jpg');I('logo','assets/ui/panels/logo_main.png');I('plevel','assets/ui/panels/panel_level_title.png');I('pgoals','assets/ui/panels/panel_goals.png');I('pboost','assets/ui/panels/panel_boosters.png');I('pboard','assets/ui/panels/board_frame_forest.png');I('pprogress','assets/ui/panels/panel_progress.png');I('pchamp','assets/ui/panels/panel_championat.png');I('plives','assets/ui/panels/panel_lives.png');I('pcoins','assets/ui/panels/panel_coins.png');I('btn','assets/ui/buttons/button_wood.png');I('btnblue','assets/ui/buttons/button_blue.png');
     I('popup_win','assets/ui/popups/popup_level_win.png');I('popup_lose','assets/ui/popups/popup_level_lose.png');
