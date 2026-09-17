@@ -859,10 +859,10 @@ function install(){
         const footerStyle={fontFamily:FONT,fontStyle:'bold',color:'#fff4cf',align:'center',stroke:'#67371d',strokeThickness:4};
         const lives=this.add.text(727,1014,'',{fontFamily:FONT,fontStyle:'bold',color:'#57301d',align:'center',fontSize:'28px'}).setOrigin(.5).setDepth(41);
         const timer=this.add.text(timerPanel.x+.11*timerPanel.displayWidth,timerPanel.y+.04*timerPanel.displayHeight,'',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
-        const shop=this.add.text(1700,1006,'',{...footerStyle,fontSize:'22px'}).setOrigin(.5).setDepth(41);
+        const shop=this.add.text(1693,1006,'',{...footerStyle,fontSize:'28px'}).setOrigin(.5).setDepth(41);
         this.add.zone(1640,1006,520,140).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
-        const levelNumber=this.add.text(levelPanel.x-.32*levelPanel.displayWidth,levelPanel.y+.10*levelPanel.displayHeight,'',{fontFamily:FONT,fontStyle:'bold',color:'#6b3218',align:'center',fontSize:'34px',stroke:'#fff1b8',strokeThickness:3}).setOrigin(.5).setDepth(41);
-        const extra=this.add.text(levelPanel.x+.115*levelPanel.displayWidth,levelPanel.y+.075*levelPanel.displayHeight,'УРОВЕНЬ\nОТКРЫТ',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
+        const levelNumber=this.add.text(levelPanel.x-.32*levelPanel.displayWidth,levelPanel.y,'',{fontFamily:FONT,fontStyle:'bold',color:'#6b3218',align:'center',fontSize:'34px',stroke:'#fff1b8',strokeThickness:3}).setOrigin(.5).setDepth(41);
+        const extra=this.add.text(levelPanel.x+.13*levelPanel.displayWidth,levelPanel.y,'УРОВЕНЬ',{...footerStyle,fontSize:'28px'}).setOrigin(.5).setDepth(41);
         const refreshTimer=lifeTimer(this,timerPanel,timer);
         let pending=false;
         this.add.zone(1100,1006,390,140).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
