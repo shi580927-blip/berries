@@ -470,7 +470,7 @@ function install(){
     shade.on('pointerdown',close);
     const panel=fit(this.add.image(960,540,'coin_shop_new'),720,960).setInteractive();box.add(panel);
     const text=(x,y,t,size=28)=>this.add.text(x,y,t,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color:'#59331d',align:'center'}).setOrigin(.5);
-    const coins=text(1020,377,'',24),message=text(960,948,'Бустеры сохраняются\nмежду уровнями',20);box.add([coins,message]);
+    const coins=text(1020,377,'',24),message=text(960,914,'Бустеры сохраняются\nмежду уровнями',18);message.setLineSpacing(-3);box.add([coins,message]);
     const counts=[];
     const refresh=()=>{const state=Campaign.read();coins.setText('МОНЕТЫ\n'+state.coins);counts.forEach(([id,title,t])=>t.setText(title+'\nВ запасе: '+state.inventory[id]));if(this.inventory)this.inventory={...state.inventory};this.refreshBoosters?.()};
     [['hammer','Молоток'],['shuffle','Перемешивание'],['fan','Вентилятор']].forEach(([id,title],i)=>{
@@ -784,22 +784,25 @@ function install(){
       const editor=false;
       const nodes=[];let selected=null,selection=null,status=null;
       if(!editor){
-        fit(this.add.image(400,1022,'time_panel'),470,124).setDepth(40);
-        fit(this.add.image(960,1022,'shop_plaque_new'),470,116).setDepth(40);
-        fit(this.add.image(1520,1022,'map_level_panel'),480,120).setDepth(40);
+        fit(this.add.image(215,1022,'plives'),345,96).setDepth(40);
+        fit(this.add.image(590,1022,'time_panel'),360,112).setDepth(40);
+        fit(this.add.image(1030,1022,'shop_plaque_new'),430,106).setDepth(40);
+        fit(this.add.image(1530,1022,'map_level_panel'),450,112).setDepth(40);
         const footerStyle={fontFamily:FONT,fontStyle:'bold',color:'#fff4cf',align:'center',stroke:'#67371d',strokeThickness:4};
-        const lives=this.add.text(450,1022,'',{...footerStyle,fontSize:'22px'}).setOrigin(.5).setDepth(41);
-        const shop=this.add.text(1015,1022,'',{...footerStyle,fontSize:'23px'}).setOrigin(.5).setDepth(41);
-        this.add.zone(960,1022,470,116).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
-        const extra=this.add.text(1578,1022,'',{...footerStyle,fontSize:'22px'}).setOrigin(.5).setDepth(41);
+        const lives=this.add.text(223,1022,'',{fontFamily:FONT,fontStyle:'bold',color:'#57301d',align:'center',fontSize:'28px'}).setOrigin(.5).setDepth(41);
+        const timer=this.add.text(638,1022,'',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
+        const shop=this.add.text(1082,1022,'',{...footerStyle,fontSize:'22px'}).setOrigin(.5).setDepth(41);
+        this.add.zone(1030,1022,430,106).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
+        const extra=this.add.text(1584,1022,'',{...footerStyle,fontSize:'21px'}).setOrigin(.5).setDepth(41);
         let pending=false;
-        this.add.zone(400,1022,470,124).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
-          if(pending||Campaign.read().lives!==0)return;pending=true;lives.setText('ЗАГРУЗКА…');
-          try{const ok=await window.BerriesYandex?.showRewardedVideo?.();if(ok)Campaign.addLife();else lives.setText('РЕКЛАМА\nНЕДОСТУПНА')}
+        this.add.zone(590,1022,360,112).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
+          if(pending||Campaign.read().lives!==0)return;pending=true;timer.setText('ЗАГРУЗКА…');
+          try{const ok=await window.BerriesYandex?.showRewardedVideo?.();if(ok)Campaign.addLife();else timer.setText('РЕКЛАМА\nНЕДОСТУПНА')}
           finally{pending=false}
         });
         const update=()=>{const state=Campaign.read(),lifeParts=Campaign.lifeLabel().split(' • ');
-          if(!pending)lives.setText(state.lives===0?'ЖИЗНИ  0 / 5\n▶ +1 ЗА РЕКЛАМУ':state.lives>=5?'ЖИЗНИ  5 / 5\nМАКСИМУМ':`ЖИЗНИ  ${state.lives} / 5\n+1 через ${lifeParts[1]||''}`);
+          lives.setText(String(state.lives));
+          if(!pending)timer.setText(state.lives===0?'▶ +1 ЖИЗНЬ\nЗА РЕКЛАМУ':state.lives>=5?'ЖИЗНИ\nМАКСИМУМ':`+1 ЖИЗНЬ\n${lifeParts[1]||''}`);
           shop.setText('МАГАЗИН\n'+state.coins+' МОНЕТ');
           extra.setText('ОТКРЫТ УРОВЕНЬ\n'+highest);
         };
