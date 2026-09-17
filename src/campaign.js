@@ -2,6 +2,11 @@
 'use strict';
 const KEY='berries_campaign_v1',LEGACY='berries_vs_04',MAX_LIVES=5,REGEN_MS=30*60*1000;
 const PRICES={hammer:250,shuffle:300,fan:400};
+const ROYAL_PRODUCTS={
+ coins_1000:{coins:1000},
+ lives_5:{lives:5},
+ boosters_3:{boosters:{hammer:3,shuffle:3,fan:3}}
+};
 const iceSlots=[[1,1],[1,6],[3,2],[3,5],[5,2],[5,5],[6,1],[6,6],[0,3],[0,4],[7,3],[7,4]];
 const acSlots=[[2,2],[2,5],[5,2],[5,5],[3,3],[4,4],[3,4]];
 const rootSlots=[[1,2],[1,5],[2,1],[2,6],[5,1],[5,6],[6,2],[6,5],[3,0],[4,7]];
@@ -45,13 +50,14 @@ function read(){
 let s;try{s=JSON.parse(storage.getItem(KEY)||'null')}catch{}
 if(!s||s.version!==1){
 let old;try{old=JSON.parse(storage.getItem(LEGACY)||'{}')}catch{}
-s={version:1,lifePolicy:2,done:[],coins:number(old?.coins),inventory:{hammer:2,shuffle:2,fan:2},lives:5,nextLifeAt:null,active:null,serial:0,lastWin:null};return write(s);
+s={version:1,lifePolicy:2,done:[],coins:number(old?.coins),inventory:{hammer:2,shuffle:2,fan:2},lives:5,nextLifeAt:null,active:null,serial:0,lastWin:null,purchaseTokens:[]};return write(s);
 }
 // One-time compensation: old saves did not distinguish losses from exits.
 if(s.lifePolicy!==2){s.lives=MAX_LIVES;s.nextLifeAt=null;s.lifePolicy=2;write(s)}
 s.done=[...new Set((s.done||[]).filter(n=>Number.isInteger(n)&&n>=1&&n<=30))];
 s.coins=number(s.coins);s.inventory??={};
 for(const id of Object.keys(PRICES))s.inventory[id]=number(s.inventory[id]);
+s.purchaseTokens=Array.isArray(s.purchaseTokens)?s.purchaseTokens.filter(x=>typeof x==='string').slice(-100):[];
 s.lives=Math.min(5,number(s.lives,5));if(s.lives<5&&!s.nextLifeAt)s.nextLifeAt=now()+REGEN_MS;
 const old=JSON.stringify(s);tick(s);if(JSON.stringify(s)!==old)write(s);return s;
 }
@@ -80,11 +86,18 @@ function doubleReward(token){const s=read();if(s.lastWin?.id!==token||s.lastWin.
 function consume(id){const s=read();if(!PRICES[id]||s.inventory[id]<=0)return false;s.inventory[id]--;write(s);return true}
 function buy(id){const s=read(),price=PRICES[id];if(!price||s.coins<price)return false;s.coins-=price;s.inventory[id]++;write(s);return true}
 function addLife(){const s=read();if(s.lives!==0)return false;s.lives=1;write(s);return true}
-function lifeLabel(){const s=read();if(s.lives===5)return '5 / 5';const sec=Math.max(0,Math.ceil((s.nextLifeAt-now())/1000));return s.lives+' / 5  • '+Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
-return {read,restore,unlocked,begin,abandon,lose,resume,win,doubleReward,consume,buy,addLife,lifeLabel};
+function grantPurchase(productID,purchaseToken){
+const product=ROYAL_PRODUCTS[productID];if(!product||!purchaseToken)return {ok:false,reason:'unknown'};
+const s=read();if(s.purchaseTokens.includes(purchaseToken))return {ok:true,duplicate:true,state:s};
+if(product.coins)s.coins+=product.coins;
+if(product.lives){s.lives=Math.min(MAX_LIVES,product.lives);s.nextLifeAt=null}
+if(product.boosters)for(const [id,count] of Object.entries(product.boosters))s.inventory[id]=number(s.inventory[id])+count;
+s.purchaseTokens=[...s.purchaseTokens,purchaseToken].slice(-100);write(s);return {ok:true,duplicate:false,state:s};
 }
-const api={KEY,LEVELS,PRICES,create,REGEN_MS};
+function lifeLabel(){const s=read();if(s.lives===5)return '5 / 5';const sec=Math.max(0,Math.ceil((s.nextLifeAt-now())/1000));return s.lives+' / 5  • '+Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
+return {read,restore,unlocked,begin,abandon,lose,resume,win,doubleReward,consume,buy,addLife,grantPurchase,lifeLabel};
+}
+const api={KEY,LEVELS,PRICES,ROYAL_PRODUCTS,create,REGEN_MS};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 else root.BerriesCampaign={...api,...create(root.localStorage,Date.now,s=>root.BerriesYandex?.saveCloudData?.(s,false))};
 })(typeof window!=='undefined'?window:this);
-
