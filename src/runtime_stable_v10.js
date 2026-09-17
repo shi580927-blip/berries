@@ -890,6 +890,7 @@ function install(){
           color:completed?'#794423':'#fff5df',stroke:completed?'#ffefb5':'#633452',strokeThickness:1.2,
           shadow:{offsetX:0,offsetY:1,color:'rgba(45,20,35,.3)',blur:1,fill:true}
         }).setOrigin(.5).setResolution(3);
+        number.y-=number.height*.1;
         const node=this.add.container(q.x,q.y,[button,number]).setDepth(5).setSize(size,size).setScale(q.scale*mobileScale);
         node.setData({level:n,size,number});nodes.push(node);
         if(editor){
