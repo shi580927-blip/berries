@@ -480,8 +480,19 @@ function install(){
     this.goals.forEach((g,i)=>this.gt[i].setText(`${g.type==='score'?Math.min(g.need,Math.round(this.score)):g.done} / ${g.need}`));
     for(const [id,b] of Object.entries(this.boosterButtons))b.tx.setText(String(this.inventory[id]));
   };
-  // Paid shop is in development; unavailable in the MVP build.
-  p.openPaidShop=function(){};
+  // Royal shop shell. Real payments are connected separately after product testing.
+  p.openPaidShop=function(){
+    if(this._paidShopModal?.active)return;
+    const box=this.add.container(0,0).setDepth(90);this._paidShopModal=box;
+    const close=()=>{box.destroy();this._paidShopModal=null};
+    const shade=this.add.rectangle(W/2,H/2,W,H,0x102419,.82).setInteractive();box.add(shade);
+    shade.on('pointerdown',close);
+    const panel=fit(this.add.image(W/2,H/2,'popup_royal_shop'),760,950).setInteractive();box.add(panel);
+    const at=(u,v)=>[panel.x+(u-.5)*panel.displayWidth,panel.y+(v-.5)*panel.displayHeight];
+    const closeHit=this.add.zone(...at(.875,.155),panel.displayWidth*.13,panel.displayHeight*.11).setInteractive({useHandCursor:true});
+    closeHit.on('pointerdown',close);box.add(closeHit);
+    const note=this.add.text(W/2,1018,'Покупки подключим после тестирования игры',{fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff4cf',stroke:'#402515',strokeThickness:4}).setOrigin(.5).setDepth(91);box.add(note);
+  };
 
   p.openShop=function(){
     if(this._shopModal?.active)return;
@@ -794,6 +805,8 @@ function install(){
 
       this.add.circle(1848,68,45*TOUCH_SCALE,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(40);
       const mapSettings=fit(this.add.image(1848,68,'ui_settings'),58*TOUCH_SCALE,58*TOUCH_SCALE).setDepth(41).setInteractive({useHandCursor:true});
+      const royalShop=fit(this.add.image(1738,68,'king_shop_icon'),92*TOUCH_SCALE,92*TOUCH_SCALE).setDepth(41).setInteractive({useHandCursor:true});
+      royalShop.on('pointerdown',()=>this.openPaidShop());
       mapSettings.on('pointerdown',()=>{
         if(this._mapSettings?.active){this._mapSettings.destroy();this._mapSettings=null;return}
         const box=this.add.container(1635,245).setDepth(70);this._mapSettings=box;
