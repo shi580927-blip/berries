@@ -4,7 +4,7 @@
 const Campaign=window.BerriesCampaign;
 const W=1920,H=1080,R=8,C=8;
 const MOBILE_LAYOUT=!!(window.matchMedia?.('(pointer: coarse)').matches||window.navigator?.maxTouchPoints>0);
-const CELL=MOBILE_LAYOUT?106:96,BX=(W-C*CELL)/2,BY=MOBILE_LAYOUT?118:150;
+const CELL=MOBILE_LAYOUT?110:96,BX=(W-C*CELL)/2,BY=MOBILE_LAYOUT?130:150;
 const TYPES=['strawberry','raspberry','blueberry','gooseberry','blackberry','cloudberry'];
 const FONT='Arial Rounded MT Bold, Trebuchet MS, Arial, sans-serif';
 const pause=ms=>window.BerriesLifecycle.wait(ms);
@@ -353,9 +353,9 @@ function install(){
     coinPanel.disableInteractive();
     const lifePanel=fit(this.add.image(1610,77,'plives'),380,104).setDepth(18).setInteractive({useHandCursor:true});
     this.lifeText=label(1620,77,String(Campaign.read().lives),32,'#57301d');
-    const clockX=MOBILE_LAYOUT?1610:960,clockY=MOBILE_LAYOUT?168:1016;
-    this.lifeClockPanel=wood(clockX,clockY,MOBILE_LAYOUT?340:360,MOBILE_LAYOUT?72:88);
-    this.lifeClock=label(clockX,clockY,'',MOBILE_LAYOUT?20:22);
+    const clockX=1610,clockY=180;
+    this.lifeClockPanel=wood(clockX,clockY,300,88);
+    this.lifeClock=label(clockX,clockY,'',22);
     this.refreshLifeDisplay=()=>{
       const state=Campaign.read(),show=state.lives<5;
       this.lifeText.setText(String(state.lives));
@@ -368,7 +368,8 @@ function install(){
     wood(300,180,300,88);this.mt=label(300,180,'',29);
     this.st=null;
     nav(300,1016,'НАЗАД','ui_back',()=>{window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
-    nav(1610,1016,'МАГАЗИН','ui_shop',()=>this.openShop());
+    const shopButton=fit(this.add.image(1610,1016,'shop_plaque_new'),390,96).setDepth(17).setInteractive({useHandCursor:true});
+    label(1670,1016,'МАГАЗИН',28);shopButton.on('pointerdown',()=>{this.fx.click();this.openShop()});
 
     const settingsBg=this.add.circle(1872,66,38,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(19);
     const settings=fit(this.add.image(1872,66,'ui_settings'),49,49).setDepth(20).setInteractive({useHandCursor:true});
@@ -416,14 +417,14 @@ function install(){
     });
 
     // Fixed-size panels and slot centres in the 1920x1080 reference grid.
-    fit(this.add.image(300,500,'pgoals'),280,560).setDepth(3);
-    fit(this.add.image(300,325,'head_goals'),350,106).setDepth(20);
-    const count=Math.max(1,this.goals.length),gap=Math.min(112,300/count);
+    fit(this.add.image(300,560,'goals_panel_new'),345,646).setDepth(3);
+    const count=Math.max(1,this.goals.length);
+    const slots=count===1?[612]:count===2?[500,700]:[474,612,738];
     this.gt=this.goals.map((goal,index)=>{
-      const y=510+(index-(count-1)/2)*gap;
+      const y=slots[index]??slots[slots.length-1];
       const key=goal.type==='berry'?'b_'+goal.id:goal.type==='ice'?'ice1':goal.type==='acorn'?'acorn':goal.type==='roots'?'roots':'ui_coin';
-      fit(this.add.image(250,y,key),70,70).setDepth(5);
-      return label(345,y,'',25,'#57301d');
+      fit(this.add.image(245,y,key),78,78).setDepth(5);
+      return label(350,y,'',27,'#57301d');
     });
     fit(this.add.image(1610,570,'pboost'),280,650).setDepth(3);
     const boosterHead=fit(this.add.image(1610,302,'head_boosters'),380,110).setDepth(20);
@@ -467,22 +468,20 @@ function install(){
     const close=()=>{box.destroy();this._shopModal=null;this.updateHud?.()};
     const shade=this.add.rectangle(W/2,H/2,W,H,0x102419,.8).setInteractive();box.add(shade);
     shade.on('pointerdown',close);
-    const panel=this.add.rectangle(960,540,1020,650,0xfff2d9,1).setStrokeStyle(5,0x945022).setInteractive();box.add(panel);
+    const panel=fit(this.add.image(960,540,'coin_shop_new'),720,960).setInteractive();box.add(panel);
     const text=(x,y,t,size=28)=>this.add.text(x,y,t,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color:'#59331d',align:'center'}).setOrigin(.5);
-    box.add(text(960,260,'БУСТЕРЫ ЗА МОНЕТЫ',36));
-    const coins=text(960,315,'',28),message=text(960,790,'Бустеры сохраняются между уровнями',23);box.add([coins,message]);
+    const coins=text(982,377,'',28),message=text(960,960,'Бустеры сохраняются между уровнями',20);box.add([coins,message]);
     const counts=[];
-    const refresh=()=>{const state=Campaign.read();coins.setText('Монеты: '+state.coins);counts.forEach(([id,t])=>t.setText('В запасе: '+state.inventory[id]));if(this.inventory)this.inventory={...state.inventory};this.refreshBoosters?.()};
+    const refresh=()=>{const state=Campaign.read();coins.setText('Монеты: '+state.coins);counts.forEach(([id,title,t])=>t.setText(title+'\nВ запасе: '+state.inventory[id]));if(this.inventory)this.inventory={...state.inventory};this.refreshBoosters?.()};
     [['hammer','Молоток'],['shuffle','Перемешивание'],['fan','Вентилятор']].forEach(([id,title],i)=>{
-      const x=650+i*310;box.add(fit(this.add.image(x,435,id),115,115));box.add(text(x,525,title,25));
-      const count=text(x,570,'',23);counts.push([id,count]);box.add(count);
-      const buy=fit(this.add.image(x,650,'wood_flat'),260,88).setInteractive({useHandCursor:true});
-      const price=text(x,650,Campaign.PRICES[id]+' монет',26);price.setColor('#fff3c3').setStroke('#60331c',4);
+      const y=[520,672,824][i];
+      const count=text(945,y,'',22);counts.push([id,title,count]);box.add(count);
+      const buy=this.add.zone(1158,y,225,98).setInteractive({useHandCursor:true});
+      const price=text(1158,y,Campaign.PRICES[id]+' монет',24);price.setColor('#fff7c9').setStroke('#276318',4);
       buy.on('pointerdown',()=>{if(Campaign.buy(id)){this.fx?.reward?.();message.setText('Куплено: '+title);refresh();this.updateHud?.()}else message.setText('Не хватает монет — их можно заработать на уровнях')});
       box.add([buy,price]);
     });
-    const exit=fit(this.add.image(1415,260,'ui_close'),64,64);box.add(exit);
-    const closeHit=this.add.zone(1415,260,86,86).setInteractive({useHandCursor:true});closeHit.on('pointerdown',close);box.add(closeHit);refresh();
+    const closeHit=this.add.zone(1260,218,90,90).setInteractive({useHandCursor:true});closeHit.on('pointerdown',close);box.add(closeHit);refresh();
   };
 
   p.resultPopup=function resultPopupStable(win){
@@ -819,14 +818,18 @@ function install(){
 
       layout.forEach((q,index)=>{
         const n=index+1,completed=done.has(n),unlocked=n<=highest;
-        const key=completed?'lvl_completed':unlocked?'lvl_current':'lvl_locked';
-        const major=n%5===0||n===1||n===30,size=major?76:58;
+        const key=completed?'level_done_new':unlocked?'level_current_new':'level_locked_new';
+        const major=n%5===0||n===1||n===30,size=major?88:70;
         const button=fit(this.add.image(0,0,key),size,size);
-        const node=this.add.container(q.x,q.y,[button]).setDepth(5).setSize(size,size).setScale(q.scale);
-        const number=this.add.text(q.x,q.y,String(n),{
-          fontFamily:FONT,fontSize:'24px',fontStyle:'bold',
-          color:unlocked?'#fff8dc':'#c2b49d',stroke:'#512814',strokeThickness:5
-        }).setOrigin(.5).setDepth(7).setResolution(3);
+        const numberShadow=this.add.text(0,3,String(n),{
+          fontFamily:FONT,fontSize:(major?31:28)+'px',fontStyle:'bold',color:'#6a2f13',stroke:'#6a2f13',strokeThickness:7
+        }).setOrigin(.5).setAlpha(.8).setResolution(4);
+        const number=this.add.text(0,0,String(n),{
+          fontFamily:FONT,fontSize:(major?31:28)+'px',fontStyle:'bold',
+          color:unlocked?'#fff1a8':'#f1f4f8',stroke:unlocked?'#7b2f12':'#394451',strokeThickness:5,
+          shadow:{offsetX:0,offsetY:2,color:'#7a3518',blur:2,fill:true}
+        }).setOrigin(.5).setResolution(4);
+        const node=this.add.container(q.x,q.y,[button,numberShadow,number]).setDepth(5).setSize(size,size).setScale(q.scale);
         node.setData({level:n,size,number});nodes.push(node);
         if(editor){
           node.setInteractive(new Phaser.Geom.Rectangle(-size/2,-size/2,size,size),Phaser.Geom.Rectangle.Contains);
@@ -834,7 +837,6 @@ function install(){
           node.on('pointerdown',()=>select(node));
           node.on('drag',(pointer,x,y)=>{
             node.x=Phaser.Math.Clamp(x,35,W-35);node.y=Phaser.Math.Clamp(y,175,H-35);
-            number.setPosition(Math.round(node.x),Math.round(node.y));
             layout[index].x=node.x;layout[index].y=node.y;
             if(selection){selection.x=node.x;selection.y=node.y}
             status?.setText(`Уровень ${n}  x:${Math.round(node.x)}  y:${Math.round(node.y)}  ×${node.scaleX.toFixed(2)}`);
