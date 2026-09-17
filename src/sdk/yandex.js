@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const state={ysdk:null,player:null,ready:false,gameplayActive:false,initPromise:null,cloudLoaded:false,adPromise:null};
+const state={ysdk:null,player:null,payments:null,ready:false,gameplayActive:false,initPromise:null,paymentsPromise:null,purchasePromise:null,cloudLoaded:false,adPromise:null};
 let queued=null,saveTimer=null,saving=false;
 async function init(){
  if(state.initPromise)return state.initPromise;
@@ -25,7 +25,7 @@ async function restoreCampaign(){
   const data=await state.player.getData(['berries']);
   // Read the cloud before enabling any writes. A failed read must not erase remote progress.
   window.BerriesCampaign.restore(data?.berries);state.cloudLoaded=true;
-  saveCloudData(window.BerriesCampaign.read());return true;
+  saveCloudData(window.BerriesCampaign.read());await restorePurchases();return true;
  }catch(e){console.warn('[Yandex] cloud read failed; remote save protected',e);window.BerriesCampaign.read();return false}
 }
 function saveCloudData(data){
@@ -36,11 +36,43 @@ function saveCloudData(data){
 }
 async function flushCloud(){
  clearTimeout(saveTimer);saveTimer=null;
- if(saving||!queued||!state.cloudLoaded)return;
+ if(saving)return false;
+ if(!queued)return true;
+ if(!state.cloudLoaded||!state.player)return false;
  saving=true;const data=queued;queued=null;
- try{await state.player.setData({berries:data},true)}
+ let ok=false;
+ try{await state.player.setData({berries:data},true);ok=true}
  catch(e){if(!queued)queued=data;console.warn('[Yandex] cloud write queued for retry',e)}
  finally{saving=false;if(queued&&!saveTimer)saveTimer=setTimeout(flushCloud,5000)}
+ return ok;
+}
+async function getPayments(){
+ await init();if(!state.ysdk)return null;if(state.payments)return state.payments;
+ if(!state.paymentsPromise)state.paymentsPromise=state.ysdk.getPayments().then(value=>(state.payments=value)).catch(e=>{console.warn('[Yandex] purchases unavailable',e);return null}).finally(()=>{state.paymentsPromise=null});
+ return state.paymentsPromise;
+}
+async function getPurchaseCatalog(){const payments=await getPayments();if(!payments)return [];try{return await payments.getCatalog()}catch(e){console.warn('[Yandex] catalog unavailable',e);return []}}
+async function creditPurchase(purchase){
+ const productID=purchase?.productID,purchaseToken=purchase?.purchaseToken;
+ const result=window.BerriesCampaign?.grantPurchase?.(productID,purchaseToken);if(!result?.ok)return {ok:false,reason:'unknown_product'};
+ saveCloudData(window.BerriesCampaign.read());const saved=await flushCloud();if(!saved)return {ok:false,reason:'save_pending'};
+ const payments=await getPayments();await payments.consumePurchase(purchaseToken);return {ok:true,duplicate:result.duplicate,productID};
+}
+async function restorePurchases(){
+ const payments=await getPayments();if(!payments||!state.player)return [];
+ try{const list=await payments.getPurchases();const restored=[];for(const purchase of list){const result=await creditPurchase(purchase);if(result.ok)restored.push(result.productID)}return restored}
+ catch(e){console.warn('[Yandex] pending purchases check failed',e);return []}
+}
+function purchaseProduct(productID){
+ if(state.purchasePromise)return state.purchasePromise;
+ state.purchasePromise=(async()=>{
+  if(!window.BerriesCampaign?.ROYAL_PRODUCTS?.[productID])return {ok:false,reason:'unknown_product'};
+  const payments=await getPayments();if(!payments||!state.player)return {ok:false,reason:'unavailable'};
+  window.BerriesLifecycle.set('purchase',true);await gameplayStop();
+  try{const purchase=await payments.purchase({id:productID});return await creditPurchase(purchase)}
+  catch(e){console.warn('[Yandex] purchase cancelled or failed',e);return {ok:false,reason:'cancelled'}}
+  finally{window.BerriesLifecycle.set('purchase',false);if(window.__berriesGameplayShouldRun)gameplayStart()}
+ })().finally(()=>{state.purchasePromise=null});return state.purchasePromise;
 }
 function showRewardedVideo(){
  if(state.adPromise)return state.adPromise;
@@ -60,7 +92,7 @@ function showRewardedVideo(){
 }
 document.addEventListener('visibilitychange',()=>{if(document.hidden)flushCloud()});
 window.addEventListener('pagehide',flushCloud);
-window.BerriesYandex={init,loadingReady,gameplayStart,gameplayStop,restoreCampaign,saveCloudData,flushCloud,showRewardedVideo,
+window.BerriesYandex={init,loadingReady,gameplayStart,gameplayStop,restoreCampaign,saveCloudData,flushCloud,showRewardedVideo,getPurchaseCatalog,purchaseProduct,restorePurchases,
  get language(){const detected=state.ysdk?.environment?.i18n?.lang||navigator.language||'ru';return {detected,supported:['ru'],current:'ru'}},
  get sdk(){return state.ysdk},get player(){return state.player}};
 })();
