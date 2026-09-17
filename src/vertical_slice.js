@@ -21,8 +21,8 @@ class Sfx{
   constructor(scene){this.s=scene;this.nodes=new Set();this._muted=localStorage.getItem("berries_sfx_muted")==="1";this.master=2.35;this.last={};this.voices={};scene.events.once('shutdown',()=>{this.stopAll();for(const pool of Object.values(this.voices))for(const sound of pool)sound.destroy()})}
   get muted(){return this._muted}
   set muted(v){this._muted=!!v;localStorage.setItem("berries_sfx_muted",v?"1":"0");if(v)this.stopAll()}
-  stopAll(){for(const pool of Object.values(this.voices))for(const sound of pool)sound.stop();for(const node of this.nodes){try{node.stop()}catch{}}this.nodes.clear()}
-  sample(key,volume=.5){
+  stopAll(){for(const timer of this.berryTimers||[])timer.remove(false);this.berryTimers?.clear();for(const pool of Object.values(this.voices))for(const sound of pool)sound.stop();for(const node of this.nodes){try{node.stop()}catch{}}this.nodes.clear()}
+  sample(key,volume=.5,detune=0){
     if(!this.s.cache.audio.exists(key))return false;
     if(this.muted||window.BerriesLifecycle.paused)return true;
     this.unlock();
@@ -34,7 +34,26 @@ class Sfx{
     let voice=pool.find(sound=>!sound.isPlaying);
     if(!voice&&pool.length<3){voice=this.s.sound.add(key);pool.push(voice)}
     if(!voice){voice=pool.shift();voice.stop();pool.push(voice)}
-    voice.play({volume});return true;
+    voice.play({volume,detune});return true;
+  }
+  berryPop(chain=1){
+    if(!this.s.cache.audio.exists('sfx_berry_pop'))return false;
+    if(this.muted||window.BerriesLifecycle.paused||document.hidden)return true;
+    if(!this.can('berry-burst',240))return true;
+    this.berryTimers??=new Set();
+    const play=i=>{
+      if(this.muted||window.BerriesLifecycle.paused||document.hidden)return;
+      // A compact three-pop phrase, with at most two overlapping sample tails.
+      const pool=this.voices.sfx_berry_pop||[];
+      const active=pool.filter(v=>v.isPlaying);if(active.length>=2)active[0].stop();
+      this.sample('sfx_berry_pop',[.28,.23,.20][i],(Math.random()-.5)*90+i*35+Math.min(chain-1,4)*12);
+    };
+    play(0);
+    for(const [i,delay] of [[1,100],[2,210]]){
+      const timer=this.s.time.delayedCall(delay,()=>{this.berryTimers.delete(timer);play(i)});
+      this.berryTimers.add(timer);
+    }
+    return true;
   }
   iceBreak(){if(!this.sample('sfx_ice_break',.45))this.crack()}
   ctx(){return this.s.sound?.context}
@@ -49,7 +68,18 @@ class Sfx{
   wood(){if(this.can('wood',70)){this.tone(225,.055,.018,'triangle',-95);this.tone(120,.07,.012,'sine',-30,.012)}}
   spark(){if(this.can('spark',55)){this.tone(920,.085,.012,'sine',330);this.tone(1320,.065,.009,'sine',130,.035)}}
   whoosh(){if(this.can('whoosh',65)){this.tone(270,.12,.015,'sine',500);this.tone(560,.10,.008,'triangle',280,.025)}}
-  bomb(){if(this.can('bomb',100)){this.tone(115,.16,.030,'sine',-35);this.tone(255,.09,.014,'triangle',-90,.015)}}
+  bomb(){
+    if(this.muted||window.BerriesLifecycle.paused||!this.can('bomb',120))return;
+    this.tone(155,.27,.070,'sine',-95);this.tone(290,.12,.020,'triangle',-170,.008);
+    const c=this.ctx();if(!c)return;
+    const buffer=c.createBuffer(1,Math.ceil(c.sampleRate*.18),c.sampleRate),data=buffer.getChannelData(0);
+    for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2);
+    const source=c.createBufferSource(),filter=c.createBiquadFilter(),gain=c.createGain();
+    source.buffer=buffer;filter.type='lowpass';filter.frequency.value=900;
+    gain.gain.setValueAtTime(.065*this.master,c.currentTime);gain.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.18);
+    source.connect(filter).connect(gain).connect(c.destination);this.nodes.add(source);
+    source.onended=()=>{this.nodes.delete(source);source.disconnect();filter.disconnect();gain.disconnect()};source.start();
+  }
   reward(){[640,860,1100].forEach((f,i)=>this.tone(f,.10,.013,'sine',130,i*.055))}
   win(){[523,659,784,1046].forEach((f,i)=>this.tone(f,.15,.020,'sine',100,i*.075))}
   lose(){[392,330,262].forEach((f,i)=>this.tone(f,.15,.017,'sine',-18,i*.085))}
