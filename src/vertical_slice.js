@@ -87,7 +87,7 @@ class Sfx{
 const MUSIC_TRACKS={
 music_menu:'audio/music/music_menu_morning.mp3',
 music_gameplay_calm:'audio/music/music_gameplay_calm_devonshire_moderato.mp3',
-music_gameplay_magic:'audio/music/music_gameplay_magic_escape_room.mp3'
+music_gameplay_magic:'audio/music/music_gameplay_magic_escape_room.mp3?v=audio-96k'
 };
 class MusicBus{
 constructor(scene){
