@@ -766,6 +766,33 @@ function install(){
       this.add.image(W/2,H/2,'mapbg').setDisplaySize(W,H);
       fit(this.add.image(W/2,100,'map_header_levels'),560,175).setDepth(8);
 
+      const topCoinPanel=fit(this.add.image(250,72,'pcoins'),400,108).setDepth(40).setInteractive({useHandCursor:true});
+      const topCoinText=this.add.text(264,72,'',{fontFamily:FONT,fontSize:'31px',fontStyle:'bold',color:'#57301d',align:'center'}).setOrigin(.5).setDepth(41);
+      topCoinPanel.on('pointerdown',()=>this.openShop());
+      this.updateHud=()=>topCoinText.setText(String(Campaign.read().coins));
+      this.updateHud();
+
+      this.add.circle(1848,68,45,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(40);
+      const mapSettings=fit(this.add.image(1848,68,'ui_settings'),58,58).setDepth(41).setInteractive({useHandCursor:true});
+      mapSettings.on('pointerdown',()=>{
+        if(this._mapSettings?.active){this._mapSettings.destroy();this._mapSettings=null;return}
+        const box=this.add.container(1635,245).setDepth(70);this._mapSettings=box;
+        const bg=this.add.graphics();bg.fillStyle(0xfff7e9,.97);bg.fillRoundedRect(-235,-145,470,290,24);bg.lineStyle(4,0xcda36a,1);bg.strokeRoundedRect(-235,-145,470,290,24);box.add(bg);
+        box.add(this.add.zone(0,0,470,290).setInteractive());
+        const text=(x,y,value,size=26)=>this.add.text(x,y,value,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color:'#543922',align:'center'}).setOrigin(.5);
+        box.add(text(0,-102,'НАСТРОЙКИ',30));
+        const close=text(202,-108,'×',36).setInteractive({useHandCursor:true});close.on('pointerdown',()=>{box.destroy();this._mapSettings=null});box.add(close);
+        const buttonRow=(y,title,isMuted,toggle)=>{
+          box.add(text(-110,y,title));
+          const button=fit(this.add.image(108,y,'btn'),170,65).setInteractive({useHandCursor:true});
+          const state=text(108,y,'',22);state.setColor('#fff5da').setStroke('#59331c',3);
+          const refresh=()=>state.setText(isMuted()?'ВЫКЛ':'ВКЛ');
+          button.on('pointerdown',()=>{toggle();refresh()});refresh();box.add([button,state]);
+        };
+        buttonRow(-20,'ЗВУК',()=>localStorage.getItem('berries_sfx_muted')==='1',()=>{const muted=localStorage.getItem('berries_sfx_muted')==='1';localStorage.setItem('berries_sfx_muted',muted?'0':'1')});
+        buttonRow(72,'МУЗЫКА',()=>!!this.music?.muted,()=>{if(!this.music)return;this.music.muted=!this.music.muted;if(this.music.muted)this.music.stop();else this.music.play('music_menu')});
+      });
+
       let save=Campaign.read();
       Campaign.abandon();save=Campaign.read();
       const done=new Set(save.done||[]),highest=Campaign.unlocked(save);
