@@ -1,0 +1,64 @@
+name: Build Yandex release
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'index.html'
+      - 'styles.css'
+      - 'src/**'
+      - 'assets/**'
+      - 'audio/**'
+      - 'scripts/build_release.py'
+      - 'tests/**'
+      - '.github/workflows/build-yandex.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare media tools
+        run: |
+          python -m pip install --disable-pip-version-check pillow
+          ffmpeg -version | head -1
+
+      - name: Run regression tests
+        run: |
+          node tests/campaign.cjs
+          node tests/special-label-lifecycle.cjs
+          node tests/rewarded-guard.cjs
+
+      - name: Build optimized Yandex archive
+        env:
+          BERRIES_RELEASE_NAME: berries_yandex_v6.zip
+        run: |
+          python scripts/build_release.py
+
+      - name: Validate release policy
+        run: |
+          set -euo pipefail
+          test -f berries_yandex_v6.zip
+          test -f berries_build_manifest.json
+          test "$(unzip -Z1 berries_yandex_v6.zip | grep -c '^index.html$')" -eq 1
+          ! unzip -Z1 berries_yandex_v6.zip | grep -E '(^|/)\.gitkeep$|^archive_unused/'
+          ! unzip -Z1 berries_yandex_v6.zip | grep -E 'music_event_adventureland|berry_pop\.mp3|characters/queen'
+          ! unzip -Z1 berries_yandex_v6.zip | grep -E 'panel_2\.png|panel_berries1\.png|panel_buttom[12]\.png|panel_progress\.png|panel_championat\.png|board_frame_forest\.png'
+          echo "ZIP bytes: $(stat -c%s berries_yandex_v6.zip)"
+          cat berries_build_manifest.json
+
+      - name: Upload release
+        uses: actions/upload-artifact@v4
+        with:
+          name: berries-yandex-v6
+          path: |
+            berries_yandex_v6.zip
+            berries_build_manifest.json
+          if-no-files-found: error
+          retention-days: 30
