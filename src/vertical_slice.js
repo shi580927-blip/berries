@@ -39,21 +39,10 @@ class Sfx{
   berryPop(chain=1){
     if(!this.s.cache.audio.exists('sfx_berry_pop'))return false;
     if(this.muted||window.BerriesLifecycle.paused||document.hidden)return true;
-    if(!this.can('berry-burst',240))return true;
-    this.berryTimers??=new Set();
-    const play=i=>{
-      if(this.muted||window.BerriesLifecycle.paused||document.hidden)return;
-      // A compact three-pop phrase, with at most two overlapping sample tails.
-      const pool=this.voices.sfx_berry_pop||[];
-      const active=pool.filter(v=>v.isPlaying);if(active.length>=2)active[0].stop();
-      this.sample('sfx_berry_pop',[.28,.23,.20][i],(Math.random()-.5)*90+i*35+Math.min(chain-1,4)*12);
-    };
-    play(0);
-    for(const [i,delay] of [[1,100],[2,210]]){
-      const timer=this.s.time.delayedCall(delay,()=>{this.berryTimers.delete(timer);play(i)});
-      this.berryTimers.add(timer);
-    }
-    return true;
+    // One gentle pop per destroyed berry. clearCells() calls this once for every berry,
+    // so long cascades stay audible without turning into a loud overlapping burst.
+    if(!this.can('berry-burst',95))return true;
+    return this.sample('sfx_berry_pop',.18,(Math.random()-.5)*70+Math.min(chain-1,4)*10);
   }
   iceBreak(){if(!this.sample('sfx_ice_break',.45))this.crack()}
   ctx(){return this.s.sound?.context}
@@ -63,7 +52,7 @@ class Sfx{
   click(){if(this.can('click'))this.tone(560,.035,.020,'triangle',55)}
   bad(){if(this.can('bad',120)){this.tone(200,.09,.020,'triangle',-60);this.tone(125,.07,.010,'sine',-20,.025)}}
   swap(){if(this.can('swap',50)){this.tone(290,.055,.016,'sine',160);this.tone(430,.045,.010,'triangle',110,.024)}}
-  pop(chain=1){if(this.sample('sfx_berry_pop',.35))return;if(!this.can('pop',20))return;const p=1+Math.min(chain,5)*.04+(Math.random()-.5)*.08;this.tone(210*p,.07,.027,'sine',95);this.tone(420*p,.045,.009,'triangle',120,.012);if(chain>=3&&Math.random()>.35)this.tone(900+chain*45,.08,.008,'sine',190,.015)}
+  pop(chain=1){if(this.sample('sfx_berry_pop',.18))return;if(!this.can('pop',20))return;const p=1+Math.min(chain,5)*.04+(Math.random()-.5)*.08;this.tone(210*p,.07,.027,'sine',95);this.tone(420*p,.045,.009,'triangle',120,.012);if(chain>=3&&Math.random()>.35)this.tone(900+chain*45,.08,.008,'sine',190,.015)}
   crack(){if(this.can('crack',60)){this.tone(900,.045,.013,'square',-470);this.tone(430,.07,.013,'triangle',-180,.012)}}
   wood(){if(this.can('wood',70)){this.tone(225,.055,.018,'triangle',-95);this.tone(120,.07,.012,'sine',-30,.012)}}
   spark(){if(this.can('spark',55)){this.tone(920,.085,.012,'sine',330);this.tone(1320,.065,.009,'sine',130,.035)}}
@@ -173,18 +162,18 @@ class Boot extends Phaser.Scene{
     this.load.audio('music_combo_accent','audio/music/accents/combo.mp3');
     this.load.audio('music_victory_accent','audio/music/accents/victory.mp3');
     const I=(k,p)=>this.load.image(k,p+'?v=ui-20260917-payments');
-    I('head_goals','assets/ui/panels/panel_head_goals.png');I('head_boosters','assets/ui/panels/panel_head_boosters.png');I('panel_king_shop','assets/ui/panels/panel_king_shop.png');
+    I('head_boosters','assets/ui/panels/panel_head_boosters.png');I('panel_king_shop','assets/ui/panels/panel_king_shop.png');
     I('goals_panel_new','assets/ui/panels/panel22.png');I('shop_plaque_new','assets/ui/panels/panel23.png');I('coin_shop_new','assets/ui/panels/popup33.png');
     I('map_level_panel','assets/ui/panels/panel_level.png');I('time_panel','assets/ui/panels/panel_time.png');
-    I('wood_flat','assets/ui/panels/panel_3.png');I('wood_button','assets/ui/panels/panel_buttom1.png');
-    I('title','assets/backgrounds/background_title_forest.jpg');I('gamebg','assets/backgrounds/background_game_forest.jpg');I('mapbg','assets/map/map_forest_background.jpg');I('logo','assets/ui/panels/logo_main.png');I('plevel','assets/ui/panels/panel_level_title.png');I('pgoals','assets/ui/panels/panel_goals.png');I('pboost','assets/ui/panels/panel_boosters.png');I('pboard','assets/ui/panels/board_frame_forest.png');I('pprogress','assets/ui/panels/panel_progress.png');I('pchamp','assets/ui/panels/panel_championat.png');I('plives','assets/ui/panels/panel_lives.png');I('pcoins','assets/ui/panels/panel_coins.png');I('btn','assets/ui/buttons/button_wood.png');I('btnblue','assets/ui/buttons/button_blue.png');
+    I('wood_flat','assets/ui/panels/panel_3.png');
+    I('title','assets/backgrounds/background_title_forest.jpg');I('gamebg','assets/backgrounds/background_game_forest.jpg');I('mapbg','assets/map/map_forest_background.jpg');I('logo','assets/ui/panels/logo_main.png');I('plevel','assets/ui/panels/panel_level_title.png');I('pgoals','assets/ui/panels/panel_goals.png');I('pboost','assets/ui/panels/panel_boosters.png');I('plives','assets/ui/panels/panel_lives.png');I('pcoins','assets/ui/panels/panel_coins.png');I('btn','assets/ui/buttons/button_wood.png');
     I('popup_win','assets/ui/popups/popup_level_win.png');I('popup_lose','assets/ui/popups/popup_level_lose.png');
     I('popup_royal_shop','assets/ui/popups/popup_shop_main.png');
     I('level_done_new','assets/ui/buttons/level_completed5.png');I('level_current_new','assets/ui/buttons/level_current7.png');I('level_locked_new','assets/ui/buttons/level_completed7.png');
-    I('map_header_levels','assets/map/map_header_levels.png');['normal','current','completed','locked'].forEach(x=>I('lvl_'+x,'assets/map/level_'+x+'.png'));['idle','point','celebrate','sad'].forEach(x=>I('king_'+x,'assets/characters/king/king_'+x+'.png'));
+    I('map_header_levels','assets/map/map_header_levels.png');['idle','point','celebrate','sad'].forEach(x=>I('king_'+x,'assets/characters/king/king_'+x+'.png'));
     I('ice1','assets/blockers/blocker_ice_1.png');I('ice2','assets/blockers/blocker_ice_2.png');I('acorn','assets/blockers/goal_acorn.png');I('roots','assets/blockers/blocker_roots.png');
     I('line_h','assets/specials/special_line_h.png');I('line_v','assets/specials/special_line_v.png');I('rainbow','assets/specials/special_rainbow.png');I('bombsp','assets/specials/special_bomb.png');
-    I('hammer','assets/boosters/booster_hammer.png');I('shuffle','assets/boosters/booster_shuffle.png');I('fan','assets/boosters/booster_fan.png');['back','close','coin','life','pause','plus','settings','shop'].forEach(x=>I('ui_'+x,'assets/ui/icons/ui_'+x+'.png'));TYPES.forEach(x=>I('b_'+x,'assets/berries/berry_'+x+'.png'));
+    I('hammer','assets/boosters/booster_hammer.png');I('shuffle','assets/boosters/booster_shuffle.png');I('fan','assets/boosters/booster_fan.png');['back','coin','settings'].forEach(x=>I('ui_'+x,'assets/ui/icons/ui_'+x+'.png'));TYPES.forEach(x=>I('b_'+x,'assets/berries/berry_'+x+'.png'));
   }
   async create(){await window.berriesDigitsReady;await window.BerriesYandex.init();await window.BerriesYandex.restoreCampaign();window.BerriesLanguage=window.BerriesYandex.language;this.scene.start('Title')}
 }
@@ -247,8 +236,8 @@ class Play extends Phaser.Scene{
   bombFx(r,c){const p=this.pos(r,c),ring=this.add.circle(p.x,p.y,12,0xffd36a,.18).setStrokeStyle(8,0xffc84b,1).setDepth(12);this.tweens.add({targets:ring,scale:7,alpha:0,duration:330,ease:'Quad.out',onComplete:()=>ring.destroy()});this.burst(p.x,p.y,0xff9b3d,18);this.cameras.main.shake(120,.005)}
   rainbowFx(){const ring=this.add.circle(BX+C*CELL/2,BY+R*CELL/2,40,0xffffff,.04).setStrokeStyle(12,0xffffff,.85).setDepth(12);this.tweens.add({targets:ring,scale:9,alpha:0,duration:480,onComplete:()=>ring.destroy()});this.fx.whoosh();this.kingReact('celebrate',850)}
   specialCreateFx(p){const q=this.pos(p.r,p.c),ring=this.add.circle(q.x,q.y,18,0xffffff,.04).setStrokeStyle(6,0xfff0a5,1).setDepth(12);this.tweens.add({targets:ring,scale:3,alpha:0,duration:300,onComplete:()=>ring.destroy()});this.burst(q.x,q.y,0xffffb0,14);this.fx.spark()}
-  async clearCells(initial,chain=1){const set=this.expandSpecials(new Set(initial)),damageRoots=new Set(),damageAcorns=new Set(),damagedIce=new Set();let berrySoundPlayed=false;for(const key of set){const [r,c]=key.split(',').map(Number),it=this.board[r][c];if(it?.sp==='line_h'){this.fx.specialLine('h');this.lineFx(r,c,'h')}if(it?.sp==='line_v'){this.fx.specialLine('v');this.lineFx(r,c,'v')}if(it?.sp==='bomb'){this.fx.bomb();this.bombFx(r,c)}if(it?.sp==='rainbow')this.rainbowFx();if(this.cell[r][c].block==='roots')damageRoots.add(key);if(this.cell[r][c].block==='acorn')damageAcorns.add(key);for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const rr=r+dr,cc=c+dc;if(!inBounds(rr,cc))continue;if(this.cell[rr][cc].block==='roots')damageRoots.add(`${rr},${cc}`);if(this.cell[rr][cc].block==='acorn')damageAcorns.add(`${rr},${cc}`)}}
-    for(const key of set){const [r,c]=key.split(',').map(Number),it=this.board[r][c],ce=this.cell[r][c];const p=this.pos(r,c);if(ce.ice>0){damagedIce.add(key);ce.ice--;if(ce.ice===0)this.bumpGoal('ice',null,1);this.fx.iceBreak();this.iceShards(p.x,p.y);this.render(r,c);continue}if(!it)continue;this.bumpGoal('berry',it.id,1);this.score+=50*Math.min(2,1+(chain-1)*.25);if(!berrySoundPlayed){this.fx.pop(chain);berrySoundPlayed=true}this.burst(p.x,p.y,0xffd66f,6);const s=this.spr[r][c];if(s)await new Promise(z=>this.tweens.add({targets:s,scaleX:s.scaleX*1.22,scaleY:s.scaleY*.68,alpha:0,duration:145,ease:'Quad.in',onComplete:z}));this.board[r][c]=null;this.render(r,c)}
+  async clearCells(initial,chain=1){const set=this.expandSpecials(new Set(initial)),damageRoots=new Set(),damageAcorns=new Set(),damagedIce=new Set();for(const key of set){const [r,c]=key.split(',').map(Number),it=this.board[r][c];if(it?.sp==='line_h'){this.fx.specialLine('h');this.lineFx(r,c,'h')}if(it?.sp==='line_v'){this.fx.specialLine('v');this.lineFx(r,c,'v')}if(it?.sp==='bomb'){this.fx.bomb();this.bombFx(r,c)}if(it?.sp==='rainbow')this.rainbowFx();if(this.cell[r][c].block==='roots')damageRoots.add(key);if(this.cell[r][c].block==='acorn')damageAcorns.add(key);for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const rr=r+dr,cc=c+dc;if(!inBounds(rr,cc))continue;if(this.cell[rr][cc].block==='roots')damageRoots.add(`${rr},${cc}`);if(this.cell[rr][cc].block==='acorn')damageAcorns.add(`${rr},${cc}`)}}
+    for(const key of set){const [r,c]=key.split(',').map(Number),it=this.board[r][c],ce=this.cell[r][c];const p=this.pos(r,c);if(ce.ice>0){damagedIce.add(key);ce.ice--;if(ce.ice===0)this.bumpGoal('ice',null,1);this.fx.iceBreak();this.iceShards(p.x,p.y);this.render(r,c);continue}if(!it)continue;this.bumpGoal('berry',it.id,1);this.score+=50*Math.min(2,1+(chain-1)*.25);this.fx.pop(chain)this.burst(p.x,p.y,0xffd66f,6);const s=this.spr[r][c];if(s)await new Promise(z=>this.tweens.add({targets:s,scaleX:s.scaleX*1.22,scaleY:s.scaleY*.68,alpha:0,duration:145,ease:'Quad.in',onComplete:z}));this.board[r][c]=null;this.render(r,c)}
     for(const key of damageRoots){const [r,c]=key.split(',').map(Number);if(this.cell[r][c].block==='roots'){this.cell[r][c].block=null;this.bumpGoal('roots',null,1);this.fx.wood();const p=this.pos(r,c);this.burst(p.x,p.y,0x9c6b3c,10);this.render(r,c)}}
     for(const key of damageAcorns){const [r,c]=key.split(',').map(Number);if(damagedIce.has(key))continue;if(this.cell[r][c].block==='acorn'&&this.cell[r][c].ice>0){this.cell[r][c].ice--;if(!this.cell[r][c].ice)this.bumpGoal('ice',null,1);this.fx.iceBreak();const p=this.pos(r,c);this.iceShards(p.x,p.y);this.render(r,c);continue}if(this.cell[r][c].block==='acorn'&&!this.cell[r][c].ice){this.cell[r][c].block=null;this.bumpGoal('acorn',null,1);this.fx.spark();const p=this.pos(r,c);this.burst(p.x,p.y,0xffe48d,10);this.render(r,c)}}this.updateHud();if(chain>=2)this.kingReact('celebrate',520)}
   async fallRefill(){for(let c=0;c<C;c++){const slots=[];for(let r=R-1;r>=0;r--)if(!this.cell[r][c].block)slots.push(r);const vals=[];for(const r of slots)if(this.board[r][c])vals.push(this.board[r][c]);for(const r of slots)this.board[r][c]=vals.shift()||{id:Phaser.Utils.Array.GetRandom(TYPES.slice(0,this.cfg.n)),sp:null}}this.drawAll(false,true);await pause(560)}
