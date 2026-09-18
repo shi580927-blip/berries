@@ -182,7 +182,7 @@ def optimize_audio():
     circular_loop(
         ROOT / "audio/music/music_gameplay_calm_devonshire_moderato.mp3",
         RELEASE / "audio/music/music_gameplay_calm_devonshire_moderato.mp3",
-        start=0, length=54, crossfade=.12, bitrate="96k",
+        start=0, length=55.08, crossfade=.12, bitrate="96k",
     )
     # This track is already short and 96 kbps; re-encode only to strip metadata/artwork.
     dst = RELEASE / "audio/music/music_gameplay_magic_escape_room.mp3"
