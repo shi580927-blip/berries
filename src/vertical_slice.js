@@ -60,26 +60,41 @@ class Sfx{
   specialLine(dir){
     if(!this.can('special-line-'+dir,105))return;
     if(dir==='h'){
-      this.tone(620,.105,.014,'sine',760);
-      this.tone(940,.075,.008,'triangle',430,.032);
+      this.tone(620,.115,.032,'sine',760);
+      this.tone(940,.085,.018,'triangle',430,.026);
+      this.tone(1480,.055,.010,'triangle',-720,.010);
     }else{
-      this.tone(1180,.105,.013,'sine',-650);
-      this.tone(760,.085,.008,'triangle',-300,.028);
+      this.tone(1180,.115,.030,'sine',-650);
+      this.tone(760,.095,.018,'triangle',-300,.024);
+      this.tone(1460,.055,.010,'triangle',-700,.010);
     }
+  }
+  specialCreate(){
+    if(!this.can('special-create',100))return;
+    this.tone(820,.095,.020,'sine',340);
+    this.tone(1260,.085,.015,'triangle',260,.035);
+  }
+  specialCombo(){
+    if(!this.can('special-combo',380))return;
+    this.tone(320,.20,.035,'sine',520);
+    this.tone(760,.15,.026,'triangle',760,.018);
+    this.tone(1280,.13,.018,'sine',420,.060);
   }
   rainbow(){
     if(!this.can('special-rainbow',420))return;
-    [720,960,1260,1680].forEach((f,i)=>this.tone(f,.10,.010,'sine',180,i*.038));
+    this.tone(420,.18,.020,'sine',920);
+    [720,960,1260,1680].forEach((f,i)=>this.tone(f,.11,.022,'sine',180,i*.036));
   }
   bomb(){
     if(this.muted||window.BerriesLifecycle.paused||!this.can('bomb',120))return;
-    this.tone(155,.27,.070,'sine',-95);this.tone(290,.12,.020,'triangle',-170,.008);
+    this.tone(155,.27,.085,'sine',-95);this.tone(290,.13,.028,'triangle',-170,.008);
+    this.tone(920,.065,.032,'triangle',-590,.010);
     const c=this.ctx();if(!c)return;
     const buffer=c.createBuffer(1,Math.ceil(c.sampleRate*.18),c.sampleRate),data=buffer.getChannelData(0);
     for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2);
     const source=c.createBufferSource(),filter=c.createBiquadFilter(),gain=c.createGain();
-    source.buffer=buffer;filter.type='lowpass';filter.frequency.value=900;
-    gain.gain.setValueAtTime(.065*this.master,c.currentTime);gain.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.18);
+    source.buffer=buffer;filter.type='lowpass';filter.frequency.value=1500;
+    gain.gain.setValueAtTime(.090*this.master,c.currentTime);gain.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.18);
     source.connect(filter).connect(gain).connect(c.destination);this.nodes.add(source);
     source.onended=()=>{this.nodes.delete(source);source.disconnect();filter.disconnect();gain.disconnect()};source.start();
   }
@@ -121,8 +136,18 @@ this.current=key;this.sound=this.s.sound.add(key,{loop:true,volume:this.volume})
 }
 stop(){
 this.cueTween?.stop();this.cueTween=null;
+this.duckTimer?.remove?.(false);this.duckTimer=null;
 if(this.cueSound){this.cueSound.destroy();this.cueSound=null}
 if(this.sound){this.sound.destroy();this.sound=null}this.current=null;
+}
+duck(ms=320,factor=.55){
+if(!this.sound||this.muted||this.paused||window.BerriesLifecycle.paused||document.hidden)return;
+this.duckTimer?.remove?.(false);
+this.sound.setVolume(this.volume*factor);
+this.duckTimer=this.s.time.delayedCall(ms,()=>{
+  this.duckTimer=null;
+  if(this.sound&&!this.muted&&!this.paused&&!window.BerriesLifecycle.paused&&!document.hidden)this.sound.setVolume(this.volume);
+});
 }
 accent(kind){
 if(this.closed||this.muted||this.paused||window.BerriesLifecycle.paused||document.hidden)return false;
@@ -235,8 +260,8 @@ class Play extends Phaser.Scene{
   lineFx(r,c,dir){const p=this.pos(r,c),g=this.add.graphics().setDepth(11);g.lineStyle(14,0xfff4a3,.95);if(dir==='h')g.lineBetween(BX,p.y,BX+C*CELL,p.y);else g.lineBetween(p.x,BY,p.x,BY+R*CELL);g.alpha=.95;this.tweens.add({targets:g,alpha:0,duration:260,onComplete:()=>g.destroy()});this.burst(p.x,p.y,0xffe36d,12)}
   bombFx(r,c){const p=this.pos(r,c),ring=this.add.circle(p.x,p.y,12,0xffd36a,.18).setStrokeStyle(8,0xffc84b,1).setDepth(12);this.tweens.add({targets:ring,scale:7,alpha:0,duration:330,ease:'Quad.out',onComplete:()=>ring.destroy()});this.burst(p.x,p.y,0xff9b3d,18);this.cameras.main.shake(120,.005)}
   rainbowFx(){const ring=this.add.circle(BX+C*CELL/2,BY+R*CELL/2,40,0xffffff,.04).setStrokeStyle(12,0xffffff,.85).setDepth(12);this.tweens.add({targets:ring,scale:9,alpha:0,duration:480,onComplete:()=>ring.destroy()});this.fx.whoosh();this.kingReact('celebrate',850)}
-  specialCreateFx(p){const q=this.pos(p.r,p.c),ring=this.add.circle(q.x,q.y,18,0xffffff,.04).setStrokeStyle(6,0xfff0a5,1).setDepth(12);this.tweens.add({targets:ring,scale:3,alpha:0,duration:300,onComplete:()=>ring.destroy()});this.burst(q.x,q.y,0xffffb0,14);this.fx.spark()}
-  async clearCells(initial,chain=1){const set=this.expandSpecials(new Set(initial)),damageRoots=new Set(),damageAcorns=new Set(),damagedIce=new Set();for(const key of set){const [r,c]=key.split(',').map(Number),it=this.board[r][c];if(it?.sp==='line_h'){this.fx.specialLine('h');this.lineFx(r,c,'h')}if(it?.sp==='line_v'){this.fx.specialLine('v');this.lineFx(r,c,'v')}if(it?.sp==='bomb'){this.fx.bomb();this.bombFx(r,c)}if(it?.sp==='rainbow')this.rainbowFx();if(this.cell[r][c].block==='roots')damageRoots.add(key);if(this.cell[r][c].block==='acorn')damageAcorns.add(key);for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const rr=r+dr,cc=c+dc;if(!inBounds(rr,cc))continue;if(this.cell[rr][cc].block==='roots')damageRoots.add(`${rr},${cc}`);if(this.cell[rr][cc].block==='acorn')damageAcorns.add(`${rr},${cc}`)}}
+  specialCreateFx(p){const q=this.pos(p.r,p.c),ring=this.add.circle(q.x,q.y,18,0xffffff,.04).setStrokeStyle(6,0xfff0a5,1).setDepth(12);this.tweens.add({targets:ring,scale:3,alpha:0,duration:300,onComplete:()=>ring.destroy()});this.burst(q.x,q.y,0xffffb0,14);this.music?.duck?.(180,.72);this.fx.specialCreate?.()}
+  async clearCells(initial,chain=1){const set=this.expandSpecials(new Set(initial)),damageRoots=new Set(),damageAcorns=new Set(),damagedIce=new Set();for(const key of set){const [r,c]=key.split(',').map(Number),it=this.board[r][c];if(it?.sp)this.music?.duck?.(330,it.sp==='bomb'?.45:.55);if(it?.sp==='line_h'){this.fx.specialLine('h');this.lineFx(r,c,'h')}if(it?.sp==='line_v'){this.fx.specialLine('v');this.lineFx(r,c,'v')}if(it?.sp==='bomb'){this.fx.bomb();this.bombFx(r,c)}if(it?.sp==='rainbow')this.rainbowFx();if(this.cell[r][c].block==='roots')damageRoots.add(key);if(this.cell[r][c].block==='acorn')damageAcorns.add(key);for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const rr=r+dr,cc=c+dc;if(!inBounds(rr,cc))continue;if(this.cell[rr][cc].block==='roots')damageRoots.add(`${rr},${cc}`);if(this.cell[rr][cc].block==='acorn')damageAcorns.add(`${rr},${cc}`)}}
     for(const key of set){const [r,c]=key.split(',').map(Number),it=this.board[r][c],ce=this.cell[r][c];const p=this.pos(r,c);if(ce.ice>0){damagedIce.add(key);ce.ice--;if(ce.ice===0)this.bumpGoal('ice',null,1);this.fx.iceBreak();this.iceShards(p.x,p.y);this.render(r,c);continue}if(!it)continue;this.bumpGoal('berry',it.id,1);this.score+=50*Math.min(2,1+(chain-1)*.25);this.fx.pop(chain);this.burst(p.x,p.y,0xffd66f,6);const s=this.spr[r][c];if(s)await new Promise(z=>this.tweens.add({targets:s,scaleX:s.scaleX*1.22,scaleY:s.scaleY*.68,alpha:0,duration:145,ease:'Quad.in',onComplete:z}));this.board[r][c]=null;this.render(r,c)}
     for(const key of damageRoots){const [r,c]=key.split(',').map(Number);if(this.cell[r][c].block==='roots'){this.cell[r][c].block=null;this.bumpGoal('roots',null,1);this.fx.wood();const p=this.pos(r,c);this.burst(p.x,p.y,0x9c6b3c,10);this.render(r,c)}}
     for(const key of damageAcorns){const [r,c]=key.split(',').map(Number);if(damagedIce.has(key))continue;if(this.cell[r][c].block==='acorn'&&this.cell[r][c].ice>0){this.cell[r][c].ice--;if(!this.cell[r][c].ice)this.bumpGoal('ice',null,1);this.fx.iceBreak();const p=this.pos(r,c);this.iceShards(p.x,p.y);this.render(r,c);continue}if(this.cell[r][c].block==='acorn'&&!this.cell[r][c].ice){this.cell[r][c].block=null;this.bumpGoal('acorn',null,1);this.fx.spark();const p=this.pos(r,c);this.burst(p.x,p.y,0xffe48d,10);this.render(r,c)}}this.updateHud();if(chain>=2)this.kingReact('celebrate',520)}
