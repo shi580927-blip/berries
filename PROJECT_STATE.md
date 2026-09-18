@@ -307,3 +307,18 @@ Runtime procedural слой сейчас включает:
 - direct activation line/bomb стабилизирована;
 - добавлена координатная QA-сетка: ?debugGrid=1, переключение клавишей G.
 
+
+
+## 2026-09-18 — release size / audio cleanup policy
+
+- Current production build path is canonical: `scripts/build_release.py` + `.github/workflows/build-yandex.yml`.
+- Old versioned build workflows v3/v4/v5 are removed so future archives cannot accidentally copy the whole source tree.
+- Production archive uses an explicit allowlist. `archive_unused/` is never shipped.
+- Unused/legacy files were moved out of active `assets/` and `audio/` into `archive_unused/`; future assets (Queen) are kept under `archive_unused/future/`.
+- Release images are resized conservatively at build time and PNG/JPG are recompressed without changing gameplay.
+- Menu/map music is built as a short circular loop at 96 kbps; calm gameplay music is also shortened to a loop at 96 kbps. The full source files remain in the repository for future editing.
+- `music_gameplay_magic_escape_room.mp3` remains the late-game track and is re-encoded at 96 kbps with metadata/artwork stripped.
+- `music_event_adventureland.mp3` and alternate `berry_pop.mp3` are not shipped.
+- Berry pop SFX keeps the current sample, but playback is softer (volume 0.18) and is now called once per destroyed berry, instead of one loud three-pop phrase for an entire match/cascade.
+- Release-size guardrail: production ZIP must stay below 20 MB unless the build policy is intentionally revised.
+- First optimized archive: `berries_yandex_v6.zip`, 11,071,081 bytes, SHA256 `35d941d9f3e6879ee0f0f8827a3fafd7c0c51340c05f4a284f351dd80aafb9d5`.
