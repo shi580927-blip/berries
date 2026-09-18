@@ -63,6 +63,17 @@ function install(){
   p.fallRefill=async function fallRefillStable() {
       const animations = [];
       const availableTypes = TYPES.slice(0, this.cfg.n);
+      const pickSpawnType = (r,c) => {
+        // Keep lucky cascades, but stop refill from constantly building free triples.
+        const makesImmediateTriple = id => {
+          const below1=this.board?.[r+1]?.[c]?.id,below2=this.board?.[r+2]?.[c]?.id;
+          const left1=this.board?.[r]?.[c-1]?.id,left2=this.board?.[r]?.[c-2]?.id;
+          return (below1===id&&below2===id)||(left1===id&&left2===id);
+        };
+        let id=Phaser.Utils.Array.GetRandom(availableTypes);
+        for(let attempt=0;attempt<7&&makesImmediateTriple(id)&&Math.random()>.18;attempt++)id=Phaser.Utils.Array.GetRandom(availableTypes);
+        return id;
+      };
 
       const rebind = (sprite, r, c) => {
         if (!sprite) return;
@@ -141,7 +152,7 @@ function install(){
           let spawnIndex = 0;
           while (target >= top) {
             const tr = target--;
-            this.board[tr][c] = { id: Phaser.Utils.Array.GetRandom(availableTypes), sp: null };
+            this.board[tr][c] = { id: pickSpawnType(tr,c), sp: null };
             this.render(tr, c, false, false);
             const s = this.spr[tr][c];
             if (!s) continue;
@@ -219,6 +230,7 @@ function install(){
       }
       await this.fallRefill();
       await pause(70);
+      if(this.allDone?.())break;
     }
     if(chain===MAX_CHAINS){
       for(let attempt=0;attempt<60;attempt++){
@@ -654,13 +666,30 @@ function install(){
         if(target)this.tweens.add({targets:target,scale:1.12,duration:115,yoyo:true,ease:'Back.out'});
       }
     });
-    if(chain>=2&&this.fxAllow('combo',700)){
+    if(chain>=2){
+      this.music?.duck?.(190,chain>=4?.55:.68);
+      this.fx?.comboStep?.(chain);
+    }
+    if(chain>=2&&this.fxAllow('combo',360)){
       const words=['СОЧНО!','КОМБО!','ЯГОДНЫЙ БУМ!','ВОТ ЭТО КАСКАД!'];
-      const label=this.add.text(BX+C*CELL/2,BY+82,words[Math.min(chain-2,3)],{fontFamily:FONT,fontSize:chain>=4?'51px':'43px',fontStyle:'bold',color:'#fff6bb',stroke:'#793322',strokeThickness:9,shadow:{offsetX:0,offsetY:5,color:'#6a3020',blur:10,fill:true}}).setOrigin(.5).setDepth(24).setScale(.65);
-      this.fxTween(label,{y:BY+42,scale:1.05,alpha:0,duration:900,ease:'Cubic.out'});
-      this.fxBits(BX+C*CELL/2,BY+72,[0xffd45a,0xff759e,0xfff6d0],18,175,23);
+      const spots=[
+        [BX+C*CELL*.50,BY+82],
+        [BX+C*CELL*.30,BY+C*CELL*.54],
+        [BX+C*CELL*.70,BY+C*CELL*.70],
+        [BX+C*CELL*.50,BY+C*CELL*.42]
+      ],spot=spots[(chain-2)%spots.length];
+      const colors=['#fff16a','#ff83cf','#7fe8ff','#a5ff7b','#d8a5ff'];
+      const label=this.add.text(spot[0],spot[1],words[Math.min(chain-2,3)],{fontFamily:FONT,fontSize:chain>=4?'54px':'45px',fontStyle:'bold',color:colors[(chain-2)%colors.length],stroke:'#71311f',strokeThickness:10,shadow:{offsetX:0,offsetY:5,color:'#542318',blur:12,fill:true}}).setOrigin(.5).setDepth(24).setScale(.62);
+      let colorTick=0;
+      this.time.addEvent({delay:90,repeat:6,callback:()=>{if(label?.scene)label.setColor(colors[(chain-2+(++colorTick))%colors.length])}});
+      this.fxTween(label,{y:spot[1]-48,scale:1.10,alpha:0,duration:920,ease:'Cubic.out'});
+      this.fxBits(spot[0],spot[1],[0xffd45a,0xff759e,0x75e8ff,0xa8ff7d,0xd3a3ff,0xffffff],20+Math.min(chain,5)*3,185+Math.min(chain,5)*18,23);
+      if(chain>=4){
+        this.fxBits(BX+55,BY+C*CELL*.78,[0xff7bcf,0xffec75,0x79e5ff,0xffffff],16,120,22);
+        this.fxBits(BX+C*CELL-55,BY+C*CELL*.72,[0xff7bcf,0xffec75,0x79e5ff,0xffffff],16,120,22);
+      }
       this.kingReact('celebrate',900);
-      if(chain>=3)this.music?.accent('combo');
+      if(chain>=5)this.music?.accent('combo');
     }
   };
   p.iceShards=function(x,y){
