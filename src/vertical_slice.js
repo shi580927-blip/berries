@@ -59,6 +59,7 @@ class Sfx{
   whoosh(){if(this.can('whoosh',65)){this.tone(270,.12,.015,'sine',500);this.tone(560,.10,.008,'triangle',280,.025)}}
   specialLine(dir){
     if(!this.can('special-line-'+dir,105))return;
+    if(this.sample('sfx_special_line',.82,dir==='h'?-55:70))return;
     if(dir==='h'){
       this.tone(620,.115,.032,'sine',760);
       this.tone(940,.085,.018,'triangle',430,.026);
@@ -71,17 +72,30 @@ class Sfx{
   }
   specialCreate(){
     if(!this.can('special-create',100))return;
+    if(this.sample('sfx_special_create',.78))return;
     this.tone(820,.095,.020,'sine',340);
     this.tone(1260,.085,.015,'triangle',260,.035);
   }
   specialCombo(){
     if(!this.can('special-combo',380))return;
+    if(this.sample('sfx_special_combo',.86))return;
     this.tone(320,.20,.035,'sine',520);
     this.tone(760,.15,.026,'triangle',760,.018);
     this.tone(1280,.13,.018,'sine',420,.060);
   }
+  comboStep(chain=2){
+    if(!this.can('combo-step-'+Math.min(chain,6),120))return;
+    const step=Math.min(Math.max(chain-2,0),4);
+    const roots=[440,494,554,622,698],root=roots[step];
+    const gain=.020+step*.004;
+    this.tone(root,.10,gain,'triangle',80);
+    this.tone(root*1.25,.11,gain*.82,'sine',105,.022);
+    this.tone(root*1.5,.12,gain*.72,'sine',130,.050);
+    if(chain>=5)this.tone(root*2,.14,gain*.54,'triangle',160,.075);
+  }
   rainbow(){
     if(!this.can('special-rainbow',420))return;
+    if(this.sample('sfx_special_rainbow',.84))return;
     this.tone(420,.18,.020,'sine',920);
     [720,960,1260,1680].forEach((f,i)=>this.tone(f,.11,.022,'sine',180,i*.036));
   }
@@ -184,6 +198,10 @@ class Boot extends Phaser.Scene{
     const t=this.add.text(W/2,H/2,'Загружаем лес…',{fontSize:'36px',color:'#fff7dc'}).setOrigin(.5);this.load.on('progress',v=>t.setText(`Загружаем лес… ${Math.round(v*100)}%`));
     this.load.audio('sfx_berry_pop','audio/sfx/berry_pop_soft.mp3');
     this.load.audio('sfx_ice_break','audio/sfx/ice_break.mp3');
+    this.load.audio('sfx_special_create','audio/sfx/special_create_hybrid.mp3');
+    this.load.audio('sfx_special_line','audio/sfx/special_line_hybrid.mp3');
+    this.load.audio('sfx_special_rainbow','audio/sfx/special_rainbow_hybrid.mp3');
+    this.load.audio('sfx_special_combo','audio/sfx/special_combo_hybrid.mp3');
     this.load.audio('music_combo_accent','audio/music/accents/combo.mp3');
     this.load.audio('music_victory_accent','audio/music/accents/victory.mp3');
     const I=(k,p)=>this.load.image(k,p+'?v=ui-20260917-payments');
@@ -261,7 +279,7 @@ class Play extends Phaser.Scene{
   bombFx(r,c){const p=this.pos(r,c),ring=this.add.circle(p.x,p.y,12,0xffd36a,.18).setStrokeStyle(8,0xffc84b,1).setDepth(12);this.tweens.add({targets:ring,scale:7,alpha:0,duration:330,ease:'Quad.out',onComplete:()=>ring.destroy()});this.burst(p.x,p.y,0xff9b3d,18);this.cameras.main.shake(120,.005)}
   rainbowFx(){const ring=this.add.circle(BX+C*CELL/2,BY+R*CELL/2,40,0xffffff,.04).setStrokeStyle(12,0xffffff,.85).setDepth(12);this.tweens.add({targets:ring,scale:9,alpha:0,duration:480,onComplete:()=>ring.destroy()});this.fx.whoosh();this.kingReact('celebrate',850)}
   specialCreateFx(p){const q=this.pos(p.r,p.c),ring=this.add.circle(q.x,q.y,18,0xffffff,.04).setStrokeStyle(6,0xfff0a5,1).setDepth(12);this.tweens.add({targets:ring,scale:3,alpha:0,duration:300,onComplete:()=>ring.destroy()});this.burst(q.x,q.y,0xffffb0,14);this.music?.duck?.(180,.72);this.fx.specialCreate?.()}
-  async clearCells(initial,chain=1){const set=this.expandSpecials(new Set(initial)),damageRoots=new Set(),damageAcorns=new Set(),damagedIce=new Set();for(const key of set){const [r,c]=key.split(',').map(Number),it=this.board[r][c];if(it?.sp)this.music?.duck?.(330,it.sp==='bomb'?.45:.55);if(it?.sp==='line_h'){this.fx.specialLine('h');this.lineFx(r,c,'h')}if(it?.sp==='line_v'){this.fx.specialLine('v');this.lineFx(r,c,'v')}if(it?.sp==='bomb'){this.fx.bomb();this.bombFx(r,c)}if(it?.sp==='rainbow')this.rainbowFx();if(this.cell[r][c].block==='roots')damageRoots.add(key);if(this.cell[r][c].block==='acorn')damageAcorns.add(key);for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const rr=r+dr,cc=c+dc;if(!inBounds(rr,cc))continue;if(this.cell[rr][cc].block==='roots')damageRoots.add(`${rr},${cc}`);if(this.cell[rr][cc].block==='acorn')damageAcorns.add(`${rr},${cc}`)}}
+  async clearCells(initial,chain=1){const set=this.expandSpecials(new Set(initial)),damageRoots=new Set(),damageAcorns=new Set(),damagedIce=new Set();for(const key of set){const [r,c]=key.split(',').map(Number),it=this.board[r][c];if(it?.sp)this.music?.duck?.(420,it.sp==='bomb'?.32:.42);if(it?.sp==='line_h'){this.fx.specialLine('h');this.lineFx(r,c,'h')}if(it?.sp==='line_v'){this.fx.specialLine('v');this.lineFx(r,c,'v')}if(it?.sp==='bomb'){this.fx.bomb();this.bombFx(r,c)}if(it?.sp==='rainbow')this.rainbowFx();if(this.cell[r][c].block==='roots')damageRoots.add(key);if(this.cell[r][c].block==='acorn')damageAcorns.add(key);for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const rr=r+dr,cc=c+dc;if(!inBounds(rr,cc))continue;if(this.cell[rr][cc].block==='roots')damageRoots.add(`${rr},${cc}`);if(this.cell[rr][cc].block==='acorn')damageAcorns.add(`${rr},${cc}`)}}
     for(const key of set){const [r,c]=key.split(',').map(Number),it=this.board[r][c],ce=this.cell[r][c];const p=this.pos(r,c);if(ce.ice>0){damagedIce.add(key);ce.ice--;if(ce.ice===0)this.bumpGoal('ice',null,1);this.fx.iceBreak();this.iceShards(p.x,p.y);this.render(r,c);continue}if(!it)continue;this.bumpGoal('berry',it.id,1);this.score+=50*Math.min(2,1+(chain-1)*.25);this.fx.pop(chain);this.burst(p.x,p.y,0xffd66f,6);const s=this.spr[r][c];if(s)await new Promise(z=>this.tweens.add({targets:s,scaleX:s.scaleX*1.22,scaleY:s.scaleY*.68,alpha:0,duration:145,ease:'Quad.in',onComplete:z}));this.board[r][c]=null;this.render(r,c)}
     for(const key of damageRoots){const [r,c]=key.split(',').map(Number);if(this.cell[r][c].block==='roots'){this.cell[r][c].block=null;this.bumpGoal('roots',null,1);this.fx.wood();const p=this.pos(r,c);this.burst(p.x,p.y,0x9c6b3c,10);this.render(r,c)}}
     for(const key of damageAcorns){const [r,c]=key.split(',').map(Number);if(damagedIce.has(key))continue;if(this.cell[r][c].block==='acorn'&&this.cell[r][c].ice>0){this.cell[r][c].ice--;if(!this.cell[r][c].ice)this.bumpGoal('ice',null,1);this.fx.iceBreak();const p=this.pos(r,c);this.iceShards(p.x,p.y);this.render(r,c);continue}if(this.cell[r][c].block==='acorn'&&!this.cell[r][c].ice){this.cell[r][c].block=null;this.bumpGoal('acorn',null,1);this.fx.spark();const p=this.pos(r,c);this.burst(p.x,p.y,0xffe48d,10);this.render(r,c)}}this.updateHud();if(chain>=2)this.kingReact('celebrate',520)}
