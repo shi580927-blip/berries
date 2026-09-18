@@ -14,9 +14,9 @@ const goals=(...g)=>g;
 const berry=(id,n)=>['berry',id,n],ice=n=>['ice',null,n],ac=n=>['acorn',null,n],roots=n=>['roots',null,n],score=n=>['score',null,n];
 const rows=[
 [18,5,goals(berry('strawberry',12))],[18,5,goals(berry('raspberry',14))],
-[20,5,goals(berry('blueberry',10),berry('strawberry',10))],[18,5,goals(score(900))],
-[17,6,goals(berry('gooseberry',12))],[18,6,goals(berry('blackberry',16))],
-[17,6,goals(berry('raspberry',14))],[17,6,goals(berry('blueberry',14))],
+[19,5,goals(berry('blueberry',10),berry('strawberry',10))],[16,5,goals(score(900))],
+[16,6,goals(berry('gooseberry',14))],[16,6,goals(berry('blackberry',18))],
+[15,6,goals(berry('raspberry',16))],[15,6,goals(berry('blueberry',16))],
 [18,6,goals(score(1100))],[18,6,goals(berry('strawberry',12),berry('cloudberry',12))],
 [20,6,goals(ice(8)),8],[19,6,goals(ice(12)),12],
 [19,6,goals(berry('strawberry',10)),10],[21,6,goals(ice(8)),8,2],
