@@ -262,6 +262,10 @@ function install(){
       const fire=new Set();
       if(sa)fire.add(`${b.r},${b.c}`);
       if(sb)fire.add(`${a.r},${a.c}`);
+      if(sa&&sb){
+        this.music?.duck?.(520,.38);
+        this.fx?.specialCombo?.();
+      }
       this.kingReact?.('celebrate',850);
       await this.clearCells(fire,2);
       await this.fallRefill();
@@ -670,7 +674,8 @@ function install(){
     const q=this.pos(cell.r,cell.c);
     this.fxWave(q.x,q.y,0xffdf6a,88);
     this.fxBits(q.x,q.y,[0xffed9c,0xffffff,0xffa851],18,110);
-    this.fx.spark();
+    this.music?.duck?.(180,.72);
+    this.fx.specialCreate?.();
   };
   p.lineFx=function(r,c,dir){
     if(!this.fxAllow('line-'+dir+'-'+(dir==='h'?r:c),180))return;
