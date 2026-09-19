@@ -185,10 +185,15 @@ def optimize_audio():
         RELEASE / "audio/music/music_menu_morning.mp3",
         start=0, length=42, crossfade=2, bitrate="96k",
     )
-    circular_loop(
-        ROOT / "audio/music/music_gameplay_calm_devonshire_moderato.mp3",
-        RELEASE / "audio/music/music_gameplay_calm_devonshire_moderato.mp3",
-        start=0, length=55.08, crossfade=.12, bitrate="96k",
+    # Final levels 1-20 loop is authored and cut manually. Preserve its exact 23.3 s form:
+    # no extra trim and no crossfade. Only strip metadata and encode for production.
+    dst = RELEASE / "audio/music/music_gameplay_calm_devonshire_moderato.mp3"
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    run(
+        "ffmpeg", "-y", "-loglevel", "error",
+        "-i", str(ROOT / "audio/music/music_gameplay_calm_devonshire_moderato.mp3"),
+        "-map_metadata", "-1", "-vn", "-ar", "44100", "-ac", "2",
+        "-c:a", "libmp3lame", "-b:a", "128k", "-write_xing", "1", str(dst)
     )
     # This track is already short and 96 kbps; re-encode only to strip metadata/artwork.
     dst = RELEASE / "audio/music/music_gameplay_magic_escape_room.mp3"
