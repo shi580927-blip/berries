@@ -401,11 +401,16 @@ Claim не равен copyright strike. Оспариваем только есл
 На странице поиска Pixabay по glitter среди результатов подтверждаются `Glitter Chime — humordome`, `SFX-Accent-Eye Glitter-Tinkle 1 — freesound_community`, `Magic Spell 02 — Universfield` и другие glitter/sparkle-кандидаты. Для каждого реально используемого production-файла перед финальным релизом сохраняем его индивидуальную страницу и доказательство лицензии.
 
 ### Жёлудь
-- **Superfast Crunch**, Pixabay source ID 405118.
-- URL, предоставленный пользователем: https://pixabay.com/sound-effects/film-special-effects-superfast-crunch-405118/
-- Назначение: **сбор / разрушение жёлудя**.
-- Статус: **утверждено по роли, исходный MP3 ещё не передан в проект**. До получения файла runtime не менять.
-- Планируемое production-имя: `audio/sfx/acorn_superfast_crunch.mp3`.
+- **Superfast Crunch — saboteurcomics**, Pixabay source ID 405118.
+- Источник: https://pixabay.com/sound-effects/film-special-effects-superfast-crunch-405118/
+- Pixabay search page identifies the asset as `Superfast crunch — saboteurcomics`, duration about 0:02, Film & special effects.
+- Лицензия: Pixabay Content License; индивидуальный файл использовать только в составе игры, не распространять как standalone asset.
+- Исходник получен 2026-09-19 и сохранён:
+  - Google Drive library: `saboteurcomics-superfast-crunch-405118.mp3`, Drive ID `1hW-yAjhtO5Np0esvZkLjdweBah4-9ZSm`;
+  - repo source: `audio/sfx/acorn_superfast_crunch_source.mp3`.
+- В исходнике несколько crunch-акцентов. Для жёлудя используется **средний сухой хруст**: runtime начинает примерно с `0.98 s` и останавливает примерно через `780 ms`, чтобы не захватить соседние акценты.
+- Назначение: **сбор / разрушение жёлудя**, включая разрушение молотком.
+- Статус: **подключено в runtime 2026-09-19**.
 
 ### Будущие варианты
 Остальные сохранённые magic / fire / wind / healing / dark / wand / twinkle / fairy-dust / power-up / tinkle-файлы не удалять. Рассматривать как библиотеку для:
