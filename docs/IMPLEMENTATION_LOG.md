@@ -343,3 +343,25 @@ QA-правки по первому визуальному прогону:
 Master также сохранён на Google Drive:
 `music_gameplay_levels_01_20_master_320k_2026-09-19.mp3`
 Drive ID: `1vtXGT9gjl1shHncLPsk89xSo5EQQHbiN`.
+
+
+## 2026-09-19 — v7 frozen for Yandex moderation
+
+Final moderation package:
+- file: `berries_yandex_v7_final.zip`
+- size: 11,445,865 bytes
+- entries: 72
+- SHA-256: `074cfa6d4f70613ab32ccf0d562c9a0567ae565b3bc3ef7e71108ab15d666859`
+- Drive copy ID: `1BGTP05MMKOZFK-qhT4QuPFweuRni5M_4`
+
+Included state:
+- final levels 1–20 authored loop, release encoded 128 kbps / 44.1 kHz / stereo;
+- current levels 21–30 magic music;
+- selected Pixabay special SFX;
+- glitter combo finisher;
+- middle Superfast Crunch accent for acorn;
+- no voice-derived temporary hybrid special SFX;
+- current combo visual celebration and repeating classic combo accent;
+- current rewarded cooldown/lifecycle/audio pause logic.
+
+Status: **frozen pending Yandex moderation**. Any new change after this point belongs to a post-v7 build unless explicitly approved as a v7 replacement.
