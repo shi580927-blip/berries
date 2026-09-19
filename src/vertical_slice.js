@@ -59,7 +59,6 @@ class Sfx{
   whoosh(){if(this.can('whoosh',65)){this.tone(270,.12,.015,'sine',500);this.tone(560,.10,.008,'triangle',280,.025)}}
   specialLine(dir){
     if(!this.can('special-line-'+dir,105))return;
-    if(this.sample('sfx_special_line',.82,dir==='h'?-55:70))return;
     if(dir==='h'){
       this.tone(620,.115,.032,'sine',760);
       this.tone(940,.085,.018,'triangle',430,.026);
@@ -72,20 +71,17 @@ class Sfx{
   }
   specialCreate(){
     if(!this.can('special-create',100))return;
-    if(this.sample('sfx_special_create',.78))return;
     this.tone(820,.095,.020,'sine',340);
     this.tone(1260,.085,.015,'triangle',260,.035);
   }
   specialCombo(){
     if(!this.can('special-combo',380))return;
-    if(this.sample('sfx_special_combo',.86))return;
     this.tone(320,.20,.035,'sine',520);
     this.tone(760,.15,.026,'triangle',760,.018);
     this.tone(1280,.13,.018,'sine',420,.060);
   }
   rainbow(){
     if(!this.can('special-rainbow',420))return;
-    if(this.sample('sfx_special_rainbow',.84))return;
     this.tone(420,.18,.020,'sine',920);
     [720,960,1260,1680].forEach((f,i)=>this.tone(f,.11,.022,'sine',180,i*.036));
   }
@@ -203,10 +199,6 @@ class Boot extends Phaser.Scene{
     const t=this.add.text(W/2,H/2,'Загружаем лес…',{fontSize:'36px',color:'#fff7dc'}).setOrigin(.5);this.load.on('progress',v=>t.setText(`Загружаем лес… ${Math.round(v*100)}%`));
     this.load.audio('sfx_berry_pop','audio/sfx/berry_pop_soft.mp3');
     this.load.audio('sfx_ice_break','audio/sfx/ice_break.mp3');
-    this.load.audio('sfx_special_create','audio/sfx/special_create_hybrid.mp3');
-    this.load.audio('sfx_special_line','audio/sfx/special_line_hybrid.mp3');
-    this.load.audio('sfx_special_rainbow','audio/sfx/special_rainbow_hybrid.mp3');
-    this.load.audio('sfx_special_combo','audio/sfx/special_combo_hybrid.mp3');
     this.load.audio('music_combo_accent','audio/music/accents/combo.mp3');
     this.load.audio('music_victory_accent','audio/music/accents/victory.mp3');
     const I=(k,p)=>this.load.image(k,p+'?v=ui-20260917-payments');
