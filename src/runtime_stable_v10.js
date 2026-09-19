@@ -656,6 +656,71 @@ function install(){
   p.burst=function(x,y,color=0xffe36d,n=8){
     this.fxBits(x,y,[color,0xfff4c3,0xffbb54],Math.min(n,14),70);
   };
+  p.comboArcWord=function(word,x,y,size=250,alpha=.72){
+    const chars=[...word],palette=['#ff5e8a','#ffd84f','#75eaff','#7dff9d','#b88cff','#ff84d7'];
+    const spacing=size*.58,total=(chars.length-1)*spacing;
+    chars.forEach((ch,i)=>{
+      const t=chars.length===1?.5:i/(chars.length-1);
+      const dx=i*spacing-total/2,dy=-Math.sin(t*Math.PI)*size*.16;
+      const letter=this.add.text(x+dx,y+dy,ch,{
+        fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color:palette[i%palette.length],
+        stroke:'#59253a',strokeThickness:Math.max(10,Math.round(size*.055)),
+        shadow:{offsetX:0,offsetY:8,color:'#32152a',blur:18,fill:true}
+      }).setOrigin(.5).setDepth(27).setAlpha(alpha).setAngle((t-.5)*14).setScale(.76);
+      this.fxTween(letter,{
+        y:letter.y-size*.14,scale:1.06,alpha:0,angle:letter.angle+(t-.5)*5,
+        duration:1150+i*22,ease:'Cubic.out'
+      });
+    });
+  };
+  p.comboCelebration=function(chain){
+    const rainbow=[0xff5e8a,0xffd84f,0x75eaff,0x7dff9d,0xb88cff,0xff84d7,0xffffff];
+    const satellites=[
+      {text:'СОЧНО!',x:W*.25,y:H*.31,size:150,angle:-12,alpha:.55},
+      {text:'ВАУ!',x:W*.78,y:H*.27,size:128,angle:10,alpha:.52},
+      {text:'БУМ!',x:W*.23,y:H*.72,size:120,angle:8,alpha:.50},
+      {text:'ЕЩЁ!',x:W*.78,y:H*.70,size:142,angle:-9,alpha:.54}
+    ];
+    this.comboArcWord(chain>=4?'КОМБО!':'СОЧНО!',W*.51,H*.49,chain>=4?285:255,chain>=4?.78:.70);
+    const count=chain>=3?4:3;
+    satellites.slice(0,count).forEach((spec,i)=>{
+      const label=this.add.text(spec.x,spec.y,spec.text,{
+        fontFamily:FONT,fontSize:spec.size+'px',fontStyle:'bold',color:'#ffffff',
+        stroke:'#5b2940',strokeThickness:Math.round(spec.size*.07),
+        shadow:{offsetX:0,offsetY:6,color:'#35182a',blur:14,fill:true}
+      }).setOrigin(.5).setDepth(25).setAlpha(spec.alpha).setAngle(spec.angle).setScale(.78);
+      label.setTint?.(rainbow[(i+chain)%6],rainbow[(i+chain+1)%6],rainbow[(i+chain+3)%6],rainbow[(i+chain+4)%6]);
+      this.fxTween(label,{
+        y:spec.y-35-(i%2)*22,scale:1.08,alpha:0,angle:spec.angle+(i%2?5:-5),
+        duration:980+i*80,ease:'Cubic.out'
+      });
+    });
+    // Large shimmering stars.
+    for(let i=0;i<16+Math.min(chain,5)*3;i++){
+      const x=W*(.16+Math.random()*.70),y=H*(.18+Math.random()*.67);
+      const outer=10+Math.random()*18;
+      const star=this.add.star(x,y,4,outer*.34,outer,rainbow[i%rainbow.length],.82)
+        .setDepth(26).setAngle(Math.random()*45).setScale(.25);
+      this.fxTween(star,{
+        scale:1.25+Math.random()*.65,angle:star.angle+(i%2?95:-95),alpha:0,
+        duration:600+Math.random()*650,ease:'Sine.out'
+      });
+    }
+    // Melting confetti pieces: short, bright and non-interactive.
+    for(let i=0;i<30+Math.min(chain,5)*6;i++){
+      const x=W*(.12+Math.random()*.78),y=H*(.12+Math.random()*.56);
+      const piece=this.add.rectangle(x,y,5+Math.random()*10,12+Math.random()*20,rainbow[i%rainbow.length],.72)
+        .setDepth(24).setAngle(Math.random()*180);
+      this.fxTween(piece,{
+        x:x+(Math.random()-.5)*120,y:y+80+Math.random()*170,angle:piece.angle+(Math.random()>.5?180:-180),
+        scale:.15,alpha:0,duration:850+Math.random()*700,ease:'Cubic.in'
+      });
+    }
+    [[W*.20,H*.24],[W*.82,H*.36],[W*.19,H*.62],[W*.80,H*.62]].forEach(([x,y],i)=>{
+      this.fxBits(x,y,rainbow,10+Math.min(chain,4)*2,125+i*18,25);
+    });
+  };
+
   const baseClearCells=p.clearCells;
   p.clearCells=async function clearCellsPolished(initial,chain=1){
     const beforeGoals=this.goals.map(g=>g.done);
@@ -669,26 +734,10 @@ function install(){
     if(chain>=2){
       this.music?.accent?.('combo',true);
     }
-    if(chain>=2&&this.fxAllow('combo',360)){
-      const words=['СОЧНО!','КОМБО!','ЯГОДНЫЙ БУМ!','ВОТ ЭТО КАСКАД!'];
-      const spots=[
-        [BX+C*CELL*.50,BY+82],
-        [BX+C*CELL*.30,BY+C*CELL*.54],
-        [BX+C*CELL*.70,BY+C*CELL*.70],
-        [BX+C*CELL*.50,BY+C*CELL*.42]
-      ],spot=spots[(chain-2)%spots.length];
-      const colors=['#fff16a','#ff83cf','#7fe8ff','#a5ff7b','#d8a5ff'];
-      const label=this.add.text(spot[0],spot[1],words[Math.min(chain-2,3)],{fontFamily:FONT,fontSize:chain>=4?'54px':'45px',fontStyle:'bold',color:colors[(chain-2)%colors.length],stroke:'#71311f',strokeThickness:10,shadow:{offsetX:0,offsetY:5,color:'#542318',blur:12,fill:true}}).setOrigin(.5).setDepth(24).setScale(.62);
-      let colorTick=0;
-      this.time.addEvent({delay:90,repeat:6,callback:()=>{if(label?.scene)label.setColor(colors[(chain-2+(++colorTick))%colors.length])}});
-      this.fxTween(label,{y:spot[1]-48,scale:1.10,alpha:0,duration:920,ease:'Cubic.out'});
-      this.fxBits(spot[0],spot[1],[0xffd45a,0xff759e,0x75e8ff,0xa8ff7d,0xd3a3ff,0xffffff],20+Math.min(chain,5)*3,185+Math.min(chain,5)*18,23);
-      if(chain>=4){
-        this.fxBits(BX+55,BY+C*CELL*.78,[0xff7bcf,0xffec75,0x79e5ff,0xffffff],16,120,22);
-        this.fxBits(BX+C*CELL-55,BY+C*CELL*.72,[0xff7bcf,0xffec75,0x79e5ff,0xffffff],16,120,22);
-      }
-      this.kingReact('celebrate',900);
-      // Old combo accent is already replayed for every cascade step above.
+    if(chain>=2&&this.fxAllow('combo-vfx',220)){
+      this.comboCelebration(chain);
+      this.kingReact('celebrate',1050);
+      // Old combo accent is replayed for every cascade step above.
     }
   };
   p.iceShards=function(x,y){
