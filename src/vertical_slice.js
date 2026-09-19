@@ -187,7 +187,8 @@ this.cueTween=this.s.tweens.add({targets:cue,volume:.48,duration:65});
 return true;
 }
 applyPause(){
-for(const sound of [this.sound,this.cueSound]){
+const sounds=[this.sound,this.cueSound,...(this.comboVoices||[])];
+for(const sound of sounds){
 if(!sound)continue;
 if(this.paused||window.BerriesLifecycle.paused||document.hidden)sound.pause();else if(!this.muted&&sound.isPaused)sound.resume();
 }
