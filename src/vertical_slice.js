@@ -22,9 +22,9 @@ class Sfx{
   get muted(){return this._muted}
   set muted(v){this._muted=!!v;localStorage.setItem("berries_sfx_muted",v?"1":"0");if(v)this.stopAll()}
   stopAll(){for(const timer of this.berryTimers||[])timer.remove(false);this.berryTimers?.clear();for(const pool of Object.values(this.voices))for(const sound of pool)sound.stop();for(const node of this.nodes){try{node.stop()}catch{}}this.nodes.clear()}
-  sample(key,volume=.5,detune=0){
+  sample(key,volume=.5,detune=0,seek=0){
     if(!this.s.cache.audio.exists(key))return false;
-    if(this.muted||window.BerriesLifecycle.paused)return true;
+    if(this.muted||window.BerriesLifecycle.paused||document.hidden)return true;
     this.unlock();
     const now=performance.now(),stamp='sample:'+key;
     // Coalesce simultaneous hits, not later hits during the previous file's tail.
@@ -34,7 +34,7 @@ class Sfx{
     let voice=pool.find(sound=>!sound.isPlaying);
     if(!voice&&pool.length<3){voice=this.s.sound.add(key);pool.push(voice)}
     if(!voice){voice=pool.shift();voice.stop();pool.push(voice)}
-    voice.play({volume,detune});return true;
+    voice.play({volume,detune,seek});return true;
   }
   berryPop(chain=1){
     if(!this.s.cache.audio.exists('sfx_berry_pop'))return false;
@@ -60,10 +60,12 @@ class Sfx{
   specialLine(dir){
     if(!this.can('special-line-'+dir,105))return;
     if(dir==='h'){
+      if(this.sample('sfx_special_h',.52,0,.68))return;
       this.tone(620,.115,.032,'sine',760);
       this.tone(940,.085,.018,'triangle',430,.026);
       this.tone(1480,.055,.010,'triangle',-720,.010);
     }else{
+      if(this.sample('sfx_special_v',.64))return;
       this.tone(1180,.115,.030,'sine',-650);
       this.tone(760,.095,.018,'triangle',-300,.024);
       this.tone(1460,.055,.010,'triangle',-700,.010);
@@ -71,6 +73,7 @@ class Sfx{
   }
   specialCreate(){
     if(!this.can('special-create',100))return;
+    if(this.sample('sfx_special_create',1.0))return;
     this.tone(820,.095,.020,'sine',340);
     this.tone(1260,.085,.015,'triangle',260,.035);
   }
@@ -80,8 +83,14 @@ class Sfx{
     this.tone(760,.15,.026,'triangle',760,.018);
     this.tone(1280,.13,.018,'sine',420,.060);
   }
+  comboGlitter(){
+    if(!this.can('combo-glitter',260))return;
+    if(this.sample('sfx_combo_glitter',.78))return;
+    [1320,1640,1980].forEach((f,i)=>this.tone(f,.08,.010,'sine',150,i*.035));
+  }
   rainbow(){
     if(!this.can('special-rainbow',420))return;
+    if(this.sample('sfx_special_rainbow',.78))return;
     this.tone(420,.18,.020,'sine',920);
     [720,960,1260,1680].forEach((f,i)=>this.tone(f,.11,.022,'sine',180,i*.036));
   }
@@ -199,6 +208,11 @@ class Boot extends Phaser.Scene{
     const t=this.add.text(W/2,H/2,'Загружаем лес…',{fontSize:'36px',color:'#fff7dc'}).setOrigin(.5);this.load.on('progress',v=>t.setText(`Загружаем лес… ${Math.round(v*100)}%`));
     this.load.audio('sfx_berry_pop','audio/sfx/berry_pop_soft.mp3');
     this.load.audio('sfx_ice_break','audio/sfx/ice_break.mp3');
+    this.load.audio('sfx_special_create','audio/sfx/special_create_clear_bell.mp3');
+    this.load.audio('sfx_special_h','audio/sfx/special_horizontal_sparkle_whoosh.mp3');
+    this.load.audio('sfx_special_v','audio/sfx/special_vertical_sparkle.mp3');
+    this.load.audio('sfx_special_rainbow','audio/sfx/special_rainbow_magic_spell.mp3');
+    this.load.audio('sfx_combo_glitter','audio/sfx/combo_glitter_chime.mp3');
     this.load.audio('music_combo_accent','audio/music/accents/combo.mp3');
     this.load.audio('music_victory_accent','audio/music/accents/victory.mp3');
     const I=(k,p)=>this.load.image(k,p+'?v=ui-20260917-payments');
