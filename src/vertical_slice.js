@@ -142,6 +142,8 @@ stop(){
 this.cueTween?.stop();this.cueTween=null;
 this.duckTimer?.remove?.(false);this.duckTimer=null;
 if(this.cueSound){this.cueSound.destroy();this.cueSound=null}
+for(const cue of this.comboVoices||[]){try{cue.stop();cue.destroy()}catch{}}
+this.comboVoices?.clear?.();
 if(this.sound){this.sound.destroy();this.sound=null}this.current=null;
 }
 duck(ms=320,factor=.55){
@@ -158,23 +160,27 @@ if(this.closed||this.muted||this.paused||window.BerriesLifecycle.paused||documen
 const key=kind==='victory'?'music_victory_accent':'music_combo_accent';
 if(!this.s.cache.audio.exists(key))return false;
 const now=this.s.time.now;
-if(kind!=='victory'&&repeatClassic&&this.cueSound){
-this.comboRepeatQueue=Math.min(4,(this.comboRepeatQueue||0)+1);
-return true;
+if(kind!=='victory'&&repeatClassic){
+  this.comboVoices??=new Set();
+  const cue=this.s.sound.add(key,{volume:.46});
+  this.comboVoices.add(cue);
+  if(this.sound)this.sound.setVolume(this.volume*.30);
+  cue.once('complete',()=>{
+    this.comboVoices?.delete(cue);cue.destroy();
+    if(!this.comboVoices?.size&&this.sound)this.sound.setVolume(this.volume);
+  });
+  cue.play();
+  return true;
 }
-if(kind!=='victory'&&!repeatClassic&&(this.cueSound||now<(this.nextAccent||0)))return false;
-if(kind!=='victory'&&!repeatClassic)this.nextAccent=now+6500;
+if(kind!=='victory'&&(this.cueSound||now<(this.nextAccent||0)))return false;
+this.nextAccent=kind==='victory'?this.nextAccent:now+6500;
 this.cueTween?.stop();if(this.cueSound)this.cueSound.destroy();
 const cue=this.cueSound=this.s.sound.add(key,{volume:0});
 if(this.sound)this.sound.setVolume(this.volume*.26);
 cue.once('complete',()=>{
 if(this.cueSound!==cue)return;
 this.cueTween?.stop();this.cueTween=null;cue.destroy();this.cueSound=null;
-if(this.sound)this.sound.setVolume(this.volume);
-if(kind!=='victory'&&(this.comboRepeatQueue||0)>0){
-  this.comboRepeatQueue--;
-  this.s.time.delayedCall(45,()=>this.accent('combo',true));
-}
+if(this.sound&&!this.comboVoices?.size)this.sound.setVolume(this.volume);
 });
 cue.play();
 this.cueTween=this.s.tweens.add({targets:cue,volume:.48,duration:65});
