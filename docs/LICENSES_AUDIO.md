@@ -351,3 +351,70 @@ Claim не равен copyright strike. Оспариваем только есл
 3. зафиксировать дату скачивания;
 4. сохранить скрин/копию страницы с названием, автором и пометкой лицензии;
 5. после монтажа записать в этот документ производное имя и характер обработки.
+
+
+## 2026-09-19 — Большая библиотека Pixabay SFX сохранена для будущих вариантов
+
+Пользователь передал дополнительный набор SFX, скачанных с Pixabay. Все исходники сохранены отдельно от production-архива на Google Drive:
+- папка: `SFX_library_pixabay_2026-09-19`
+- Drive ID: `1_o8nZ1BCGvSZ4gm1MA5pSrjS_3fiqliY`
+- URL: https://drive.google.com/drive/folders/1_o8nZ1BCGvSZ4gm1MA5pSrjS_3fiqliY
+
+Эта папка является библиотекой исходников/кандидатов. Файлы из неё не считаются подключёнными к production автоматически.
+
+Сохранённые варианты:
+- `koiroylers-sparkle-355937.mp3`
+- `emand_edroff-fairy-dust-magical-chime-576279.mp3`
+- `humordome-glitter-chime-451420.mp3`
+- `freesound_community-sfx-accent-eye-glitter-tinkle-1-6342.mp3`
+- `humordome-magic-burst-452852.mp3`
+- `djartmusic-magical-sparkle-whoosh-298750.mp3`
+- `koiroylers-magical-whoosh-355988.mp3`
+- `yodguard-fire-magic-3-378640.mp3`
+- `yodguard-healing-magic-5-378667.mp3`
+- `yodguard-dark-magic-6-378652.mp3`
+- `universfield-magic-spell-278824.mp3`
+- `yodguard-wind-magic-5-378630.mp3`
+- `yodguard-fire-magic-5-378639.mp3`
+- `universfield-magic-spell-03-242245.mp3`
+- `freesound_community-magic-wand-6214.mp3`
+- `universfield-magic-twinkle-244951.mp3`
+- `universfield-clear-bell-chime-487898.mp3`
+- `floraphonic-power-up-sparkle-1-177983.mp3`
+- `universfield-magic-spell-02-250240.mp3`
+- второй файл `universfield-magic-spell-03-242245` сохранён как duplicate; локальная проверка показала, что два экземпляра идентичны по SHA-256.
+
+### Текущие подключённые назначения после нового отбора
+- **Создание спец-ягоды** → `Clear Bell Chime — Universfield`, source ID 487898.
+  Production: `audio/sfx/special_create_clear_bell.mp3`.
+- **Радуга** → `Magic Spell 02 — Universfield`, source ID 250240.
+  Production: `audio/sfx/special_rainbow_magic_spell.mp3`.
+- **Горизонтальная спец-ягода** → `Magical Sparkle Whoosh — DJARTMUSIC`, source ID 298750.
+  Production: `audio/sfx/special_horizontal_sparkle_whoosh.mp3`.
+  В runtime старт воспроизведения сдвинут примерно на 0.68 с, чтобы не проигрывать начальную тишину.
+- **Вертикальная спец-ягода** → `Sparkle — KoiRoylers`, source ID 355937.
+  Production: `audio/sfx/special_vertical_sparkle.mp3`.
+- **Финальная «рассыпушка» после каскадного комбо** → `Glitter Chime — humordome`, source ID 451420.
+  Production: `audio/sfx/combo_glitter_chime.mp3`.
+  Звук запускается один раз после завершения каскадной цепочки, а не на каждом звене.
+
+На странице поиска Pixabay по glitter среди результатов подтверждаются `Glitter Chime — humordome`, `SFX-Accent-Eye Glitter-Tinkle 1 — freesound_community`, `Magic Spell 02 — Universfield` и другие glitter/sparkle-кандидаты. Для каждого реально используемого production-файла перед финальным релизом сохраняем его индивидуальную страницу и доказательство лицензии.
+
+### Жёлудь
+- **Superfast Crunch**, Pixabay source ID 405118.
+- URL, предоставленный пользователем: https://pixabay.com/sound-effects/film-special-effects-superfast-crunch-405118/
+- Назначение: **сбор / разрушение жёлудя**.
+- Статус: **утверждено по роли, исходный MP3 ещё не передан в проект**. До получения файла runtime не менять.
+- Планируемое production-имя: `audio/sfx/acorn_superfast_crunch.mp3`.
+
+### Будущие варианты
+Остальные сохранённые magic / fire / wind / healing / dark / wand / twinkle / fairy-dust / power-up / tinkle-файлы не удалять. Рассматривать как библиотеку для:
+- Королевы и других персонажей;
+- special+special;
+- усилителей;
+- редких наград;
+- событий / магических миров;
+- вариаций combo-finisher;
+- будущих VFX/SFX cosmetic themes.
+
+Для будущего применения каждого кандидата сначала проверить индивидуальную страницу Pixabay и актуальные условия лицензии на дату включения в production.
