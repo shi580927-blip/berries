@@ -89,6 +89,7 @@ AUDIO_COPY = [
     "audio/sfx/special_vertical_sparkle.mp3",
     "audio/sfx/special_rainbow_magic_spell.mp3",
     "audio/sfx/combo_glitter_chime.mp3",
+    "audio/sfx/acorn_superfast_crunch_source.mp3",
 ]
 
 # Conservative production dimensions: roughly 1.5-2x the largest in-game display size.
