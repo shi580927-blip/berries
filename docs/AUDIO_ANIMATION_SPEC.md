@@ -222,3 +222,24 @@
 - не становится ли громче каскад из-за наложения голосов;
 - совпадает ли начало transient с анимацией;
 - сохраняется ли приятный ASMR feel на 50% и 100% громкости устройства.
+
+
+## 12. Зафиксированная карта внешних SFX — 2026-09-19
+
+Актуальная карта ролей после прослушивания:
+- rainbow → **Magic Spell 02 / Universfield / Pixabay**;
+- special create → **Clear Bell Chime / Universfield / Pixabay**;
+- vertical special → **Fairy Sparkle / humordome / Pixabay**;
+- horizontal special → **Magical Sparkle Whoosh / DJARTMUSIC / Pixabay**;
+- bomb → текущий программный вариант пока оставить;
+- cascade combo → старый combo.mp3, повтор на каждом следующем cascade;
+- Queen future magic → зарезервирован **magical whoosh / KoiRoylers / Pixabay**;
+- strong special+special candidate → **Power Up Sparkle 1 / floraphonic / Pixabay**.
+
+Источники, лицензии, дата проверки и будущие production filenames фиксируются в docs/LICENSES_AUDIO.md.
+
+Правило микса:
+- magic SFX должны уверенно читаться на фоне музыки через динамик телефона;
+- при strong special допускается краткий music duck;
+- horizontal и vertical должны различаться по характеру, а не только по громкости;
+- не добавлять новый внешний SFX в production, пока он не внесён в LICENSES_AUDIO.md.
