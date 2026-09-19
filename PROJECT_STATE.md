@@ -322,3 +322,49 @@ Runtime procedural слой сейчас включает:
 - Berry pop SFX keeps the current sample, but playback is softer (volume 0.18) and is now called once per destroyed berry, instead of one loud three-pop phrase for an entire match/cascade.
 - Release-size guardrail: production ZIP must stay below 20 MB unless the build policy is intentionally revised.
 - First optimized archive: `berries_yandex_v6.zip`, 11,071,081 bytes, SHA256 `35d941d9f3e6879ee0f0f8827a3fafd7c0c51340c05f4a284f351dd80aafb9d5`.
+
+
+---
+
+## 2026-09-19 — FINAL RELEASE v7 / МОДЕРАЦИЯ
+
+Текущая версия для отправки на модерацию Яндекс Игр заморожена как:
+
+`berries_yandex_v7_final.zip`
+
+Контроль:
+- дата фиксации: 2026-09-19;
+- размер ZIP: 11,445,865 bytes;
+- файлов в архиве: 72;
+- SHA-256: `074cfa6d4f70613ab32ccf0d562c9a0567ae565b3bc3ef7e71108ab15d666859`;
+- один `index.html` лежит в корне;
+- dev/test pages и инструменты сборки в release не входят;
+- production archive собран canonical builder через GitHub Actions;
+- последняя проверенная сборка перед фиксацией прошла успешно.
+
+### Аудио v7
+Уровни 1–20:
+- финальный пользовательский loop;
+- длительность production-файла: ~23.30 s;
+- MP3 CBR 128 kbps;
+- 44.1 kHz stereo;
+- без дополнительной обрезки и без повторного crossfade в builder.
+
+Уровни 21–30:
+- текущая magic-тема остаётся без изменения.
+
+Активные SFX:
+- special create → Clear Bell Chime / Universfield;
+- rainbow → Magic Spell 02 / Universfield;
+- horizontal special → Magical Sparkle Whoosh / DJARTMUSIC;
+- vertical special → Sparkle / KoiRoylers;
+- combo cascade → прежний `combo.mp3`;
+- конец каскадного combo → Glitter Chime / humordome;
+- acorn → средний сухой crunch-фрагмент из Superfast Crunch / saboteurcomics;
+- bomb → текущий procedural SFX;
+- berry pop и ice break → текущие production samples.
+Старые voice-derived `special_*_hybrid.mp3` отключены и не входят в release.
+
+### Статус
+**v7 заморожен до ответа модерации.**
+До результата модерации не менять runtime, баланс, аудио, интерфейс или release builder без отдельного решения. Все последующие правки вести уже как следующую версию после ответа модерации.
