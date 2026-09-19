@@ -83,16 +83,6 @@ class Sfx{
     this.tone(760,.15,.026,'triangle',760,.018);
     this.tone(1280,.13,.018,'sine',420,.060);
   }
-  comboStep(chain=2){
-    if(!this.can('combo-step-'+Math.min(chain,6),120))return;
-    const step=Math.min(Math.max(chain-2,0),4);
-    const roots=[440,494,554,622,698],root=roots[step];
-    const gain=.020+step*.004;
-    this.tone(root,.10,gain,'triangle',80);
-    this.tone(root*1.25,.11,gain*.82,'sine',105,.022);
-    this.tone(root*1.5,.12,gain*.72,'sine',130,.050);
-    if(chain>=5)this.tone(root*2,.14,gain*.54,'triangle',160,.075);
-  }
   rainbow(){
     if(!this.can('special-rainbow',420))return;
     if(this.sample('sfx_special_rainbow',.84))return;
@@ -163,13 +153,17 @@ this.duckTimer=this.s.time.delayedCall(ms,()=>{
   if(this.sound&&!this.muted&&!this.paused&&!window.BerriesLifecycle.paused&&!document.hidden)this.sound.setVolume(this.volume);
 });
 }
-accent(kind){
+accent(kind,repeatClassic=false){
 if(this.closed||this.muted||this.paused||window.BerriesLifecycle.paused||document.hidden)return false;
 const key=kind==='victory'?'music_victory_accent':'music_combo_accent';
 if(!this.s.cache.audio.exists(key))return false;
 const now=this.s.time.now;
-if(kind!=='victory'&&(this.cueSound||now<(this.nextAccent||0)))return false;
-this.nextAccent=now+6500;
+if(kind!=='victory'&&repeatClassic&&this.cueSound){
+this.comboRepeatQueue=Math.min(4,(this.comboRepeatQueue||0)+1);
+return true;
+}
+if(kind!=='victory'&&!repeatClassic&&(this.cueSound||now<(this.nextAccent||0)))return false;
+if(kind!=='victory'&&!repeatClassic)this.nextAccent=now+6500;
 this.cueTween?.stop();if(this.cueSound)this.cueSound.destroy();
 const cue=this.cueSound=this.s.sound.add(key,{volume:0});
 if(this.sound)this.sound.setVolume(this.volume*.26);
@@ -177,6 +171,10 @@ cue.once('complete',()=>{
 if(this.cueSound!==cue)return;
 this.cueTween?.stop();this.cueTween=null;cue.destroy();this.cueSound=null;
 if(this.sound)this.sound.setVolume(this.volume);
+if(kind!=='victory'&&(this.comboRepeatQueue||0)>0){
+  this.comboRepeatQueue--;
+  this.s.time.delayedCall(45,()=>this.accent('combo',true));
+}
 });
 cue.play();
 this.cueTween=this.s.tweens.add({targets:cue,volume:.48,duration:65});
