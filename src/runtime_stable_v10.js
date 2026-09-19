@@ -21,7 +21,7 @@ function lifeTimer(scene,panel,text){
     if(lives<5){
       fullSince=null;fading=false;scene.tweens.killTweensOf([panel,text]);
       panel.setVisible(true).setAlpha(1);text.setVisible(true).setAlpha(1);
-      text.setText('+1 ЖИЗНЬ\\n'+(Campaign.lifeLabel().split(' • ')[1]||''));
+      text.setText(['+1 жизнь',(Campaign.lifeLabel().split(' • ')[1]||'')].join('\n'));
     }else if(fullSince!==null&&Date.now()-fullSince<5000){
       panel.setVisible(true);text.setVisible(true).setText('МАКСИМУМ');
     }else if(fullSince!==null&&!fading){
@@ -667,8 +667,7 @@ function install(){
       }
     });
     if(chain>=2){
-      this.music?.duck?.(190,chain>=4?.55:.68);
-      this.fx?.comboStep?.(chain);
+      this.music?.accent?.('combo',true);
     }
     if(chain>=2&&this.fxAllow('combo',360)){
       const words=['СОЧНО!','КОМБО!','ЯГОДНЫЙ БУМ!','ВОТ ЭТО КАСКАД!'];
@@ -689,7 +688,7 @@ function install(){
         this.fxBits(BX+C*CELL-55,BY+C*CELL*.72,[0xff7bcf,0xffec75,0x79e5ff,0xffffff],16,120,22);
       }
       this.kingReact('celebrate',900);
-      if(chain>=5)this.music?.accent('combo');
+      // Old combo accent is already replayed for every cascade step above.
     }
   };
   p.iceShards=function(x,y){
