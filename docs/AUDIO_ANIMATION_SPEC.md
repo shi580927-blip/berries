@@ -243,3 +243,27 @@
 - при strong special допускается краткий music duck;
 - horizontal и vertical должны различаться по характеру, а не только по громкости;
 - не добавлять новый внешний SFX в production, пока он не внесён в LICENSES_AUDIO.md.
+
+
+## 13. Новая активная SFX-карта после отбора 2026-09-19
+
+Активные внешние SFX:
+- special create → Clear Bell Chime / Universfield;
+- rainbow → Magic Spell 02 / Universfield;
+- horizontal line → Magical Sparkle Whoosh / DJARTMUSIC;
+- vertical line → Sparkle / KoiRoylers;
+- combo chain finisher → Glitter Chime / humordome;
+- bomb → текущий программный звук без замены;
+- combo cascade accent → старый combo.mp3 на каждом каскаде.
+
+Combo finisher:
+- Glitter Chime звучит один раз после завершения каскадной цепочки;
+- не заменяет старый combo.mp3, а завершает цепочку короткой «рассыпушкой»;
+- должен совпадать по ощущению с крупными радужными словами, звёздами и тающим конфетти.
+
+Acorn:
+- утверждён кандидат Superfast Crunch / Pixabay ID 405118;
+- runtime подключать только после получения исходного MP3;
+- предполагаемое имя: audio/sfx/acorn_superfast_crunch.mp3.
+
+Полная библиотека исходников сохранена на Google Drive в папке SFX_library_pixabay_2026-09-19 и не должна целиком попадать в release build.
