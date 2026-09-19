@@ -232,6 +232,7 @@ function install(){
       await pause(70);
       if(this.allDone?.())break;
     }
+    if(chain>=2)this.fx?.comboGlitter?.();
     if(chain===MAX_CHAINS){
       for(let attempt=0;attempt<60;attempt++){
         this.shuffleBoard();
