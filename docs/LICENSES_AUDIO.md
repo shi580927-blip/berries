@@ -265,3 +265,89 @@ Claim не равен copyright strike. Оспариваем только есл
 
 ## 2026-09-15 — Смягчённый звук ягод
 `audio/sfx/berry_pop_soft.mp3` — производная от Wet Splat Impact, Universfield, указанного выше. Применён low-pass 4500 Hz, перекодирование MP3 192 kbps. Громкость в runtime: 0.35 вместо 0.50. Источник и Pixabay Content License сохранены; оригинальный файл не изменён.
+
+
+## 2026-09-19 — Утверждённые / зарезервированные SFX Pixabay
+
+Проверка выполнена 2026-09-19 по страницам самих звуков и текущей Pixabay Content License.
+
+Условия, применимые ко всем позициям ниже:
+- лицензия: **Pixabay Content License**;
+- допускается бесплатное коммерческое использование и модификация/адаптация;
+- обязательная атрибуция не требуется, хотя добровольный кредит допустим;
+- нельзя продавать или распространять исходный звук как самостоятельный (Standalone) файл;
+- полный текст лицензии и Terms имеют приоритет над кратким summary;
+- Pixabay отдельно предупреждает, что на конкретный контент могут распространяться дополнительные права третьих лиц, поэтому перед финальным релизом сохраняем доказательство страницы и дату скачивания.
+
+Официальные страницы условий:
+- https://pixabay.com/service/license-summary/
+- https://pixabay.com/service/terms/
+
+### Финальные / почти финальные назначения
+
+1. **Magic Spell 02 — Universfield**
+   - Источник: https://pixabay.com/sound-effects/film-special-effects-magic-spell-02-250240/
+   - Страница помечена Free for use under the Pixabay Content License.
+   - Длительность на странице: около 3 с.
+   - Роль: **радуга / активация rainbow special**.
+   - Статус: **утверждённое направление, практически финальный кандидат**.
+   - Предлагаемый production-файл: audio/sfx/special_rainbow_magic_spell_02.mp3.
+
+2. **Clear Bell Chime — Universfield**
+   - Источник: https://pixabay.com/sound-effects/film-special-effects-clear-bell-chime-487898/
+   - Страница помечена Free for use under the Pixabay Content License.
+   - Длительность на странице: около 2 с.
+   - Роль: **создание спец-ягоды**.
+   - Статус: **утверждённое направление, практически финальный кандидат**.
+   - Предлагаемый production-файл: audio/sfx/special_create_clear_bell_chime.mp3.
+
+3. **Fairy Sparkle — humordome**
+   - Источник: https://pixabay.com/sound-effects/fairy-sparkle-451414/
+   - Страница помечена Free for use under the Pixabay Content License.
+   - Длительность на странице: около 2 с.
+   - Роль: **вертикальная спец-ягода** вместо текущего резкого временного эффекта.
+   - Статус: **утверждённое направление**.
+   - Предлагаемый production-файл: audio/sfx/special_vertical_fairy_sparkle.mp3.
+
+4. **Magical Sparkle Whoosh — DJARTMUSIC**
+   - Источник: https://pixabay.com/sound-effects/film-special-effects-magical-sparkle-whoosh-298750/
+   - Страница помечена Free for use under the Pixabay Content License.
+   - На странице также указано, что аудио AI generated / AI modified or generated.
+   - Длительность на странице: около 10 с; в игре использовать только короткий подходящий фрагмент после монтажа.
+   - Роль: **горизонтальная спец-ягода**.
+   - Статус: **утверждено пользователем 2026-09-19**.
+   - Предлагаемый production-файл: audio/sfx/special_horizontal_magical_sparkle_whoosh.mp3.
+
+### Зарезервированные
+
+5. **magical whoosh — KoiRoylers**
+   - Источник: https://pixabay.com/sound-effects/film-special-effects-magical-whoosh-355988/
+   - Страница помечена Free for use under the Pixabay Content License.
+   - На странице указано AI generated.
+   - Роль: **зарезервировать для будущей Королевы / её магического действия**.
+   - Статус: не подключать к текущим базовым specials.
+   - Предлагаемый future-файл: audio/sfx/queen_magic_whoosh.mp3.
+
+6. **Power Up Sparkle 1 — floraphonic**
+   - Источник: https://pixabay.com/sound-effects/film-special-effects-power-up-sparkle-1-177983/
+   - Страница помечена Free for use under the Pixabay Content License.
+   - Роль: резерв для **special+special / мощного усиления / редкого крупного события**.
+   - Статус: нравится пользователю, конкретное применение ещё не финализировано.
+   - Предлагаемый future-файл: audio/sfx/special_powerup_sparkle_01.mp3.
+
+### Отклонено
+- **Magic Burst** — не использовать в текущем проекте по результату прослушивания 2026-09-19.
+
+### Важное уточнение к более раннему списку
+Ранние роли для Fairy Sparkle и Magical Sparkle Whoosh выше в документе были кандидатными. **Актуальные назначения на 2026-09-19**:
+- Fairy Sparkle → вертикальная спец-ягода;
+- Magical Sparkle Whoosh → горизонтальная спец-ягода;
+- Magic Spell 02 → радуга;
+- Clear Bell Chime → создание спец-ягоды.
+
+Перед помещением любого из этих файлов в production build:
+1. скачать его с указанной страницы;
+2. сохранить исходное имя файла;
+3. зафиксировать дату скачивания;
+4. сохранить скрин/копию страницы с названием, автором и пометкой лицензии;
+5. после монтажа записать в этот документ производное имя и характер обработки.
