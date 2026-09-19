@@ -84,10 +84,6 @@ AUDIO_COPY = [
     "audio/music/accents/victory.mp3",
     "audio/sfx/berry_pop_soft.mp3",
     "audio/sfx/ice_break.mp3",
-    "audio/sfx/special_create_hybrid.mp3",
-    "audio/sfx/special_line_hybrid.mp3",
-    "audio/sfx/special_rainbow_hybrid.mp3",
-    "audio/sfx/special_combo_hybrid.mp3",
 ]
 
 # Conservative production dimensions: roughly 1.5-2x the largest in-game display size.
