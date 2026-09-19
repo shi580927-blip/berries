@@ -319,3 +319,27 @@ QA-правки по первому визуальному прогону:
 - исключены из canonical release builder;
 - обычный berry pop, текущая procedural bomb и старый combo.mp3 не изменены;
 - до подключения новых утверждённых Pixabay SFX создание special, line и rainbow используют чистые procedural fallback-эффекты без пользовательского голоса.
+
+
+## 2026-09-19 — Финальный фон уровней 1–20
+
+Пользователь передал финально отредактированный мастер `Фон уровня 1-20.mp3`.
+Параметры исходника:
+- длительность: 23.301 s;
+- 44.1 kHz;
+- stereo;
+- 320 kbps;
+- SHA-256 master: b11ec762c6c9f23fb7ba4fb5182b4aa427b38ace290ca0a656fd5f3eacc2fbba.
+
+Решение:
+- заменить `audio/music/music_gameplay_calm_devonshire_moderato.mp3` этим master;
+- уровни 1–20 используют этот трек целиком как loop;
+- не делать дополнительную обрезку и не делать circular crossfade в release builder;
+- не нормализовать громкость: текущий уровень хорошо балансируется с игровыми SFX;
+- release encode: MP3, CBR 128 kbps, 44.1 kHz, stereo, metadata stripped, Xing header enabled;
+- ориентировочный release size: 373 KB;
+- локально проверенный release SHA-256: 60a262db4d3482299a1567b40961d191a948d2c47b217fde6a3c33377005be2a.
+
+Master также сохранён на Google Drive:
+`music_gameplay_levels_01_20_master_320k_2026-09-19.mp3`
+Drive ID: `1vtXGT9gjl1shHncLPsk89xSo5EQQHbiN`.
