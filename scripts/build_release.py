@@ -84,6 +84,11 @@ AUDIO_COPY = [
     "audio/music/accents/victory.mp3",
     "audio/sfx/berry_pop_soft.mp3",
     "audio/sfx/ice_break.mp3",
+    "audio/sfx/special_create_clear_bell.mp3",
+    "audio/sfx/special_horizontal_sparkle_whoosh.mp3",
+    "audio/sfx/special_vertical_sparkle.mp3",
+    "audio/sfx/special_rainbow_magic_spell.mp3",
+    "audio/sfx/combo_glitter_chime.mp3",
 ]
 
 # Conservative production dimensions: roughly 1.5-2x the largest in-game display size.
