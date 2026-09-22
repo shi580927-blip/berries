@@ -384,3 +384,12 @@ v7 archive не менялся; это post-v7 изменение.
 - connected reactions to hint/special/combo/win/lose flows;
 - added disabled «КОРОЛЕВСКАЯ СЕМЬЯ» + «СКОРО» surface with no click handler;
 - no audio or lifecycle behavior changed.
+
+
+## 2026-09-22 — vine timing + bottom UI alignment
+- limited `Sfx.vinesBreak()` playback to 900 ms;
+- builder trims the release vine sample to ~0.88 s from the crunchy middle of the stored source clip;
+- moved Royal Family to the bottom-right edge;
+- moved Shop directly to its left;
+- moved King 5 px upward;
+- release workflow passed.
