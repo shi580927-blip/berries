@@ -454,3 +454,24 @@ Runtime procedural слой сейчас включает:
 - includes final royal-family button, forest stump, current King layout/animations, short vine SFX (~0.914 s);
 - Google Drive file id: `1gAWeLxDjvWn8HDgm6uXo50DK-68FDZb1`.
 v7 remains historical/frozen; v8 is the current upload candidate.
+
+
+## 2026-09-22 — ROADMAP ПОСЛЕ YANDEX v8
+
+Подробный план вынесен в `docs/NEXT_STAGES_AFTER_V8.md`.
+
+Порядок следующего большого этапа после результата модерации:
+1. закрыть замечания Yandex и заморозить stable;
+2. i18n/platform architecture;
+3. EN;
+4. TR;
+5. «Королевская семья» + дополнительные IAP;
+6. production art/animations;
+7. SFX/VFX/music;
+8. полный regression checklist;
+9. VK Mini Apps + Одноклассники;
+10. Telegram Mini App;
+11. MAX Mini App;
+12. cross-platform QA/release registry.
+
+Архитектурный принцип: одно Phaser/gameplay core + отдельные platform adapters.
