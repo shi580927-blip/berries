@@ -481,13 +481,13 @@ function install(){
     this.boosterHint=this.add.text(1610,920,'',{fontFamily:FONT,fontSize:'19px',fontStyle:'bold',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:330}}).setOrigin(.5).setDepth(6);
 
     // Hero corner: production art assets. No procedural placeholder geometry.
-    const stump=fit(this.add.image(300,916,'hero_stump_forest'),390,273).setDepth(4);
-    this.king=fit(this.add.image(300,765,'king_idle'),350,350).setDepth(7);
-    this.kingBaseX=300;this.kingBaseY=765;this.kingBaseScale=this.king.scaleX;
+    const stump=fit(this.add.image(300,1010,'hero_stump_forest'),390,273).setDepth(4);
+    this.king=fit(this.add.image(300,830,'king_idle'),350,350).setDepth(7);
+    this.kingBaseX=300;this.kingBaseY=830;this.kingBaseScale=this.king.scaleX;
     this.startKingBlink?.();
 
     // Royal Family stays visible as a beautiful coming-soon element, but is intentionally non-interactive.
-    fit(this.add.image(1705,1012,'royal_family_soon'),390,273).setDepth(18);
+    fit(this.add.image(1765,980,'royal_family_soon'),280,196).setDepth(18);
 
 
   };
