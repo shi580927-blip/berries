@@ -451,3 +451,12 @@ Claim не равен copyright strike. Оспариваем только есл
 2. имя автора / source ID;
 3. копию/скриншот актуальной Pixabay Content License;
 4. исходник и production-crop.
+
+
+### 2026-09-22 production timing update — vines
+The licensed source remains unchanged: Falling tree in woods — nematoki, Pixabay ID 390782.
+For production playback the game now uses only the short impact section:
+- effective source window: approx. 4.50–5.38 s;
+- release duration: approx. 0.88–0.91 s including MP3 padding;
+- short fade-in/out applied;
+- runtime additionally hard-stops the sample at 900 ms to keep sound synchronized with vine disappearance.
