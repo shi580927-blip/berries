@@ -442,3 +442,15 @@ Runtime procedural слой сейчас включает:
 - «Магазин» расположен левее неё;
 - Король поднят на 5 px;
 - Yandex release CI после правок прошёл успешно.
+
+
+## 2026-09-22 — YANDEX RELEASE v8 EXPORTED
+Текущая отправочная версия: `berries_yandex_v8.zip`.
+- build head: `290a8ca22904930212b64ae0caa4559c403bdc8f`;
+- size: 11,533,334 bytes;
+- SHA-256: `fd9d874165818a273ff40c5d771ce23571c2244afc403c6849ec662ef15c4f33`;
+- 75 files; one root `index.html`; ZIP integrity OK;
+- no dev/archive_unused/screenshots/hybrid files;
+- includes final royal-family button, forest stump, current King layout/animations, short vine SFX (~0.914 s);
+- Google Drive file id: `1gAWeLxDjvWn8HDgm6uXo50DK-68FDZb1`.
+v7 remains historical/frozen; v8 is the current upload candidate.
