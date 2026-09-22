@@ -380,11 +380,13 @@ function install(){
 
     const label=(x,y,value,size=30,color='#fff4cf')=>this.add.text(x,y,value,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color,stroke:color==='#57301d'?'#fff4d5':'#63351e',strokeThickness:color==='#57301d'?1:5,align:'center'}).setOrigin(.5).setDepth(20);
     const wood=(x,y,w,h)=>fit(this.add.image(x,y,'wood_flat'),w,h).setDepth(17);
-    const nav=(x,y,title,icon,action)=>{
-      const bg=wood(x,y,345*TOUCH_SCALE,108*TOUCH_SCALE).setInteractive({useHandCursor:true});
-      fit(this.add.image(x-115,y,icon),65,65).setDepth(20);
-      label(x+27,y,title,30*TOUCH_SCALE);
-      bg.on('pointerdown',()=>{this.fx.click();action()});
+    const backOnly=(x,y,action)=>{
+      const icon=fit(this.add.image(x,y,'ui_back'),76,76).setDepth(24);
+      const hit=this.add.zone(x,y,112,112).setDepth(25).setInteractive({useHandCursor:true});
+      hit.on('pointerover',()=>this.tweens.add({targets:icon,scaleX:icon.scaleX*1.08,scaleY:icon.scaleY*1.08,duration:90}));
+      hit.on('pointerout',()=>this.tweens.add({targets:icon,scaleX:icon.scaleX/1.08,scaleY:icon.scaleY/1.08,duration:90}));
+      hit.on('pointerdown',()=>{this.fx.click();this.tweens.add({targets:icon,scaleX:icon.scaleX*.90,scaleY:icon.scaleY*.90,duration:70,yoyo:true,onComplete:action})});
+      return {icon,hit};
     };
     fit(this.add.image(960,73,'plevel'),610,140).setDepth(18);
     label(960,70,`УРОВЕНЬ ${this.no}`,42);
@@ -406,7 +408,7 @@ function install(){
     this.add.zone(lifePanel.x+lifePanel.displayWidth*.39,lifePanel.y,lifePanel.displayWidth*.22,lifePanel.displayHeight*.9).setDepth(21).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openPaidShop());
     wood(300,180,300,88);this.mt=label(300,180,'',29);
     this.st=null;
-    nav(MOBILE_LAYOUT?250:300,MOBILE_LAYOUT?1000:1016,'НАЗАД','ui_back',()=>{window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
+    backOnly(72,74,()=>{window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
     const shopButton=fit(this.add.image(MOBILE_LAYOUT?1660:1610,MOBILE_LAYOUT?1000:1016,'shop_plaque_new'),390*TOUCH_SCALE,96*TOUCH_SCALE).setDepth(17).setInteractive({useHandCursor:true});
     label(MOBILE_LAYOUT?1700:1650,MOBILE_LAYOUT?1000:1016,'МАГАЗИН',28*TOUCH_SCALE);shopButton.on('pointerdown',()=>{this.fx.click();this.openShop()});
 
@@ -457,7 +459,7 @@ function install(){
     });
 
     // Fixed-size panels and slot centres in the 1920x1080 reference grid.
-    const goalsPanel=fit(this.add.image(300,560,'goals_panel_new'),345,646).setDepth(3);
+    const goalsPanel=fit(this.add.image(300,480,'goals_panel_new'),345,520).setDepth(3);
     const slots=[.369,.553,.738];
     this.gt=this.goals.map((goal,index)=>{
       const y=goalsPanel.y+(slots[index]-.5)*goalsPanel.displayHeight;
@@ -477,8 +479,30 @@ function install(){
       im.on('pointerdown',()=>this.pickBooster(id));this.boosterButtons[id]={im,tx};
     });
     this.boosterHint=this.add.text(1610,920,'',{fontFamily:FONT,fontSize:'19px',fontStyle:'bold',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:330}}).setOrigin(.5).setDepth(6);
-    this.king=fit(this.add.image(300,883,'king_idle'),195,195).setDepth(4);
-    this.kingBaseY=883;this.kingBaseScale=this.king.scaleX;
+
+    // Hero corner: a larger living King on a lightweight procedural stump.
+    const stump=this.add.graphics().setDepth(4);
+    stump.fillStyle(0x17331f,.22);stump.fillEllipse(300,961,270,48);
+    stump.fillStyle(0x70401f,1);stump.fillRoundedRect(214,906,172,76,19);
+    stump.fillStyle(0x8e5227,1);stump.fillTriangle(226,958,194,985,250,972);stump.fillTriangle(374,958,406,985,350,972);
+    stump.fillStyle(0xbc7a3c,1);stump.fillEllipse(300,910,216,64);
+    stump.lineStyle(5,0x5d351d,1);stump.strokeEllipse(300,910,216,64);
+    stump.lineStyle(3,0xe0a85f,.9);stump.strokeEllipse(300,910,126,34);stump.strokeEllipse(300,910,66,18);
+    stump.lineStyle(3,0x8a5129,.85);stump.lineBetween(300,894,286,922);stump.lineBetween(300,894,320,921);
+
+    this.king=fit(this.add.image(300,790,'king_idle'),325,325).setDepth(7);
+    this.kingBaseX=300;this.kingBaseY=790;this.kingBaseScale=this.king.scaleX;
+    this.startKingBlink?.();
+
+    // Royal Family is deliberately visible but disabled until the collection is implemented.
+    const family=this.add.container(300,1022).setDepth(18).setAlpha(.94);
+    const familyBg=this.add.graphics();
+    familyBg.fillStyle(0x70401f,.96);familyBg.fillRoundedRect(-196,-34,392,68,24);
+    familyBg.lineStyle(4,0xe4bd68,.96);familyBg.strokeRoundedRect(-196,-34,392,68,24);
+    const familyLabel=this.add.text(-24,0,'КОРОЛЕВСКАЯ СЕМЬЯ',{fontFamily:FONT,fontSize:'20px',fontStyle:'bold',color:'#fff1bc',stroke:'#4d2b18',strokeThickness:4}).setOrigin(.5);
+    const soonBg=this.add.graphics();soonBg.fillStyle(0x4f7d36,1);soonBg.fillRoundedRect(118,-16,66,32,14);soonBg.lineStyle(2,0xf2d887,.95);soonBg.strokeRoundedRect(118,-16,66,32,14);
+    const soon=this.add.text(151,0,'СКОРО',{fontFamily:FONT,fontSize:'13px',fontStyle:'bold',color:'#fff8d5'}).setOrigin(.5);
+    family.add([familyBg,familyLabel,soonBg,soon]);
 
   };
 
