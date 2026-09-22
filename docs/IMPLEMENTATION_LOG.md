@@ -374,3 +374,13 @@ Runtime: Sfx.vinesBreak() через общий sample-путь; при pause/ba
 Также подключён для hammer → roots.
 Release builder включает audio/sfx/vines_break_falling_tree.mp3.
 v7 archive не менялся; это post-v7 изменение.
+
+
+## 2026-09-22 — level hero UI / King animation
+- moved back navigation to a standalone top-left arrow;
+- removed bottom back plaque/text;
+- enlarged King on the level screen and added a procedural stump;
+- added code-driven King states: idle breathing, blink, happy, point, celebrate, sad;
+- connected reactions to hint/special/combo/win/lose flows;
+- added disabled «КОРОЛЕВСКАЯ СЕМЬЯ» + «СКОРО» surface with no click handler;
+- no audio or lifecycle behavior changed.
