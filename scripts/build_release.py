@@ -54,6 +54,8 @@ ASSET_FILES = [
     "assets/specials/special_line_v.png",
     "assets/specials/special_rainbow.png",
     "assets/ui/buttons/button_wood.png",
+    "assets/ui/buttons/button_royal_family_soon.png",
+    "assets/ui/decor/hero_stump_forest.png",
     "assets/ui/buttons/level_completed5.png",
     "assets/ui/buttons/level_completed7.png",
     "assets/ui/buttons/level_current7.png",
@@ -97,6 +99,8 @@ AUDIO_COPY = [
 PNG_MAX = {
     "assets/map/map_header_levels.png": (1120, 350),
     "assets/ui/buttons/button_wood.png": (864, 300),
+    "assets/ui/buttons/button_royal_family_soon.png": (420, 294),
+    "assets/ui/decor/hero_stump_forest.png": (420, 294),
     "assets/ui/panels/logo_main.png": (1024, 700),
     "assets/ui/panels/panel22.png": (512, 970),
     "assets/ui/panels/panel23.png": (900, 223),
