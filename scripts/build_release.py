@@ -209,6 +209,18 @@ def optimize_audio():
         "-map_metadata", "-1", "-vn", "-c:a", "libmp3lame", "-b:a", "96k", str(dst)
     )
 
+    # Vines: keep only the crunchy middle impact so audio ends with the visual break.
+    # Source production clip was ~2.59 s; release keeps ~0.88 s (roughly original source 4.50-5.38 s).
+    dst = RELEASE / "audio/sfx/vines_break_falling_tree.mp3"
+    run(
+        "ffmpeg", "-y", "-loglevel", "error",
+        "-ss", "0.50", "-i", str(ROOT / "audio/sfx/vines_break_falling_tree.mp3"),
+        "-t", "0.88",
+        "-af", "afade=t=in:st=0:d=0.015,afade=t=out:st=0.80:d=0.08",
+        "-map_metadata", "-1", "-vn", "-ar", "44100", "-ac", "2",
+        "-c:a", "libmp3lame", "-b:a", "128k", str(dst)
+    )
+
 def prepare_runtime_text():
     for path in (RELEASE / "src").rglob("*.js"):
         text = path.read_text(encoding="utf-8")
