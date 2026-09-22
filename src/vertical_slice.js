@@ -296,7 +296,7 @@ class Play extends Phaser.Scene{
   resetHint(){this.hideHint();this.scheduleHint()}
   scheduleHint(){clearTimeout(this.hintTimer);this.hintTimer=setTimeout(()=>{if(!this.busy&&!this.boosterMode)this.showHint()},5200)}
   findHintMove(){for(let r=0;r<R;r++)for(let c=0;c<C;c++){if(!this.board[r][c]||this.cell[r][c].block||this.cell[r][c].ice)continue;for(const [dr,dc] of [[1,0],[0,1]]){const rr=r+dr,cc=c+dc;if(!inBounds(rr,cc)||!this.board[rr][cc]||this.cell[rr][cc].block||this.cell[rr][cc].ice)continue;this.swapData({r,c},{r:rr,c:cc});const ok=this.groups().length>0;this.swapData({r,c},{r:rr,c:cc});if(ok)return [{r,c},{r:rr,c:cc}]}}return null}
-  showHint(){const m=this.findHintMove();if(!m)return;this.hideHint();m.forEach(p=>{const s=this.spr[p.r][p.c];if(!s)return;const ring=this.add.circle(s.x,s.y,CELL*.43,0xffe36d,.08).setStrokeStyle(5,0xfff3a0,1).setDepth(8);this.tweens.add({targets:[ring,s],scaleX:'+=0.08',scaleY:'+=0.08',alpha:{from:1,to:.55},duration:520,yoyo:true,repeat:3,ease:'Sine.inOut'});this.hintObjs.push(ring)});this.fx.spark();setTimeout(()=>this.hideHint(),2300)}
+  showHint(){const m=this.findHintMove();if(!m)return;this.hideHint();m.forEach(p=>{const s=this.spr[p.r][p.c];if(!s)return;const ring=this.add.circle(s.x,s.y,CELL*.43,0xffe36d,.08).setStrokeStyle(5,0xfff3a0,1).setDepth(8);this.tweens.add({targets:[ring,s],scaleX:'+=0.08',scaleY:'+=0.08',alpha:{from:1,to:.55},duration:520,yoyo:true,repeat:3,ease:'Sine.inOut'});this.hintObjs.push(ring)});this.fx.spark();this.kingReact?.('point',1650);setTimeout(()=>this.hideHint(),2300)}
   hideHint(){for(const o of this.hintObjs)o.destroy?.();this.hintObjs=[]}
   tap(r,c){if(this.busy)return;this.resetHint();if(this.boosterMode){this.useBoosterAt(r,c);return}if(this.cell[r][c].block||this.cell[r][c].ice||!this.board[r][c]){if(this.cell[r][c].ice)this.fx.crack();return}this.fx.click();if(!this.sel){this.select(r,c);return}if(this.sel.r===r&&this.sel.c===c){this.unselect();return}if(Math.abs(this.sel.r-r)+Math.abs(this.sel.c-c)!==1){this.unselect();this.select(r,c);return}const a={...this.sel};this.unselect();this.swap(a,{r,c})}
   select(r,c){this.sel={r,c};const s=this.spr[r][c],sx=s.getData('sx'),sy=s.getData('sy');s.setTint(0xfff4c2);this.tweens.add({targets:s,scaleX:sx*1.08,scaleY:sy*1.08,duration:130,yoyo:true,repeat:-1,ease:'Sine.inOut'})}
@@ -306,7 +306,7 @@ class Play extends Phaser.Scene{
   swapData(a,b){const t=this.board[a.r][a.c];this.board[a.r][a.c]=this.board[b.r][b.c];this.board[b.r][b.c]=t}
   groups(){let out=[];for(let r=0;r<R;r++){let c=0;while(c<C){const x=this.board[r][c];if(!x){c++;continue}let e=c+1;while(e<C&&this.board[r][e]?.id===x.id)e++;if(e-c>=3)out.push({id:x.id,dir:'h',p:Array.from({length:e-c},(_,i)=>({r,c:c+i}))});c=e}}for(let c=0;c<C;c++){let r=0;while(r<R){const x=this.board[r][c];if(!x){r++;continue}let e=r+1;while(e<R&&this.board[e][c]?.id===x.id)e++;if(e-r>=3)out.push({id:x.id,dir:'v',p:Array.from({length:e-r},(_,i)=>({r:r+i,c}))});r=e}}return out}
   findCreation(gs){for(const h of gs.filter(g=>g.dir==='h'))for(const v of gs.filter(g=>g.dir==='v'&&g.id===h.id)){const hk=new Set(h.p.map(p=>`${p.r},${p.c}`)),x=v.p.find(p=>hk.has(`${p.r},${p.c}`));if(x)return {at:this.last&&hk.has(`${this.last.r},${this.last.c}`)&&v.p.some(p=>p.r===this.last.r&&p.c===this.last.c)?this.last:x,sp:'bomb'}}const g=gs.slice().sort((a,b)=>b.p.length-a.p.length)[0];if(!g)return null;const sp=g.p.length>=5?'rainbow':g.p.length===4?(g.dir==='h'?'line_h':'line_v'):null;if(!sp)return null;const at=g.p.find(p=>this.last&&p.r===this.last.r&&p.c===this.last.c)||g.p[Math.floor(g.p.length/2)];return {at,sp}}
-  async resolve(){let chain=0;while(true){const gs=this.groups();if(!gs.length)break;chain++;const create=this.findCreation(gs),set=new Set();gs.forEach(g=>g.p.forEach(p=>set.add(`${p.r},${p.c}`)));if(create)set.delete(`${create.at.r},${create.at.c}`);await this.clearCells(set,chain);if(create&&this.board[create.at.r][create.at.c]){this.board[create.at.r][create.at.c].sp=create.sp;this.render(create.at.r,create.at.c);this.specialCreateFx(create.at);this.kingReact(chain>=2?'celebrate':'point',650)}await this.fallRefill();await pause(90)}if(!this.hasMove())await this.autoShuffle()}
+  async resolve(){let chain=0;while(true){const gs=this.groups();if(!gs.length)break;chain++;const create=this.findCreation(gs),set=new Set();gs.forEach(g=>g.p.forEach(p=>set.add(`${p.r},${p.c}`)));if(create)set.delete(`${create.at.r},${create.at.c}`);await this.clearCells(set,chain);if(create&&this.board[create.at.r][create.at.c]){this.board[create.at.r][create.at.c].sp=create.sp;this.render(create.at.r,create.at.c);this.specialCreateFx(create.at);this.kingReact(chain>=2?'celebrate':'happy',760)}await this.fallRefill();await pause(90)}if(!this.hasMove())await this.autoShuffle()}
   expandSpecials(set){let changed=true;while(changed){changed=false;for(const key of [...set]){const [r,c]=key.split(',').map(Number),it=this.board[r][c];if(!it?.sp)continue;const before=set.size;if(it.sp==='line_h')for(let x=0;x<C;x++)set.add(`${r},${x}`);if(it.sp==='line_v')for(let y=0;y<R;y++)set.add(`${y},${c}`);if(it.sp==='bomb')for(let y=r-1;y<=r+1;y++)for(let x=c-1;x<=c+1;x++)if(inBounds(y,x))set.add(`${y},${x}`);if(set.size>before)changed=true}}return set}
   burst(x,y,color=0xffe36d,n=8){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,d=28+Math.random()*55,p=this.add.circle(x,y,3+Math.random()*4,color,.95).setDepth(12);this.tweens.add({targets:p,x:x+Math.cos(a)*d,y:y+Math.sin(a)*d,scale:0,alpha:0,duration:260+Math.random()*220,ease:'Quad.out',onComplete:()=>p.destroy()})}}
   lineFx(r,c,dir){const p=this.pos(r,c),g=this.add.graphics().setDepth(11);g.lineStyle(14,0xfff4a3,.95);if(dir==='h')g.lineBetween(BX,p.y,BX+C*CELL,p.y);else g.lineBetween(p.x,BY,p.x,BY+R*CELL);g.alpha=.95;this.tweens.add({targets:g,alpha:0,duration:260,onComplete:()=>g.destroy()});this.burst(p.x,p.y,0xffe36d,12)}
@@ -329,8 +329,72 @@ class Play extends Phaser.Scene{
   updateHud(){this.mt.setText(`ХОДЫ  ${this.moves}`);this.st?.setText(`СЧЁТ ${Math.round(this.score)}`);this.goals.forEach((g,i)=>{const name=g.type==='berry'?({'strawberry':'Клубника','raspberry':'Малина','blueberry':'Черника','gooseberry':'Крыжовник','blackberry':'Ежевика','cloudberry':'Морошка'}[g.id]||g.id):g.type==='ice'?'Лёд':g.type==='acorn'?'Жёлуди':g.type==='roots'?'Корни':'Очки',done=g.type==='score'?Math.min(g.need,Math.round(this.score)):g.done;this.gt[i].setText(`${name}\n${done} / ${g.need}`)});this.refreshBoosters()}
   allDone(){return this.goals.every(g=>g.type==='score'?this.score>=g.need:g.done>=g.need)}
   endCheck(){if(this.allDone())this.win();else if(this.moves<=0)this.lose()}
-  kingAnim(state){if(!this.king)return;this.king.setTexture('king_'+state);this.tweens.killTweensOf(this.king);this.king.y=this.kingBaseY;this.king.setScale(this.kingBaseScale);this.tweens.add({targets:this.king,y:this.kingBaseY-10,scaleX:this.kingBaseScale*1.035,scaleY:this.kingBaseScale*.975,angle:{from:-1.2,to:1.2},duration:1050,yoyo:true,repeat:-1,ease:'Sine.inOut'})}
-  kingReact(state='point',ms=650){if(!this.king||this.busy&&state==='idle')return;this.king.setTexture('king_'+state);this.tweens.killTweensOf(this.king);this.king.setScale(this.kingBaseScale);this.tweens.add({targets:this.king,y:this.kingBaseY-28,scaleX:this.kingBaseScale*1.08,scaleY:this.kingBaseScale*1.08,duration:180,yoyo:true,repeat:1,ease:'Back.out',onComplete:()=>{if(this.scene.isActive())this.kingAnim('idle')}});setTimeout(()=>{if(this.scene.isActive()&&this.king.texture.key!=='king_sad'&&this.king.texture.key!=='king_celebrate')this.kingAnim('idle')},ms)}
+  kingTexture(state){
+    return {idle:'king_idle',blink:'king_idle',happy:'king_point',point:'king_point',celebrate:'king_celebrate',sad:'king_sad'}[state]||'king_idle';
+  }
+  startKingBlink(){
+    this._kingBlinkTimer?.remove?.(false);
+    const schedule=()=>{
+      if(!this.scene?.isActive?.()||!this.king)return;
+      this._kingBlinkTimer=this.time.delayedCall(Phaser.Math.Between(2400,4700),()=>{
+        if(this.king?.texture?.key==='king_idle'&&!window.BerriesLifecycle.paused)this.kingBlink();
+        schedule();
+      });
+    };
+    schedule();
+  }
+  kingBlink(){
+    if(!this.king||this.king.texture.key!=='king_idle')return;
+    const h=this.king.displayHeight,w=this.king.displayWidth;
+    if(!this._kingBlinkEyes){
+      const eyeW=Math.max(9,w*.035),eyeH=Math.max(3,h*.012);
+      this._kingBlinkEyes=[
+        this.add.rectangle(0,0,eyeW,eyeH,0x4a2b20,.94).setOrigin(.5).setDepth((this.king.depth||4)+2),
+        this.add.rectangle(0,0,eyeW,eyeH,0x4a2b20,.94).setOrigin(.5).setDepth((this.king.depth||4)+2)
+      ];
+    }
+    const gap=w*.045,eyeY=this.king.y-h*.255;
+    this._kingBlinkEyes[0].setPosition(this.king.x-gap,eyeY).setAngle(this.king.angle).setVisible(true);
+    this._kingBlinkEyes[1].setPosition(this.king.x+gap,eyeY).setAngle(this.king.angle).setVisible(true);
+    this.time.delayedCall(95,()=>this._kingBlinkEyes?.forEach?.(e=>e?.setVisible(false)));
+  }
+  kingAnim(state='idle'){
+    if(!this.king)return;
+    const texture=this.kingTexture(state);
+    this._kingReturnTimer?.remove?.(false);
+    this.king.setTexture(texture);
+    this.tweens.killTweensOf(this.king);
+    this.king.setPosition(this.kingBaseX??this.king.x,this.kingBaseY);
+    this.king.setAngle(0).setScale(this.kingBaseScale);
+    const base=this.kingBaseScale;
+    if(state==='sad'){
+      this.tweens.add({targets:this.king,y:this.kingBaseY+7,angle:{from:-1.4,to:1.4},scaleX:base*.985,scaleY:base*.97,duration:1450,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+      return;
+    }
+    if(state==='celebrate'){
+      this.tweens.add({targets:this.king,y:this.kingBaseY-15,angle:{from:-2.2,to:2.2},scaleX:base*1.035,scaleY:base*1.035,duration:760,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+      return;
+    }
+    this.tweens.add({targets:this.king,y:this.kingBaseY-8,angle:{from:-.75,to:.75},scaleX:base*1.018,scaleY:base*.988,duration:1180,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+  }
+  kingReact(state='point',ms=760){
+    if(!this.king||this.busy&&state==='idle')return;
+    this._kingReturnTimer?.remove?.(false);
+    this.king.setTexture(this.kingTexture(state));
+    this.tweens.killTweensOf(this.king);
+    this.king.setPosition(this.kingBaseX??this.king.x,this.kingBaseY).setAngle(0).setScale(this.kingBaseScale);
+    const base=this.kingBaseScale;
+    if(state==='happy'){
+      this.tweens.add({targets:this.king,y:this.kingBaseY-23,scaleX:base*1.055,scaleY:base*1.055,angle:{from:-1.5,to:1.5},duration:150,yoyo:true,repeat:1,ease:'Back.out'});
+    }else if(state==='celebrate'){
+      this.tweens.add({targets:this.king,y:this.kingBaseY-48,scaleX:base*1.10,scaleY:base*1.10,angle:{from:-4,to:4},duration:185,yoyo:true,repeat:1,ease:'Back.out'});
+    }else if(state==='sad'){
+      this.tweens.add({targets:this.king,y:this.kingBaseY+10,scaleX:base*.97,scaleY:base*.95,angle:-2,duration:260,ease:'Sine.out'});
+    }else{
+      this.tweens.add({targets:this.king,x:(this.kingBaseX??this.king.x)+12,y:this.kingBaseY-18,angle:-3,scaleX:base*1.045,scaleY:base*1.045,duration:190,yoyo:true,repeat:1,ease:'Sine.inOut'});
+    }
+    this._kingReturnTimer=this.time.delayedCall(ms,()=>{if(this.scene?.isActive?.())this.kingAnim('idle')});
+  }
   async win(){if(this.busy)return;this.busy=true;clearTimeout(this.hintTimer);window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();this.kingAnim('celebrate');this.fx.win();Campaign.win(this.attemptId);this.updateHud();this.resultPopup(true,Campaign.read())}
   async lose(){if(this.busy)return;this.busy=true;clearTimeout(this.hintTimer);window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();Campaign.lose(this.attemptId);this.updateHud();this.kingAnim('sad');this.fx.lose();this.resultPopup(false,Campaign.read())}
 
