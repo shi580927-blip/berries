@@ -267,3 +267,12 @@ Acorn:
 - предполагаемое имя: audio/sfx/acorn_superfast_crunch.mp3.
 
 Полная библиотека исходников сохранена на Google Drive в папке SFX_library_pixabay_2026-09-19 и не должна целиком попадать в release build.
+
+
+## 14. Лианы / корни — production SFX
+- Falling tree in woods — nematoki, Pixabay ID 390782.
+- Использовать участок около 4.00–6.55 с.
+- Назначение: разрушение корней/лиан, в том числе молотком.
+- Воспроизведение только через общий Sfx.sample / Phaser audio path.
+- При lifecycle pause/background/rewarded/purchase звук обязан останавливаться вместе с остальным аудио.
+- Не использовать отдельный HTML <audio> или автономный media element.
