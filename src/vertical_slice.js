@@ -73,7 +73,8 @@ class Sfx{
   wood(){if(this.can('wood',70)){this.tone(225,.055,.018,'triangle',-95);this.tone(120,.07,.012,'sine',-30,.012)}}
   vinesBreak(){
     if(!this.can('vines-break',180))return;
-    if(this.sample('sfx_vines_break',.58))return;
+    // Keep the crunchy middle accent, but hard-stop it with the visual destruction.
+    if(this.sample('sfx_vines_break',.58,0,0,900))return;
     this.wood();
   }
   spark(){if(this.can('spark',55)){this.tone(920,.085,.012,'sine',330);this.tone(1320,.065,.009,'sine',130,.035)}}
