@@ -393,3 +393,8 @@ v7 archive не менялся; это post-v7 изменение.
 - moved Shop directly to its left;
 - moved King 5 px upward;
 - release workflow passed.
+
+
+## 2026-09-22 — exported Yandex v8
+Built and validated `berries_yandex_v8.zip` from successful CI head `290a8ca22904930212b64ae0caa4559c403bdc8f`.
+Size 11,533,334 bytes; SHA-256 `fd9d874165818a273ff40c5d771ce23571c2244afc403c6849ec662ef15c4f33`; 75 files; root index OK; no dev/hybrid files.
