@@ -365,3 +365,12 @@ Included state:
 - current rewarded cooldown/lifecycle/audio pause logic.
 
 Status: **frozen pending Yandex moderation**. Any new change after this point belongs to a post-v7 build unless explicitly approved as a v7 replacement.
+
+
+## 2026-09-22 — vine break SFX
+Подключён Pixabay SFX Falling tree in woods (nematoki, ID 390782) как звук разрушения лиан/корней.
+Используется короткий фрагмент ~4.00–6.55 с с мягким fade-in/fade-out.
+Runtime: Sfx.vinesBreak() через общий sample-путь; при pause/background/ad звук останавливается общим lifecycle.
+Также подключён для hammer → roots.
+Release builder включает audio/sfx/vines_break_falling_tree.mp3.
+v7 archive не менялся; это post-v7 изменение.
