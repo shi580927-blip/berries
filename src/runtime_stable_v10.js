@@ -409,8 +409,8 @@ function install(){
     wood(300,180,300,88);this.mt=label(300,180,'',29);
     this.st=null;
     backOnly(72,74,()=>{window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
-    const shopButton=fit(this.add.image(MOBILE_LAYOUT?1660:1610,MOBILE_LAYOUT?1000:1016,'shop_plaque_new'),390*TOUCH_SCALE,96*TOUCH_SCALE).setDepth(17).setInteractive({useHandCursor:true});
-    label(MOBILE_LAYOUT?1700:1650,MOBILE_LAYOUT?1000:1016,'МАГАЗИН',28*TOUCH_SCALE);shopButton.on('pointerdown',()=>{this.fx.click();this.openShop()});
+    const shopButton=fit(this.add.image(1285,1016,'shop_plaque_new'),370,96).setDepth(17).setInteractive({useHandCursor:true});
+    label(1325,1016,'МАГАЗИН',28);shopButton.on('pointerdown',()=>{this.fx.click();this.openShop()});
 
     const settingsBg=this.add.circle(1858,66,38*TOUCH_SCALE,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(19);
     const settings=fit(this.add.image(1858,66,'ui_settings'),49*TOUCH_SCALE,49*TOUCH_SCALE).setDepth(20).setInteractive({useHandCursor:true});
@@ -482,12 +482,12 @@ function install(){
 
     // Hero corner: production art assets. No procedural placeholder geometry.
     const stump=fit(this.add.image(300,916,'hero_stump_forest'),390,273).setDepth(4);
-    this.king=fit(this.add.image(300,770,'king_idle'),350,350).setDepth(7);
-    this.kingBaseX=300;this.kingBaseY=770;this.kingBaseScale=this.king.scaleX;
+    this.king=fit(this.add.image(300,765,'king_idle'),350,350).setDepth(7);
+    this.kingBaseX=300;this.kingBaseY=765;this.kingBaseScale=this.king.scaleX;
     this.startKingBlink?.();
 
     // Royal Family stays visible as a beautiful coming-soon element, but is intentionally non-interactive.
-    fit(this.add.image(300,1012,'royal_family_soon'),390,273).setDepth(18);
+    fit(this.add.image(1705,1012,'royal_family_soon'),390,273).setDepth(18);
 
 
   };
