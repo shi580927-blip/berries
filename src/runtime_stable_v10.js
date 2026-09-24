@@ -466,6 +466,12 @@ function install(){
       const key=goal.type==='berry'?'b_'+goal.id:goal.type==='ice'?'ice1':goal.type==='acorn'?'acorn':goal.type==='roots'?'roots':'ui_coin';
       fit(this.add.image(goalsPanel.x-.16*goalsPanel.displayWidth,y,key),72,72).setDepth(5);
       const value=label(goalsPanel.x+.16*goalsPanel.displayWidth,y,'',27,'#57301d');
+      value.setAlign('center').setOrigin(.5,.5);
+      if(goal.type==='score'){
+        value.setFontSize(24).setLineSpacing(-4);
+        value.setWordWrapWidth(116,false);
+      }
+      value.goalType=goal.type;
       return value;
     });
     fit(this.add.image(1610,570,'pboost'),280,650).setDepth(3);
@@ -506,7 +512,17 @@ function install(){
       if(!text)continue;text.setFontSize(size);
       if(text.width>width)text.setFontSize(Math.max(16,Math.floor(size*width/text.width)));
     }
-    this.goals.forEach((g,i)=>this.gt[i].setText(`${g.type==='score'?Math.min(g.need,Math.round(this.score)):g.done} / ${g.need}`));
+    this.goals.forEach((g,i)=>{
+      const value=this.gt[i];
+      const done=g.type==='score'?Math.min(g.need,Math.round(this.score)):g.done;
+      if(g.type==='score'){
+        value.setFontSize(24).setAlign('center').setLineSpacing(-4);
+        value.setText(`${done}\n/ ${g.need}`);
+      }else{
+        value.setFontSize(27).setAlign('center').setLineSpacing(0);
+        value.setText(`${done} / ${g.need}`);
+      }
+    });
     for(const [id,b] of Object.entries(this.boosterButtons))b.tx.setText(String(this.inventory[id]));
   };
   p.openPaidShop=function(){
