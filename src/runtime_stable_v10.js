@@ -535,14 +535,43 @@ function install(){
     const at=(u,v)=>[panel.x+(u-.5)*panel.displayWidth,panel.y+(v-.5)*panel.displayHeight];
     const closeHit=this.add.zone(...at(.875,.155),panel.displayWidth*.13,panel.displayHeight*.11).setInteractive({useHandCursor:true});
     closeHit.on('pointerdown',close);box.add(closeHit);
-    // The RU popup already contains the finished green price buttons and ₽ prices in the artwork.
-    // Keep runtime UI invisible here: only hit-zones + transient status messages.
-    const status=this.add.text(W/2,1042,'',{fontFamily:FONT,fontSize:'20px',fontStyle:'bold',color:'#fff4cf',stroke:'#402515',strokeThickness:4,align:'center'}).setOrigin(.5).setDepth(91);box.add(status);
+
+    // RU artwork already contains the finished green buttons. Only the dynamic price/currency
+    // comes from Yandex SDK, as required by 1.13.2. Do not draw a second button on top.
+    const status=this.add.text(W/2,1042,'',{fontFamily:FONT,fontSize:'20px',fontStyle:'bold',color:'#fff4cf',stroke:'#402515',strokeThickness:4,align:'center'}).setOrigin(.5).setDepth(95);box.add(status);
     const products=[['coins_1000',.435,'Начислено 1000 монет'],['lives_5',.585,'Жизни восстановлены'],['boosters_3',.755,'Начислено по 3 бустера']];
     const controls=[];let pending=false;
+
+    const setCurrencyIcon=(control,item)=>{
+      const uri=typeof item?.getPriceCurrencyImage==='function'?item.getPriceCurrencyImage('small'):null;
+      if(!uri)return;
+      const key='portal_currency_'+String(item.priceCurrencyCode||'default').replace(/[^a-z0-9_-]/gi,'_').toLowerCase();
+      const attach=()=>{
+        if(!this.scene?.isActive?.()||!this.textures.exists(key))return;
+        control.currencyIcon?.destroy?.();
+        control.currencyIcon=fit(this.add.image(control.x-58,control.y,key),26,26).setDepth(94);
+        box.add(control.currencyIcon);
+      };
+      if(this.textures.exists(key)){attach();return}
+      const event='filecomplete-image-'+key;
+      this.load.once(event,attach);
+      this.load.image(key,uri);
+      if(!this.load.isLoading())this.load.start();
+    };
+
     for(const [id,v,successText] of products){
       const [x,y]=at(.775,v),w=panel.displayWidth*.255,h=panel.displayHeight*.085;
-      const hit=this.add.zone(x,y,w,h).setDepth(93);
+
+      // Cover only the baked RU price glyphs; keep the original button art, lighting and border.
+      const priceMask=this.add.graphics().setDepth(91);
+      priceMask.fillStyle(0x15952d,1);
+      priceMask.fillRoundedRect(x-70,y-24,140,48,20);
+      box.add(priceMask);
+
+      const price=this.add.text(x+8,y,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff7c9',stroke:'#4e2b16',strokeThickness:4,align:'center'}).setOrigin(.5).setDepth(94);
+      box.add(price);
+
+      const hit=this.add.zone(x,y,w,h).setDepth(96);
       hit.on('pointerdown',async()=>{
         if(pending)return;pending=true;this.fx?.click?.();status.setText('Открываем оплату…');controls.forEach(c=>c.hit.disableInteractive());
         const result=await window.BerriesYandex.purchaseProduct(id);
@@ -552,17 +581,29 @@ function install(){
         else status.setText('Покупка отменена');
         pending=false;controls.forEach(c=>{if(c.available)c.hit.setInteractive({useHandCursor:true})});
       });
-      controls.push({id,hit,available:false});box.add(hit);
+      controls.push({id,x,y,price,priceMask,hit,currencyIcon:null,available:false});
+      box.add(hit);
     }
+
     window.BerriesYandex.getPurchaseCatalog().then(catalog=>{
       const byId=new Map(catalog.map(item=>[item.id,item]));
       controls.forEach(control=>{
-        control.available=byId.has(control.id);
-        if(control.available)control.hit.setInteractive({useHandCursor:true});
-        else control.hit.disableInteractive();
+        const item=byId.get(control.id);
+        control.available=!!item;
+        if(item){
+          control.price.setText(item.price||'');
+          // Fit long mocked/localized prices into the original button safely.
+          control.price.setFontSize(25);
+          if(control.price.width>118)control.price.setFontSize(Math.max(17,Math.floor(25*118/control.price.width)));
+          setCurrencyIcon(control,item);
+          control.hit.setInteractive({useHandCursor:true});
+        }else{
+          control.price.setText('—');
+          control.hit.disableInteractive();
+        }
       });
       if(!catalog.length)status.setText('Покупки временно недоступны');
-    });
+    }).catch(()=>status.setText('Покупки временно недоступны'));
   };
 
   p.openShop=function(){
