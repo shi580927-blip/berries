@@ -508,3 +508,29 @@ v7 remains historical/frozen; v8 is the current upload candidate.
 - `assets/ui/panels/popup33.png` — обычный магазин бустеров, его поля/кнопки действительно рассчитаны на динамический текст;
 - для EN/TR Королевской лавки использовать подготовленный clean/textless вариант (после его добавления в репозиторий) либо отдельные локализованные production-версии;
 - RU `popup_shop_main.png` не считать универсальным textless-шаблоном.
+
+
+## 2026-09-27 — URGENT BEFORE LOCALIZATION: fast boot + daily rewards + UI atlases
+
+До EN/TR утверждён обязательный срочный этап:
+1. довести и измерить fast boot / убрать минутный холодный старт;
+2. заменить Королевскую лавку на clean/localizable production popup;
+3. **реализовать ежедневные награды**;
+4. regression/checklist;
+5. только после этого i18n → EN → TR.
+
+Новый production-стандарт подробно: `docs/UI_LOCALIZATION_LOADING_STANDARD.md`.
+
+Fast-boot уже переведён на двухэтапную загрузку:
+- первый экран блокируется только на title background + logo + button;
+- остальной core загружается в фоне на Title;
+- старый fullscreen startup fit gate удалён;
+- ResizeObserver/scale.refresh остаются без искусственного скрытия canvas;
+- cloud restore выполняется в фоне, но вход в Map ждёт безопасного завершения restore.
+
+Локализация UI:
+- декоративные фирменные заголовки/подписи допускается и рекомендуется хранить как локализованные PNG/atlas;
+- динамические цены/валюта/числа/таймеры/статусы — только runtime;
+- общая графика не дублируется по языкам;
+- текстовые атласы планируются отдельно: RU / EN / TR;
+- не использовать один гигантский atlas для всей игры.
