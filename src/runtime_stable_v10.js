@@ -535,30 +535,33 @@ function install(){
     const at=(u,v)=>[panel.x+(u-.5)*panel.displayWidth,panel.y+(v-.5)*panel.displayHeight];
     const closeHit=this.add.zone(...at(.875,.155),panel.displayWidth*.13,panel.displayHeight*.11).setInteractive({useHandCursor:true});
     closeHit.on('pointerdown',close);box.add(closeHit);
-    const status=this.add.text(W/2,1015,'Загрузка каталога…',{fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff4cf',stroke:'#402515',strokeThickness:4,align:'center'}).setOrigin(.5).setDepth(91);box.add(status);
+    // The RU popup already contains the finished green price buttons and ₽ prices in the artwork.
+    // Keep runtime UI invisible here: only hit-zones + transient status messages.
+    const status=this.add.text(W/2,1042,'',{fontFamily:FONT,fontSize:'20px',fontStyle:'bold',color:'#fff4cf',stroke:'#402515',strokeThickness:4,align:'center'}).setOrigin(.5).setDepth(91);box.add(status);
     const products=[['coins_1000',.435,'Начислено 1000 монет'],['lives_5',.585,'Жизни восстановлены'],['boosters_3',.755,'Начислено по 3 бустера']];
-    const buttonArt=this.add.graphics().setDepth(91);box.add(buttonArt);
     const controls=[];let pending=false;
     for(const [id,v,successText] of products){
       const [x,y]=at(.775,v),w=panel.displayWidth*.255,h=panel.displayHeight*.085;
-      buttonArt.fillStyle(0x15952d,1);buttonArt.fillRoundedRect(x-w/2,y-h/2,w,h,h*.42);buttonArt.lineStyle(4,0xffc94c,1);buttonArt.strokeRoundedRect(x-w/2,y-h/2,w,h,h*.42);
-      const price=this.add.text(x,y,'…',{fontFamily:FONT,fontSize:'29px',fontStyle:'bold',color:'#fff7c9',stroke:'#4e2b16',strokeThickness:5}).setOrigin(.5).setDepth(92);
-      const hit=this.add.zone(x,y,w,h).setDepth(93).setInteractive({useHandCursor:true});
+      const hit=this.add.zone(x,y,w,h).setDepth(93);
       hit.on('pointerdown',async()=>{
         if(pending)return;pending=true;this.fx?.click?.();status.setText('Открываем оплату…');controls.forEach(c=>c.hit.disableInteractive());
         const result=await window.BerriesYandex.purchaseProduct(id);
         if(result.ok){this.fx?.reward?.();status.setText(successText);this.updateHud?.();this.refreshLifeDisplay?.();this.refreshBoosters?.()}
         else if(result.reason==='save_pending')status.setText('Покупка сохранена\nНачисление завершится после восстановления сети');
-        else if(result.reason==='unavailable')status.setText('Покупки доступны в версии на Яндекс Играх');
+        else if(result.reason==='unavailable')status.setText('Покупки временно недоступны');
         else status.setText('Покупка отменена');
-        pending=false;controls.forEach(c=>c.hit.setInteractive({useHandCursor:true}));
+        pending=false;controls.forEach(c=>{if(c.available)c.hit.setInteractive({useHandCursor:true})});
       });
-      controls.push({id,price,hit});box.add([price,hit]);
+      controls.push({id,hit,available:false});box.add(hit);
     }
     window.BerriesYandex.getPurchaseCatalog().then(catalog=>{
       const byId=new Map(catalog.map(item=>[item.id,item]));
-      controls.forEach(control=>control.price.setText(byId.get(control.id)?.price||'НЕДОСТУПНО'));
-      status.setText(catalog.length?'Выберите набор':'Покупки доступны в версии на Яндекс Играх');
+      controls.forEach(control=>{
+        control.available=byId.has(control.id);
+        if(control.available)control.hit.setInteractive({useHandCursor:true});
+        else control.hit.disableInteractive();
+      });
+      if(!catalog.length)status.setText('Покупки временно недоступны');
     });
   };
 
