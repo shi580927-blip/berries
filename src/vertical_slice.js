@@ -17,6 +17,88 @@ function loadSave(){return Campaign.read()}
 function saveLocal(data){localStorage.setItem(KEY,JSON.stringify(data));window.BerriesYandex?.saveCloudData?.(data,false)}
 function fit(img,maxW,maxH){const s=Math.min(maxW/img.width,maxH/img.height);img.setScale(s);return img}
 
+// Fast boot: only the title artwork is blocking. Everything needed after the title
+// is fetched in the background while the player already sees the game.
+const ASSET_REV='ui-20260927-fastboot1';
+function ensureCoreAssets(scene){
+  if(window.__berriesCoreAssetsPromise)return window.__berriesCoreAssetsPromise;
+  window.__berriesCoreAssetsPromise=new Promise(resolve=>{
+    let queued=0;
+    const I=(k,p)=>{
+      if(scene.textures.exists(k))return;
+      scene.load.image(k,p+'?v='+ASSET_REV);queued++;
+    };
+    const A=(k,p)=>{
+      if(scene.cache.audio.exists(k))return;
+      scene.load.audio(k,p);queued++;
+    };
+
+    A('sfx_berry_pop','audio/sfx/berry_pop_soft.mp3');
+    A('sfx_ice_break','audio/sfx/ice_break.mp3');
+    A('sfx_special_create','audio/sfx/special_create_clear_bell.mp3');
+    A('sfx_special_h','audio/sfx/special_horizontal_sparkle_whoosh.mp3');
+    A('sfx_special_v','audio/sfx/special_vertical_sparkle.mp3');
+    A('sfx_special_rainbow','audio/sfx/special_rainbow_magic_spell.mp3');
+    A('sfx_combo_glitter','audio/sfx/combo_glitter_chime.mp3');
+    A('sfx_acorn_crunch','audio/sfx/acorn_superfast_crunch_source.mp3');
+    A('sfx_vines_break','audio/sfx/vines_break_falling_tree.mp3');
+    A('music_combo_accent','audio/music/accents/combo.mp3');
+    A('music_victory_accent','audio/music/accents/victory.mp3');
+
+    I('head_boosters','assets/ui/panels/panel_head_boosters.png');
+    I('panel_king_shop','assets/ui/panels/panel_king_shop.png');
+    I('royal_family_soon','assets/ui/buttons/button_royal_family_soon.png');
+    I('hero_stump_forest','assets/ui/decor/hero_stump_forest.png');
+    I('goals_panel_new','assets/ui/panels/panel22.png');
+    I('shop_plaque_new','assets/ui/panels/panel23.png');
+    I('coin_shop_new','assets/ui/panels/popup33.png');
+    I('map_level_panel','assets/ui/panels/panel_level.png');
+    I('time_panel','assets/ui/panels/panel_time.png');
+    I('wood_flat','assets/ui/panels/panel_3.png');
+    I('gamebg','assets/backgrounds/background_game_forest.jpg');
+    I('mapbg','assets/map/map_forest_background.jpg');
+    I('plevel','assets/ui/panels/panel_level_title.png');
+    I('pgoals','assets/ui/panels/panel_goals.png');
+    I('pboost','assets/ui/panels/panel_boosters.png');
+    I('plives','assets/ui/panels/panel_lives.png');
+    I('pcoins','assets/ui/panels/panel_coins.png');
+    I('popup_win','assets/ui/popups/popup_level_win.png');
+    I('popup_lose','assets/ui/popups/popup_level_lose.png');
+    I('popup_royal_shop','assets/ui/popups/popup_shop_main.png');
+    I('level_done_new','assets/ui/buttons/level_completed5.png');
+    I('level_current_new','assets/ui/buttons/level_current7.png');
+    I('level_locked_new','assets/ui/buttons/level_completed7.png');
+    I('map_header_levels','assets/map/map_header_levels.png');
+    ['idle','point','celebrate','sad'].forEach(x=>I('king_'+x,'assets/characters/king/king_'+x+'.png'));
+    I('ice1','assets/blockers/blocker_ice_1.png');
+    I('ice2','assets/blockers/blocker_ice_2.png');
+    I('acorn','assets/blockers/goal_acorn.png');
+    I('roots','assets/blockers/blocker_roots.png');
+    I('line_h','assets/specials/special_line_h.png');
+    I('line_v','assets/specials/special_line_v.png');
+    I('rainbow','assets/specials/special_rainbow.png');
+    I('bombsp','assets/specials/special_bomb.png');
+    I('hammer','assets/boosters/booster_hammer.png');
+    I('shuffle','assets/boosters/booster_shuffle.png');
+    I('fan','assets/boosters/booster_fan.png');
+    ['back','coin','settings'].forEach(x=>I('ui_'+x,'assets/ui/icons/ui_'+x+'.png'));
+    TYPES.forEach(x=>I('b_'+x,'assets/berries/berry_'+x+'.png'));
+
+    if(!queued){
+      window.__berriesCoreAssetsReady=true;
+      resolve(true);
+      return;
+    }
+    scene.load.once('complete',()=>{
+      window.__berriesCoreAssetsReady=true;
+      resolve(true);
+    });
+    if(!scene.load.isLoading())scene.load.start();
+  });
+  return window.__berriesCoreAssetsPromise;
+}
+window.__berriesEnsureCoreAssets=ensureCoreAssets;
+
 class Sfx{
   constructor(scene){this.s=scene;this.nodes=new Set();this._muted=localStorage.getItem("berries_sfx_muted")==="1";this.master=2.35;this.last={};this.voices={};scene.events.once('shutdown',()=>{this.stopAll();for(const pool of Object.values(this.voices))for(const sound of pool)sound.destroy()})}
   get muted(){return this._muted}
@@ -227,41 +309,76 @@ window.BerriesMusicBus=MusicBus;
 class Boot extends Phaser.Scene{
   constructor(){super('Boot')}
   preload(){
-    const t=this.add.text(W/2,H/2,'Загружаем лес…',{fontSize:'36px',color:'#fff7dc'}).setOrigin(.5);this.load.on('progress',v=>t.setText(`Загружаем лес… ${Math.round(v*100)}%`));
-    this.load.audio('sfx_berry_pop','audio/sfx/berry_pop_soft.mp3');
-    this.load.audio('sfx_ice_break','audio/sfx/ice_break.mp3');
-    this.load.audio('sfx_special_create','audio/sfx/special_create_clear_bell.mp3');
-    this.load.audio('sfx_special_h','audio/sfx/special_horizontal_sparkle_whoosh.mp3');
-    this.load.audio('sfx_special_v','audio/sfx/special_vertical_sparkle.mp3');
-    this.load.audio('sfx_special_rainbow','audio/sfx/special_rainbow_magic_spell.mp3');
-    this.load.audio('sfx_combo_glitter','audio/sfx/combo_glitter_chime.mp3');
-    this.load.audio('sfx_acorn_crunch','audio/sfx/acorn_superfast_crunch_source.mp3');
-    this.load.audio('sfx_vines_break','audio/sfx/vines_break_falling_tree.mp3');
-    this.load.audio('music_combo_accent','audio/music/accents/combo.mp3');
-    this.load.audio('music_victory_accent','audio/music/accents/victory.mp3');
-    const I=(k,p)=>this.load.image(k,p+'?v=ui-20260917-payments');
-    I('head_boosters','assets/ui/panels/panel_head_boosters.png');I('panel_king_shop','assets/ui/panels/panel_king_shop.png');I('royal_family_soon','assets/ui/buttons/button_royal_family_soon.png');I('hero_stump_forest','assets/ui/decor/hero_stump_forest.png');
-    I('goals_panel_new','assets/ui/panels/panel22.png');I('shop_plaque_new','assets/ui/panels/panel23.png');I('coin_shop_new','assets/ui/panels/popup33.png');
-    I('map_level_panel','assets/ui/panels/panel_level.png');I('time_panel','assets/ui/panels/panel_time.png');
-    I('wood_flat','assets/ui/panels/panel_3.png');
-    I('title','assets/backgrounds/background_title_forest.jpg');I('gamebg','assets/backgrounds/background_game_forest.jpg');I('mapbg','assets/map/map_forest_background.jpg');I('logo','assets/ui/panels/logo_main.png');I('plevel','assets/ui/panels/panel_level_title.png');I('pgoals','assets/ui/panels/panel_goals.png');I('pboost','assets/ui/panels/panel_boosters.png');I('plives','assets/ui/panels/panel_lives.png');I('pcoins','assets/ui/panels/panel_coins.png');I('btn','assets/ui/buttons/button_wood.png');
-    I('popup_win','assets/ui/popups/popup_level_win.png');I('popup_lose','assets/ui/popups/popup_level_lose.png');
-    I('popup_royal_shop','assets/ui/popups/popup_shop_main.png');
-    I('level_done_new','assets/ui/buttons/level_completed5.png');I('level_current_new','assets/ui/buttons/level_current7.png');I('level_locked_new','assets/ui/buttons/level_completed7.png');
-    I('map_header_levels','assets/map/map_header_levels.png');['idle','point','celebrate','sad'].forEach(x=>I('king_'+x,'assets/characters/king/king_'+x+'.png'));
-    I('ice1','assets/blockers/blocker_ice_1.png');I('ice2','assets/blockers/blocker_ice_2.png');I('acorn','assets/blockers/goal_acorn.png');I('roots','assets/blockers/blocker_roots.png');
-    I('line_h','assets/specials/special_line_h.png');I('line_v','assets/specials/special_line_v.png');I('rainbow','assets/specials/special_rainbow.png');I('bombsp','assets/specials/special_bomb.png');
-    I('hammer','assets/boosters/booster_hammer.png');I('shuffle','assets/boosters/booster_shuffle.png');I('fan','assets/boosters/booster_fan.png');['back','coin','settings'].forEach(x=>I('ui_'+x,'assets/ui/icons/ui_'+x+'.png'));TYPES.forEach(x=>I('b_'+x,'assets/berries/berry_'+x+'.png'));
+    const t=this.add.text(W/2,H/2,'Запускаем…',{fontSize:'32px',color:'#fff7dc'}).setOrigin(.5);
+    this.load.on('progress',v=>t.setText(`Запускаем… ${Math.round(v*100)}%`));
+    const I=(k,p)=>this.load.image(k,p+'?v='+ASSET_REV);
+    I('title','assets/backgrounds/background_title_forest.jpg');
+    I('logo','assets/ui/panels/logo_main.png');
+    I('btn','assets/ui/buttons/button_wood.png');
   }
-  async create(){await window.berriesDigitsReady;await window.BerriesYandex.init();await window.BerriesYandex.restoreCampaign();window.BerriesLanguage=window.BerriesYandex.language;this.scene.start('Title')}
+  create(){
+    // Start cloud/player restore immediately, but never keep the first visual screen hidden for it.
+    window.__berriesRestorePromise??=(async()=>{
+      await window.BerriesYandex.init();
+      return window.BerriesYandex.restoreCampaign();
+    })();
+    this.scene.start('Title');
+  }
 }
 class Title extends Phaser.Scene{
   constructor(){super('Title')}
-  create(){window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();this.fx=new Sfx(this);this.music=new MusicBus(this);this.add.image(W/2,H/2,'title').setDisplaySize(W,H);fit(this.add.image(W/2,345,'logo'),820,560);this.makeButton(W/2,805,'ИГРАТЬ',()=>this.scene.start('Map'));window.BerriesYandex.loadingReady();
+  create(){
+    window.__berriesGameplayShouldRun=false;
+    window.BerriesYandex?.gameplayStop?.();
+    this.fx=new Sfx(this);
+    this.add.image(W/2,H/2,'title').setDisplaySize(W,H);
+    fit(this.add.image(W/2,345,'logo'),820,560);
+
+    const prepStatus=this.add.text(W/2,902,'',{
+      fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#fff4cf',
+      stroke:'#3b2012',strokeThickness:4,align:'center'
+    }).setOrigin(.5);
+
+    const prepare=Promise.all([
+      window.__berriesRestorePromise||Promise.resolve(),
+      window.berriesDigitsReady||Promise.resolve(),
+      ensureCoreAssets(this)
+    ]).then(()=>{
+      prepStatus.setText('');
+      window.__berriesStartupReady=true;
+      return true;
+    }).catch(e=>{
+      console.warn('[Boot] background preparation incomplete',e);
+      prepStatus.setText('');
+      return false;
+    });
+
+    this.music=new MusicBus(this);
+    let entering=false;
+    this.makeButton(W/2,805,'ИГРАТЬ',async()=>{
+      if(entering)return;
+      entering=true;
+      if(!window.__berriesStartupReady)prepStatus.setText('Подготавливаем игру…');
+      await prepare;
+      prepStatus.setText('');
+      this.scene.start('Map');
+    });
+    window.BerriesYandex.loadingReady();
+
     this.add.rectangle(W/2,974,1110,128,0x3a2417,.68).setStrokeStyle(3,0xe8c77d,.75);
-    this.add.text(W/2,974,'Меняй соседние ягоды местами и собирай от трёх в ряд.\nВыполняй цели слева, пока не закончатся ходы.',{fontFamily:FONT,fontSize:'31px',fontStyle:'bold',lineSpacing:8,align:'center',color:'#fff8d9',stroke:'#3b2012',strokeThickness:6}).setOrigin(.5)
+    this.add.text(W/2,974,'Меняй соседние ягоды местами и собирай от трёх в ряд.\nВыполняй цели слева, пока не закончатся ходы.',{
+      fontFamily:FONT,fontSize:'31px',fontStyle:'bold',lineSpacing:8,align:'center',
+      color:'#fff8d9',stroke:'#3b2012',strokeThickness:6
+    }).setOrigin(.5);
   }
-  makeButton(x,y,label,cb){const c=this.add.container(x,y),b=fit(this.add.image(0,0,'btn'),432,156).setInteractive({useHandCursor:true}),tx=this.add.text(0,0,label,{fontFamily:FONT,fontSize:'49px',fontStyle:'bold',color:'#ffe9a0',stroke:'#6b2e17',strokeThickness:9}).setOrigin(.5);c.add([b,tx]);b.on('pointerdown',()=>{this.fx.click();this.tweens.add({targets:c,scale:.95,duration:75,yoyo:true,onComplete:cb})})}
+  makeButton(x,y,label,cb){
+    const c=this.add.container(x,y),
+      b=fit(this.add.image(0,0,'btn'),432,156).setInteractive({useHandCursor:true}),
+      tx=this.add.text(0,0,label,{fontFamily:FONT,fontSize:'49px',fontStyle:'bold',color:'#ffe9a0',stroke:'#6b2e17',strokeThickness:9}).setOrigin(.5);
+    c.add([b,tx]);
+    b.on('pointerdown',()=>{this.fx.click();this.tweens.add({targets:c,scale:.95,duration:75,yoyo:true,repeat:0,onComplete:()=>cb()})});
+    return {container:c,button:b,text:tx};
+  }
 }
 class Map extends Phaser.Scene{
   constructor(){super('Map')}
