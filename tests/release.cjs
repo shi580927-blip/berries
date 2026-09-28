@@ -25,6 +25,10 @@ life.set('hidden',false);assert(!life.paused);assert(scene.input.enabled);assert
  a=sdk.showRewardedVideo();for(let i=0;i<8;i++)await Promise.resolve();adOptions.callbacks.onError();assert.equal(await a,false);assert(!reasons.size);
  readFails=true;vm.runInNewContext(fs.readFileSync('src/sdk/yandex.js','utf8'),sdkContext);await sdkContext.window.BerriesYandex.restoreCampaign();assert.equal(sdkContext.window.BerriesYandex.saveCloudData(initial),false);
  const source=fs.readFileSync('src/vertical_slice.js','utf8');
+ assert(source.includes("A('sfx_combo_glitter','audio/sfx/combo_glitter_chime.mp3')"),'daily pack must preload crystal chime');
+ assert(source.includes('this.fx.chestOpen();'),'daily chest opening must trigger crystal chime');
+ const stableSource=fs.readFileSync('src/runtime_stable_v10.js','utf8');
+ assert(stableSource.includes("value.setText(`\${done}\\n/ \${g.need}`)"),'score/coin goal must render on two lines');
  const Sfx=new Function('window','localStorage','performance',source.slice(source.indexOf('class Sfx'),source.indexOf('const MUSIC_TRACKS'))+';return Sfx')({BerriesLifecycle:life},storage,{now:()=>clock});
  let playing=0;const sndScene={events:{once(){}},cache:{audio:{exists:()=>true}},sound:{add:()=>({isPlaying:false,play(){this.isPlaying=true;playing++},stop(){this.isPlaying=false},destroy(){}})}};
  const fx=new Sfx(sndScene);fx.iceBreak();clock+=150;fx.iceBreak();assert.equal(playing,2);fx.muted=true;clock+=150;fx.iceBreak();assert.equal(playing,2);assert(new Sfx(sndScene).muted);
