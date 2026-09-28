@@ -511,10 +511,10 @@ class Title extends Phaser.Scene{
     };
 
     const addCodeSparkles=(container,best=false)=>{
-      const glow=this.add.circle(0,10,best?155:130,0xffd96a,best?.13:.09).setDepth(1);
-      const glow2=this.add.circle(0,10,best?105:88,0xfff1ad,best?.15:.11).setDepth(1);
+      const glow=this.add.circle(0,10,best?155:130,0xffd96a,best ? .13 : .09).setDepth(1);
+      const glow2=this.add.circle(0,10,best?105:88,0xfff1ad,best ? .15 : .11).setDepth(1);
       container.add([glow,glow2]);
-      this.tweens.add({targets:[glow,glow2],scale:{from:.78,to:1.18},alpha:{from:.05,to:best?.20:.14},duration:780,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+      this.tweens.add({targets:[glow,glow2],scale:{from:.78,to:1.18},alpha:{from:.05,to:best ? .20 : .14},duration:780,yoyo:true,repeat:-1,ease:'Sine.inOut'});
       for(let i=0;i<(best?14:10);i++){
         const a=(i/(best?14:10))*Math.PI*2,rad=115+(i%3)*28;
         const star=this.add.rectangle(Math.cos(a)*rad,Math.sin(a)*rad*.65-8,i%4===0?8:5,i%4===0?8:5,0xffdf7a,.9).setAngle(45).setDepth(6);
