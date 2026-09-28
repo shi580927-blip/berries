@@ -531,15 +531,29 @@ function install(){
     const close=()=>{box.destroy();this._paidShopModal=null};
     const shade=this.add.rectangle(W/2,H/2,W,H,0x102419,.82).setInteractive();box.add(shade);
     shade.on('pointerdown',close);
-    const panel=fit(this.add.image(W/2,H/2,'popup_royal_shop'),760,950).setInteractive();box.add(panel);
+
+    // New RU production art: title is baked into the artwork, while product labels,
+    // SDK prices and status remain dynamic so the same layout can later be localized.
+    const panel=fit(this.add.image(W/2,H/2,'popup_royal_shop'),780,980).setInteractive();box.add(panel);
     const at=(u,v)=>[panel.x+(u-.5)*panel.displayWidth,panel.y+(v-.5)*panel.displayHeight];
-    const closeHit=this.add.zone(...at(.875,.155),panel.displayWidth*.13,panel.displayHeight*.11).setInteractive({useHandCursor:true});
+    const closeHit=this.add.zone(...at(.91,.17),panel.displayWidth*.12,panel.displayHeight*.09).setInteractive({useHandCursor:true});
     closeHit.on('pointerdown',close);box.add(closeHit);
 
-    // RU artwork already contains the finished green buttons. Only the dynamic price/currency
-    // comes from Yandex SDK, as required by 1.13.2. Do not draw a second button on top.
-    const status=this.add.text(W/2,1042,'',{fontFamily:FONT,fontSize:'20px',fontStyle:'bold',color:'#fff4cf',stroke:'#402515',strokeThickness:4,align:'center'}).setOrigin(.5).setDepth(95);box.add(status);
-    const products=[['coins_1000',.435,'Начислено 1000 монет'],['lives_5',.585,'Жизни восстановлены'],['boosters_3',.755,'Начислено по 3 бустера']];
+    const header=this.add.text(...at(.5,.335),'ВЫБЕРИТЕ НАБОР',{
+      fontFamily:FONT,fontSize:'24px',fontStyle:'bold',color:'#6b3b20',
+      stroke:'#fff0c7',strokeThickness:2,align:'center'
+    }).setOrigin(.5).setDepth(94);box.add(header);
+
+    const status=this.add.text(...at(.5,.895),'',{
+      fontFamily:FONT,fontSize:'19px',fontStyle:'bold',color:'#6b3b20',
+      align:'center',wordWrap:{width:panel.displayWidth*.60}
+    }).setOrigin(.5).setDepth(95);box.add(status);
+
+    const products=[
+      ['coins_1000',.475,'1000 МОНЕТ','Начислено 1000 монет'],
+      ['lives_5',.625,'ВОССТАНОВИТЬ ДО 5 ЖИЗНЕЙ','Жизни восстановлены'],
+      ['boosters_3',.775,'ПО 3 БУСТЕРА КАЖДОГО ВИДА','Начислено по 3 бустера']
+    ];
     const controls=[];let pending=false;
 
     const setCurrencyIcon=(control,item)=>{
@@ -553,35 +567,45 @@ function install(){
         box.add(control.currencyIcon);
       };
       if(this.textures.exists(key)){attach();return}
-      const event='filecomplete-image-'+key;
-      this.load.once(event,attach);
+      this.load.once('filecomplete-image-'+key,attach);
       this.load.image(key,uri);
       if(!this.load.isLoading())this.load.start();
     };
 
-    for(const [id,v,successText] of products){
-      const [x,y]=at(.775,v),w=panel.displayWidth*.255,h=panel.displayHeight*.085;
+    for(const [id,v,title,successText] of products){
+      const [x,y]=at(.795,v),w=panel.displayWidth*.25,h=panel.displayHeight*.082;
+      const [tx,ty]=at(.49,v);
+      const productText=this.add.text(tx,ty,title,{
+        fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#674028',
+        align:'center',wordWrap:{width:panel.displayWidth*.30}
+      }).setOrigin(.5).setDepth(94);box.add(productText);
+      if(productText.height>panel.displayHeight*.075)productText.setFontSize(18);
 
-      // Cover only the baked RU price glyphs; keep the original button art, lighting and border.
-      const priceMask=this.add.graphics().setDepth(91);
-      priceMask.fillStyle(0x15952d,1);
-      priceMask.fillRoundedRect(x-70,y-24,140,48,20);
-      box.add(priceMask);
-
-      const price=this.add.text(x+8,y,'',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff7c9',stroke:'#4e2b16',strokeThickness:4,align:'center'}).setOrigin(.5).setDepth(94);
-      box.add(price);
+      const price=this.add.text(x+7,y,'',{
+        fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff7c9',
+        stroke:'#4e2b16',strokeThickness:4,align:'center'
+      }).setOrigin(.5).setDepth(94);box.add(price);
 
       const hit=this.add.zone(x,y,w,h).setDepth(96);
       hit.on('pointerdown',async()=>{
-        if(pending)return;pending=true;this.fx?.click?.();status.setText('Открываем оплату…');controls.forEach(c=>c.hit.disableInteractive());
+        if(pending)return;
+        pending=true;this.fx?.click?.();status.setText('Открываем оплату…');
+        controls.forEach(c=>c.hit.disableInteractive());
         const result=await window.BerriesYandex.purchaseProduct(id);
-        if(result.ok){this.fx?.reward?.();status.setText(successText);this.updateHud?.();this.refreshLifeDisplay?.();this.refreshBoosters?.()}
-        else if(result.reason==='save_pending')status.setText('Покупка сохранена\nНачисление завершится после восстановления сети');
-        else if(result.reason==='unavailable')status.setText('Покупки временно недоступны');
-        else status.setText('Покупка отменена');
-        pending=false;controls.forEach(c=>{if(c.available)c.hit.setInteractive({useHandCursor:true})});
+        if(result.ok){
+          this.fx?.reward?.();status.setText(successText);
+          this.updateHud?.();this.refreshLifeDisplay?.();this.refreshBoosters?.();
+        }else if(result.reason==='save_pending'){
+          status.setText('Покупка сохранена. Начисление завершится после восстановления сети');
+        }else if(result.reason==='unavailable'){
+          status.setText('Покупки временно недоступны');
+        }else{
+          status.setText('Покупка отменена');
+        }
+        pending=false;
+        controls.forEach(c=>{if(c.available)c.hit.setInteractive({useHandCursor:true})});
       });
-      controls.push({id,x,y,price,priceMask,hit,currencyIcon:null,available:false});
+      controls.push({id,x,y,price,hit,currencyIcon:null,available:false});
       box.add(hit);
     }
 
@@ -592,9 +616,8 @@ function install(){
         control.available=!!item;
         if(item){
           control.price.setText(item.price||'');
-          // Fit long mocked/localized prices into the original button safely.
           control.price.setFontSize(25);
-          if(control.price.width>118)control.price.setFontSize(Math.max(17,Math.floor(25*118/control.price.width)));
+          if(control.price.width>116)control.price.setFontSize(Math.max(17,Math.floor(25*116/control.price.width)));
           setCurrencyIcon(control,item);
           control.hit.setInteractive({useHandCursor:true});
         }else{
