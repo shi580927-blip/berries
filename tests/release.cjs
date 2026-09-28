@@ -33,9 +33,10 @@ life.set('hidden',false);assert(!life.paused);assert(scene.input.enabled);assert
  const transitionBlock=source.slice(source.indexOf('showFairytaleTransition(){'),source.indexOf('showDailyReward(mapReady){'));
  assert(!transitionBlock.includes('add.circle('),'fairytale transition must not use visible circular masks/glows');
  assert(!transitionBlock.includes('const left='),'fairytale transition must not restore closing shutters');
- assert(source.includes("at(.5,.183),'ЕЖЕДНЕВНАЯ НАГРАДА'"),'daily title optical alignment changed');
- assert(source.includes("at(.5,.372),'Выберите один из трёх сундуков'"),'daily hint optical alignment changed');
- assert(source.includes("at(.5,.882),'ВЫБЕРИТЕ СУНДУК'"),'daily CTA optical alignment changed');
+ assert(source.includes("at(.5,.225),'ЕЖЕДНЕВНАЯ НАГРАДА'"),'daily title optical alignment changed');
+ assert(source.includes("at(.5,.425),'Выберите один из трёх сундуков'"),'daily hint optical alignment changed');
+ assert(source.includes("at(.5,.855),'ВЫБЕРИТЕ СУНДУК'"),'daily CTA optical alignment changed');
+ assert(source.includes('add.zone(...at(.5,.855)'),'daily CTA hit area must follow its label');
  assert(!source.includes("'daily_magic'"),'flame sprite must not be loaded');
  assert(!source.includes("'daily_sparkles'"),'daily spark sprite must not be loaded');
  assert(source.includes("addRewardRow(cardX,cardY-55,'ui_coin'"),'daily result must use coin icon');

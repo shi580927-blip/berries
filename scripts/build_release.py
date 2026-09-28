@@ -10,7 +10,7 @@ import zipfile
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
-RELEASE = ROOT / "release"
+RELEASE = Path(os.environ.get("BERRIES_RELEASE_DIR", ROOT / "release"))
 OUTPUT = ROOT / os.environ.get("BERRIES_RELEASE_NAME", "berries_yandex_v9.zip")
 MANIFEST = ROOT / "berries_build_manifest.json"
 
@@ -161,14 +161,20 @@ def resize_to_fit(image, target):
 def optimize_images():
     for rel in ASSET_FILES:
         path = RELEASE / rel
-        with Image.open(path) as im:
-            if path.suffix.lower() in {".jpg", ".jpeg"}:
-                # Full-screen backgrounds remain 1920x1080; only excess pixels/metadata are removed.
-                im = im.convert("RGB").resize((1920, 1080), Image.Resampling.LANCZOS)
-                im.save(path, "JPEG", quality=82, optimize=True, progressive=True)
-            else:
-                im = resize_to_fit(im, target_for(rel, im.size))
-                im.save(path, "PNG", optimize=True, compress_level=9)
+        try:
+            with Image.open(path) as im:
+                # Load pixels before saving to the same path; Pillow may otherwise
+                # truncate a lazy source image before it has been decoded.
+                im.load()
+                if path.suffix.lower() in {".jpg", ".jpeg"}:
+                    # Full-screen backgrounds remain 1920x1080; only excess pixels/metadata are removed.
+                    im = im.convert("RGB").resize((1920, 1080), Image.Resampling.LANCZOS)
+                    im.save(path, "JPEG", quality=82, optimize=True, progressive=True)
+                else:
+                    im = resize_to_fit(im, target_for(rel, im.size))
+                    im.save(path, "PNG", optimize=True, compress_level=9)
+        except Exception as exc:
+            raise RuntimeError(f"Failed to optimize {rel}") from exc
 
 def circular_loop(src, dst, start, length, crossfade=2.0, bitrate="96k"):
     # Circular crossfade: output starts after the head, ends with tail->head crossfade,

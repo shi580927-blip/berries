@@ -19,7 +19,7 @@ function fit(img,maxW,maxH){const s=Math.min(maxW/img.width,maxH/img.height);img
 
 // Fast boot: only the title artwork is blocking. Everything needed after the title
 // is fetched in the background while the player already sees the game.
-const ASSET_REV='ui-20260928-daily3';
+const ASSET_REV='ui-20260928-daily4';
 function ensureDailyAssets(scene){
   if(window.__berriesDailyAssetsPromise)return window.__berriesDailyAssetsPromise;
   window.__berriesDailyAssetsPromise=new Promise(resolve=>{
@@ -494,22 +494,22 @@ class Title extends Phaser.Scene{
     const panel=fit(this.add.image(W/2,H/2,'daily_popup'),1660,930).setInteractive();box.add(panel);
     const at=(u,v)=>[panel.x+(u-.5)*panel.displayWidth,panel.y+(v-.5)*panel.displayHeight];
 
-    const title=this.add.text(...at(.5,.183),'ЕЖЕДНЕВНАЯ НАГРАДА',{
+    const title=this.add.text(...at(.5,.225),'ЕЖЕДНЕВНАЯ НАГРАДА',{
       fontFamily:FONT,fontSize:'38px',fontStyle:'bold',color:'#ffe69a',
       stroke:'#6b2e17',strokeThickness:7,align:'center'
     }).setOrigin(.5).setDepth(83);box.add(title);
     if(title.width>panel.displayWidth*.47)title.setFontSize(Math.max(27,Math.floor(38*panel.displayWidth*.47/title.width)));
 
-    const hint=this.add.text(...at(.5,.372),'Выберите один из трёх сундуков',{
+    const hint=this.add.text(...at(.5,.425),'Выберите один из трёх сундуков',{
       fontFamily:FONT,fontSize:'27px',fontStyle:'bold',color:'#6a3b20',
       align:'center'
     }).setOrigin(.5).setDepth(83);box.add(hint);
 
-    const continueLabel=this.add.text(...at(.5,.882),'ВЫБЕРИТЕ СУНДУК',{
+    const continueLabel=this.add.text(...at(.5,.855),'ВЫБЕРИТЕ СУНДУК',{
       fontFamily:FONT,fontSize:'29px',fontStyle:'bold',color:'#fff2c2',
       stroke:'#7b251f',strokeThickness:6,align:'center'
     }).setOrigin(.5).setDepth(84);box.add(continueLabel);
-    const continueHit=this.add.zone(...at(.5,.882),panel.displayWidth*.48,panel.displayHeight*.105).setDepth(85);
+    const continueHit=this.add.zone(...at(.5,.855),panel.displayWidth*.48,panel.displayHeight*.105).setDepth(85);
     box.add(continueHit);
 
     const rewards=Phaser.Utils.Array.Shuffle(['coins_100','booster_1','royal_bonus']);
