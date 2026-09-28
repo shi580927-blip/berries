@@ -1,7 +1,12 @@
 (function(root){
 'use strict';
-const KEY='berries_campaign_v1',LEGACY='berries_vs_04',MAX_LIVES=5,REGEN_MS=30*60*1000;
+const KEY='berries_campaign_v1',LEGACY='berries_vs_04',MAX_LIVES=5,REGEN_MS=30*60*1000,DAY_MS=24*60*60*1000;
 const PRICES={hammer:250,shuffle:300,fan:400};
+const DAILY_REWARDS={
+ coins_100:{coins:100},
+ booster_1:{booster:1},
+ royal_bonus:{coins:250,booster:1}
+};
 const ROYAL_PRODUCTS={
  coins_1000:{coins:1000},
  lives_5:{lives:5},
@@ -39,6 +44,7 @@ return [i+1,{m,n,g,ice:[...iceSlots.slice(0,ic).map(([y,x],k)=>[y,x,h==='mixed'?
 }));
 function create(storage,now=Date.now,cloud=()=>{}){
 const number=(v,f=0)=>Number.isFinite(Number(v))?Math.max(0,Math.floor(Number(v))):f;
+const dayKey=(value=now())=>{const d=new Date(value),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
 function write(s){s.updatedAt=now();storage.setItem(KEY,JSON.stringify(s));cloud(s);return s}
 function tick(s){
 if(s.lives<MAX_LIVES&&s.nextLifeAt&&now()>=s.nextLifeAt){
@@ -50,7 +56,7 @@ function read(){
 let s;try{s=JSON.parse(storage.getItem(KEY)||'null')}catch{}
 if(!s||s.version!==1){
 let old;try{old=JSON.parse(storage.getItem(LEGACY)||'{}')}catch{}
-s={version:1,lifePolicy:2,done:[],coins:number(old?.coins),inventory:{hammer:2,shuffle:2,fan:2},lives:5,nextLifeAt:null,active:null,serial:0,lastWin:null,purchaseTokens:[]};return write(s);
+s={version:1,lifePolicy:2,done:[],coins:number(old?.coins),inventory:{hammer:2,shuffle:2,fan:2},lives:5,nextLifeAt:null,active:null,serial:0,lastWin:null,purchaseTokens:[],daily:{lastClaimDay:null,lastReward:null}};return write(s);
 }
 // One-time compensation: old saves did not distinguish losses from exits.
 if(s.lifePolicy!==2){s.lives=MAX_LIVES;s.nextLifeAt=null;s.lifePolicy=2;write(s)}
@@ -58,6 +64,9 @@ s.done=[...new Set((s.done||[]).filter(n=>Number.isInteger(n)&&n>=1&&n<=30))];
 s.coins=number(s.coins);s.inventory??={};
 for(const id of Object.keys(PRICES))s.inventory[id]=number(s.inventory[id]);
 s.purchaseTokens=Array.isArray(s.purchaseTokens)?s.purchaseTokens.filter(x=>typeof x==='string').slice(-100):[];
+s.daily=s.daily&&typeof s.daily==='object'?s.daily:{lastClaimDay:null,lastReward:null};
+if(typeof s.daily.lastClaimDay!=='string')s.daily.lastClaimDay=null;
+if(!s.daily.lastReward||typeof s.daily.lastReward!=='object')s.daily.lastReward=null;
 s.lives=Math.min(5,number(s.lives,5));if(s.lives<5&&!s.nextLifeAt)s.nextLifeAt=now()+REGEN_MS;
 const old=JSON.stringify(s);tick(s);if(JSON.stringify(s)!==old)write(s);return s;
 }
@@ -86,6 +95,20 @@ function doubleReward(token){const s=read();if(s.lastWin?.id!==token||s.lastWin.
 function consume(id){const s=read();if(!PRICES[id]||s.inventory[id]<=0)return false;s.inventory[id]--;write(s);return true}
 function buy(id){const s=read(),price=PRICES[id];if(!price||s.coins<price)return false;s.coins-=price;s.inventory[id]++;write(s);return true}
 function addLife(){const s=read();if(s.lives!==0)return false;s.lives=1;write(s);return true}
+function dailyRewardAvailable(){const s=read();return s.daily?.lastClaimDay!==dayKey()}
+function claimDailyReward(id){
+const reward=DAILY_REWARDS[id];if(!reward)return {ok:false,reason:'unknown_reward'};
+const s=read(),today=dayKey();if(s.daily?.lastClaimDay===today)return {ok:false,reason:'already_claimed',state:s};
+let booster=null;
+if(reward.coins)s.coins+=reward.coins;
+if(reward.booster){
+ const ids=Object.keys(PRICES),seed=Math.floor(now()/DAY_MS)+number(s.serial)+(s.done?.length||0);
+ booster=ids[Math.abs(seed)%ids.length];s.inventory[booster]=number(s.inventory[booster])+reward.booster;
+}
+const result={id,coins:reward.coins||0,booster,boosterCount:reward.booster||0,best:id==='royal_bonus'};
+s.daily={lastClaimDay:today,lastReward:{...result,claimedAt:now()}};
+write(s);return {ok:true,...result,state:s};
+}
 function grantPurchase(productID,purchaseToken){
 const product=ROYAL_PRODUCTS[productID];if(!product||!purchaseToken)return {ok:false,reason:'unknown'};
 const s=read();if(s.purchaseTokens.includes(purchaseToken))return {ok:true,duplicate:true,state:s};
@@ -95,9 +118,9 @@ if(product.boosters)for(const [id,count] of Object.entries(product.boosters))s.i
 s.purchaseTokens=[...s.purchaseTokens,purchaseToken].slice(-100);write(s);return {ok:true,duplicate:false,state:s};
 }
 function lifeLabel(){const s=read();if(s.lives===5)return '5 / 5';const sec=Math.max(0,Math.ceil((s.nextLifeAt-now())/1000));return s.lives+' / 5  • '+Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
-return {read,restore,unlocked,begin,abandon,lose,resume,win,doubleReward,consume,buy,addLife,grantPurchase,lifeLabel};
+return {read,restore,unlocked,begin,abandon,lose,resume,win,doubleReward,consume,buy,addLife,dailyRewardAvailable,claimDailyReward,grantPurchase,lifeLabel};
 }
-const api={KEY,LEVELS,PRICES,ROYAL_PRODUCTS,create,REGEN_MS};
+const api={KEY,LEVELS,PRICES,ROYAL_PRODUCTS,DAILY_REWARDS,create,REGEN_MS,DAY_MS};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 else root.BerriesCampaign={...api,...create(root.localStorage,Date.now,s=>root.BerriesYandex?.saveCloudData?.(s,false))};
 })(typeof window!=='undefined'?window:this);
