@@ -625,7 +625,7 @@ Fast-boot уже переведён на двухэтапную загрузку
 8. offline/online и cloud restore;
 9. проверить итоговый ZIP и размер (<20 MB).
 
-Статус: GitHub Actions build v9 прошёл успешно. Актуальный daily-v2 архив `berries_yandex_v9.zip`: 79 файлов, 12,045,000 bytes, SHA-256 `db0aca085d2db9a1920b5a237808924baf658651a0f93d8d6eaed8654d149a25`. Перед отправкой в Яндекс остаётся короткий ручной QA в draft. Подробности: `docs/RELEASE_V9_2026-09-28.md`.
+Статус: GitHub Actions build v9 прошёл успешно. Актуальный daily-v2 архив `berries_yandex_v9.zip`: 79 файлов, 12,045,062 bytes, SHA-256 `db796ad9ec193ae4ff4f32ce85b4e378bfa8ef4c5edfa73e0ee87ffc0d008192`. Перед отправкой в Яндекс остаётся короткий ручной QA в draft. Подробности: `docs/RELEASE_V9_2026-09-28.md`.
 
 
 ### 2026-09-28 — финальная правка daily reward перед Yandex v9 QA
