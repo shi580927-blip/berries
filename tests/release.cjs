@@ -30,6 +30,12 @@ life.set('hidden',false);assert(!life.paused);assert(scene.input.enabled);assert
  assert(source.includes('this.fx.chestOpen();'),'daily chest opening must trigger crystal chime');
  assert(source.includes('showFairytaleTransition()'),'Play must have immediate fairytale transition');
  assert(source.includes("'ОТКРЫВАЕМ ВОРОТА В СКАЗКУ…'"),'fairytale transition copy missing');
+ const transitionBlock=source.slice(source.indexOf('showFairytaleTransition(){'),source.indexOf('showDailyReward(mapReady){'));
+ assert(!transitionBlock.includes('add.circle('),'fairytale transition must not use visible circular masks/glows');
+ assert(!transitionBlock.includes('const left='),'fairytale transition must not restore closing shutters');
+ assert(source.includes("at(.5,.183),'ЕЖЕДНЕВНАЯ НАГРАДА'"),'daily title optical alignment changed');
+ assert(source.includes("at(.5,.372),'Выберите один из трёх сундуков'"),'daily hint optical alignment changed');
+ assert(source.includes("at(.5,.882),'ВЫБЕРИТЕ СУНДУК'"),'daily CTA optical alignment changed');
  assert(!source.includes("'daily_magic'"),'flame sprite must not be loaded');
  assert(!source.includes("'daily_sparkles'"),'daily spark sprite must not be loaded');
  assert(source.includes("addRewardRow(cardX,cardY-55,'ui_coin'"),'daily result must use coin icon');
