@@ -19,7 +19,26 @@ function fit(img,maxW,maxH){const s=Math.min(maxW/img.width,maxH/img.height);img
 
 // Fast boot: only the title artwork is blocking. Everything needed after the title
 // is fetched in the background while the player already sees the game.
-const ASSET_REV='ui-20260927-fastboot1';
+const ASSET_REV='ui-20260928-daily1';
+function ensureDailyAssets(scene){
+  if(window.__berriesDailyAssetsPromise)return window.__berriesDailyAssetsPromise;
+  window.__berriesDailyAssetsPromise=new Promise(resolve=>{
+    let queued=0;
+    const I=(k,p)=>{if(scene.textures.exists(k))return;scene.load.image(k,p+'?v='+ASSET_REV);queued++};
+    I('daily_popup','assets/ui/popups/popup_everyday.png');
+    I('daily_chest_closed','assets/ui/popups/gift_01.png');
+    I('daily_chest_lid','assets/ui/popups/gift_02.png');
+    I('daily_chest_base','assets/ui/popups/gift_03.png');
+    I('daily_magic','assets/ui/popups/gift_magik.png');
+    I('daily_sparkles','assets/ui/popups/gift_magik2.png');
+    if(!queued){window.__berriesDailyAssetsReady=true;resolve(true);return}
+    scene.load.once('complete',()=>{window.__berriesDailyAssetsReady=true;resolve(true)});
+    if(!scene.load.isLoading())scene.load.start();
+  });
+  return window.__berriesDailyAssetsPromise;
+}
+window.__berriesEnsureDailyAssets=ensureDailyAssets;
+
 function ensureCoreAssets(scene){
   if(window.__berriesCoreAssetsPromise)return window.__berriesCoreAssetsPromise;
   window.__berriesCoreAssetsPromise=new Promise(resolve=>{
@@ -64,7 +83,7 @@ function ensureCoreAssets(scene){
     I('pcoins','assets/ui/panels/panel_coins.png');
     I('popup_win','assets/ui/popups/popup_level_win.png');
     I('popup_lose','assets/ui/popups/popup_level_lose.png');
-    I('popup_royal_shop','assets/ui/popups/popup_shop_main.png');
+    I('popup_royal_shop','assets/ui/popups/popup_king_shop_ru.png');
     I('level_done_new','assets/ui/buttons/level_completed5.png');
     I('level_current_new','assets/ui/buttons/level_current7.png');
     I('level_locked_new','assets/ui/buttons/level_completed7.png');
@@ -339,10 +358,15 @@ class Title extends Phaser.Scene{
       stroke:'#3b2012',strokeThickness:4,align:'center'
     }).setOrigin(.5);
 
-    const prepare=Promise.all([
-      window.__berriesRestorePromise||Promise.resolve(),
+    const restoreReady=window.__berriesRestorePromise||Promise.resolve();
+    // Load the light daily-reward pack first. Once it is ready, the heavy core continues
+    // in the background while the player can already interact with the title/reward flow.
+    const dailyReady=ensureDailyAssets(this);
+    const coreReady=dailyReady.then(()=>ensureCoreAssets(this));
+    const mapReady=Promise.all([
+      restoreReady,
       window.berriesDigitsReady||Promise.resolve(),
-      ensureCoreAssets(this)
+      coreReady
     ]).then(()=>{
       prepStatus.setText('');
       window.__berriesStartupReady=true;
@@ -358,8 +382,15 @@ class Title extends Phaser.Scene{
     this.makeButton(W/2,805,'ИГРАТЬ',async()=>{
       if(entering)return;
       entering=true;
+      if(!window.__berriesDailyAssetsReady)prepStatus.setText('Готовим ежедневный подарок…');
+      await Promise.all([restoreReady,dailyReady]);
+      prepStatus.setText('');
+      if(Campaign.dailyRewardAvailable?.()){
+        this.showDailyReward(mapReady);
+        return;
+      }
       if(!window.__berriesStartupReady)prepStatus.setText('Подготавливаем игру…');
-      await prepare;
+      await mapReady;
       prepStatus.setText('');
       this.scene.start('Map');
     });
@@ -370,6 +401,88 @@ class Title extends Phaser.Scene{
       fontFamily:FONT,fontSize:'31px',fontStyle:'bold',lineSpacing:8,align:'center',
       color:'#fff8d9',stroke:'#3b2012',strokeThickness:6
     }).setOrigin(.5);
+  }
+  showDailyReward(mapReady){
+    if(this._dailyRewardModal?.active)return;
+    const box=this.add.container(0,0).setDepth(80);this._dailyRewardModal=box;
+    const shade=this.add.rectangle(W/2,H/2,W,H,0x102419,.84).setInteractive();box.add(shade);
+    const panel=fit(this.add.image(W/2,H/2,'daily_popup'),1660,930).setInteractive();box.add(panel);
+    const at=(u,v)=>[panel.x+(u-.5)*panel.displayWidth,panel.y+(v-.5)*panel.displayHeight];
+    const title=this.add.text(...at(.5,.17),'ЕЖЕДНЕВНАЯ НАГРАДА',{
+      fontFamily:FONT,fontSize:'42px',fontStyle:'bold',color:'#ffe69a',
+      stroke:'#6b2e17',strokeThickness:8,align:'center'
+    }).setOrigin(.5).setDepth(83);box.add(title);
+    if(title.width>panel.displayWidth*.48)title.setFontSize(Math.max(28,Math.floor(42*panel.displayWidth*.48/title.width)));
+
+    const hint=this.add.text(...at(.5,.37),'Выберите один из трёх сундуков',{
+      fontFamily:FONT,fontSize:'30px',fontStyle:'bold',color:'#6a3b20',
+      align:'center',stroke:'#fff1c7',strokeThickness:2
+    }).setOrigin(.5).setDepth(83);box.add(hint);
+
+    const continueLabel=this.add.text(...at(.5,.885),'ВЫБЕРИТЕ СУНДУК',{
+      fontFamily:FONT,fontSize:'31px',fontStyle:'bold',color:'#fff2c2',
+      stroke:'#7b251f',strokeThickness:6,align:'center'
+    }).setOrigin(.5).setDepth(84);box.add(continueLabel);
+    const continueHit=this.add.zone(...at(.5,.885),panel.displayWidth*.48,panel.displayHeight*.105).setDepth(85);
+    box.add(continueHit);
+
+    const rewards=Phaser.Utils.Array.Shuffle(['coins_100','booster_1','royal_bonus']);
+    const chestXs=[.25,.5,.75],chests=[];let chosen=false;
+    const rewardLabel=result=>{
+      if(result.coins&&result.boosterCount)return `+${result.coins} МОНЕТ\n+1 БУСТЕР`;
+      if(result.coins)return `+${result.coins} МОНЕТ`;
+      return '+1 БУСТЕР';
+    };
+
+    const goNext=async()=>{
+      continueHit.disableInteractive();
+      if(!window.__berriesStartupReady)continueLabel.setText('ЗАГРУЖАЕМ…');
+      await mapReady;
+      continueLabel.setText('ДАЛЬШЕ');
+      this.scene.start('Map');
+    };
+
+    chestXs.forEach((u,index)=>{
+      const [x,y]=at(u,.61),c=this.add.container(x,y).setDepth(83);
+      const closed=fit(this.add.image(0,0,'daily_chest_closed'),270,270).setInteractive({useHandCursor:true});
+      c.add(closed);box.add(c);
+      const bob=this.tweens.add({targets:c,y:y-8,duration:1150+index*120,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+      const entry={container:c,closed,bob};chests.push(entry);
+      closed.on('pointerdown',()=>{
+        if(chosen)return;chosen=true;
+        chests.forEach((item,j)=>{
+          item.closed.disableInteractive();item.bob.stop();
+          if(j!==index)this.tweens.add({targets:item.container,alpha:.42,scale:.92,duration:220});
+        });
+        const result=Campaign.claimDailyReward?.(rewards[index]);
+        if(!result?.ok){
+          continueLabel.setText('ДАЛЬШЕ');
+          continueHit.setInteractive({useHandCursor:true}).once('pointerdown',goNext);
+          return;
+        }
+        window.BerriesYandex?.flushCloud?.();
+        hint.setText('Ваш подарок!');
+        closed.destroy();
+
+        const magic=fit(this.add.image(0,-18,'daily_magic'),result.best?360:300,result.best?360:300).setAlpha(0).setScale(.35).setDepth(1);
+        const base=fit(this.add.image(0,0,'daily_chest_base'),270,270).setDepth(3);
+        const lid=fit(this.add.image(0,-8,'daily_chest_lid'),270,270).setDepth(5);
+        const sparks=fit(this.add.image(0,-45,'daily_sparkles'),result.best?330:260,result.best?330:260).setAlpha(0).setScale(.5).setDepth(6);
+        const reward=this.add.text(0,-168,rewardLabel(result),{
+          fontFamily:FONT,fontSize:result.best?'31px':'28px',fontStyle:'bold',color:'#fff2a8',
+          stroke:'#6a3118',strokeThickness:7,align:'center',lineSpacing:4
+        }).setOrigin(.5).setAlpha(0).setDepth(7);
+        c.add([magic,base,lid,sparks,reward]);
+        this.tweens.add({targets:magic,alpha:result.best?1:.78,scale:1,duration:320,ease:'Back.out'});
+        this.tweens.add({targets:lid,y:-82,angle:-7,duration:360,ease:'Back.out'});
+        this.tweens.add({targets:sparks,alpha:1,scale:1,duration:260,ease:'Back.out',yoyo:true,hold:180});
+        this.tweens.add({targets:reward,alpha:1,y:-180,duration:330,delay:170,ease:'Back.out'});
+        this.tweens.add({targets:c,scale:1.08,duration:180,yoyo:true,ease:'Sine.inOut'});
+        this.fx.reward();
+        continueLabel.setText('ДАЛЬШЕ');
+        continueHit.setInteractive({useHandCursor:true}).once('pointerdown',()=>{this.fx.click();goNext()});
+      });
+    });
   }
   makeButton(x,y,label,cb){
     const c=this.add.container(x,y),
