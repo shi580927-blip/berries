@@ -25,8 +25,15 @@ life.set('hidden',false);assert(!life.paused);assert(scene.input.enabled);assert
  a=sdk.showRewardedVideo();for(let i=0;i<8;i++)await Promise.resolve();adOptions.callbacks.onError();assert.equal(await a,false);assert(!reasons.size);
  readFails=true;vm.runInNewContext(fs.readFileSync('src/sdk/yandex.js','utf8'),sdkContext);await sdkContext.window.BerriesYandex.restoreCampaign();assert.equal(sdkContext.window.BerriesYandex.saveCloudData(initial),false);
  const source=fs.readFileSync('src/vertical_slice.js','utf8');
+ assert.doesNotThrow(()=>new Function(source),'vertical_slice.js must parse');
  assert(source.includes("A('sfx_combo_glitter','audio/sfx/combo_glitter_chime.mp3')"),'daily pack must preload crystal chime');
  assert(source.includes('this.fx.chestOpen();'),'daily chest opening must trigger crystal chime');
+ assert(source.includes('showFairytaleTransition()'),'Play must have immediate fairytale transition');
+ assert(source.includes("'ОТКРЫВАЕМ ВОРОТА В СКАЗКУ…'"),'fairytale transition copy missing');
+ assert(!source.includes("'daily_magic'"),'flame sprite must not be loaded');
+ assert(!source.includes("'daily_sparkles'"),'daily spark sprite must not be loaded');
+ assert(source.includes("addRewardRow(cardX,cardY-55,'ui_coin'"),'daily result must use coin icon');
+ assert(source.includes("result.booster||'hammer'"),'daily result must use booster icon');
  const stableSource=fs.readFileSync('src/runtime_stable_v10.js','utf8');
  assert(stableSource.includes("value.setText(`\${done}\\n/ \${g.need}`)"),'score/coin goal must render on two lines');
  const Sfx=new Function('window','localStorage','performance',source.slice(source.indexOf('class Sfx'),source.indexOf('const MUSIC_TRACKS'))+';return Sfx')({BerriesLifecycle:life},storage,{now:()=>clock});
