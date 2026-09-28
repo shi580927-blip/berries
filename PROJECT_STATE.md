@@ -625,4 +625,4 @@ Fast-boot уже переведён на двухэтапную загрузку
 8. offline/online и cloud restore;
 9. проверить итоговый ZIP и размер (<20 MB).
 
-Статус: код и сборка v9 находятся в post-v8 main; перед отправкой в Яндекс требуется успешный GitHub Actions build и короткий ручной QA в draft.
+Статус: GitHub Actions build v9 прошёл успешно. Архив `berries_yandex_v9.zip`: 81 файл, 12,115,804 bytes, SHA-256 `5599cc21e89abc291bc63dd1e6a26bb248d35634050a2f1800cb6f89edfd9ce4`. Перед отправкой в Яндекс остаётся короткий ручной QA в draft. Подробности: `docs/RELEASE_V9_2026-09-28.md`.
