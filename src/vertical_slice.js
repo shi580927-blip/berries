@@ -19,7 +19,7 @@ function fit(img,maxW,maxH){const s=Math.min(maxW/img.width,maxH/img.height);img
 
 // Fast boot: only the title artwork is blocking. Everything needed after the title
 // is fetched in the background while the player already sees the game.
-const ASSET_REV='ui-20260928-daily2';
+const ASSET_REV='ui-20260928-daily3';
 function ensureDailyAssets(scene){
   if(window.__berriesDailyAssetsPromise)return window.__berriesDailyAssetsPromise;
   window.__berriesDailyAssetsPromise=new Promise(resolve=>{
@@ -417,21 +417,29 @@ class Title extends Phaser.Scene{
 
   showFairytaleTransition(){
     const box=this.add.container(0,0).setDepth(72);
+
+    // No shutters, iris or circular masks: only a soft darkening, warm fairy light and fireflies.
     const shade=this.add.rectangle(W/2,H/2,W,H,0x071d13,0).setDepth(0);
-    box.add(shade);
-    this.tweens.add({targets:shade,alpha:.88,duration:180,ease:'Sine.out'});
+    const warm=this.add.rectangle(W/2,H/2,W,H,0xffd879,0).setDepth(1);
+    box.add([shade,warm]);
+    this.tweens.add({targets:shade,alpha:.82,duration:180,ease:'Sine.out'});
+    this.tweens.add({
+      targets:warm,alpha:{from:.025,to:.105},duration:900,
+      yoyo:true,repeat:-1,ease:'Sine.inOut'
+    });
 
-    // Forest curtains close toward the centre while the game finishes background work.
-    const left=this.add.rectangle(-W*.25,H/2,W*.58,H,0x0b2b1c,.92).setDepth(1);
-    const right=this.add.rectangle(W*1.25,H/2,W*.58,H,0x0b2b1c,.92).setDepth(1);
-    box.add([left,right]);
-    this.tweens.add({targets:left,x:W*.18,duration:360,ease:'Sine.out'});
-    this.tweens.add({targets:right,x:W*.82,duration:360,ease:'Sine.out'});
-
-    const glow=this.add.circle(W/2,H/2,72,0xffe59b,.11).setStrokeStyle(3,0xffdda0,.32).setDepth(2);
-    const glow2=this.add.circle(W/2,H/2,132,0xffd66b,.035).setDepth(2);
-    box.add([glow2,glow]);
-    this.tweens.add({targets:[glow,glow2],scale:{from:.72,to:1.22},alpha:{from:.08,to:.30},duration:950,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+    // Gentle horizontal golden light around the copy, deliberately without visible circular edges.
+    const rays=[];
+    for(let i=0;i<7;i++){
+      const width=280+i*105,height=i%2===0?5:3;
+      const ray=this.add.rectangle(W/2,H/2+18+(i-3)*16,width,height,0xffe7a2,.055).setDepth(2);
+      ray.setAngle((i-3)*2.2);
+      rays.push(ray);box.add(ray);
+      this.tweens.add({
+        targets:ray,alpha:{from:.025,to:.15},scaleX:{from:.82,to:1.08},
+        duration:820+i*65,yoyo:true,repeat:-1,ease:'Sine.inOut'
+      });
+    }
 
     const title=this.add.text(W/2,H/2-8,'ОТКРЫВАЕМ ВОРОТА В СКАЗКУ…',{
       fontFamily:FONT,fontSize:'38px',fontStyle:'bold',color:'#fff0b1',
@@ -444,17 +452,20 @@ class Title extends Phaser.Scene{
     box.add([title,sub]);
     this.tweens.add({targets:[title,sub],alpha:1,duration:260,delay:100});
 
-    // Lightweight code-only fireflies/sparkles: no extra sprite asset.
-    const motes=[];
-    for(let i=0;i<20;i++){
-      const angle=(i/20)*Math.PI*2,rad=95+(i%5)*34;
-      const x=W/2+Math.cos(angle)*rad,y=H/2+Math.sin(angle)*rad*.62;
-      const size=i%4===0?7:4;
-      const mote=this.add.rectangle(x,y,size,size,0xffe69b,.75).setAngle(45).setDepth(3);
-      motes.push(mote);box.add(mote);
+    // Lightweight code-only fireflies.
+    for(let i=0;i<22;i++){
+      const t=i/21;
+      const side=i%2===0?-1:1;
+      const x=W/2+side*(105+(i%6)*58);
+      const y=H/2-115+(i%8)*34;
+      const size=i%5===0?7:4;
+      const mote=this.add.rectangle(x,y,size,size,0xffe69b,.72).setAngle(45).setDepth(3);
+      box.add(mote);
       this.tweens.add({
-        targets:mote,y:y-55-(i%4)*14,alpha:{from:.18,to:.95},
-        scale:{from:.45,to:1.15},duration:760+(i%6)*120,delay:(i%7)*70,
+        targets:mote,
+        x:x+side*(14+(i%3)*9),y:y-45-(i%4)*12,
+        alpha:{from:.12,to:.98},scale:{from:.4,to:1.18},
+        duration:720+(i%6)*130,delay:(i%7)*65,
         yoyo:true,repeat:-1,ease:'Sine.inOut'
       });
     }
@@ -464,11 +475,12 @@ class Title extends Phaser.Scene{
       if(closing){resolve();return}
       closing=true;
       if(bright){
-        const flash=this.add.circle(W/2,H/2,90,0xfff2c6,.18).setDepth(5);box.add(flash);
-        this.tweens.add({targets:flash,scale:8,alpha:.86,duration:170,ease:'Quad.in'});
+        const flash=this.add.rectangle(W/2,H/2,W,H,0xfff0bd,0).setDepth(5);
+        box.add(flash);
+        this.tweens.add({targets:flash,alpha:.48,duration:150,ease:'Quad.in'});
       }
       this.tweens.add({
-        targets:box,alpha:0,duration:bright?220:150,delay:bright?120:0,
+        targets:box,alpha:0,duration:bright?220:150,delay:bright?100:0,
         onComplete:()=>{box.destroy();resolve()}
       });
     });
@@ -482,22 +494,22 @@ class Title extends Phaser.Scene{
     const panel=fit(this.add.image(W/2,H/2,'daily_popup'),1660,930).setInteractive();box.add(panel);
     const at=(u,v)=>[panel.x+(u-.5)*panel.displayWidth,panel.y+(v-.5)*panel.displayHeight];
 
-    const title=this.add.text(...at(.5,.17),'ЕЖЕДНЕВНАЯ НАГРАДА',{
+    const title=this.add.text(...at(.5,.183),'ЕЖЕДНЕВНАЯ НАГРАДА',{
       fontFamily:FONT,fontSize:'38px',fontStyle:'bold',color:'#ffe69a',
       stroke:'#6b2e17',strokeThickness:7,align:'center'
     }).setOrigin(.5).setDepth(83);box.add(title);
     if(title.width>panel.displayWidth*.47)title.setFontSize(Math.max(27,Math.floor(38*panel.displayWidth*.47/title.width)));
 
-    const hint=this.add.text(...at(.5,.355),'Выберите один из трёх сундуков',{
+    const hint=this.add.text(...at(.5,.372),'Выберите один из трёх сундуков',{
       fontFamily:FONT,fontSize:'27px',fontStyle:'bold',color:'#6a3b20',
       align:'center'
     }).setOrigin(.5).setDepth(83);box.add(hint);
 
-    const continueLabel=this.add.text(...at(.5,.885),'ВЫБЕРИТЕ СУНДУК',{
+    const continueLabel=this.add.text(...at(.5,.882),'ВЫБЕРИТЕ СУНДУК',{
       fontFamily:FONT,fontSize:'29px',fontStyle:'bold',color:'#fff2c2',
       stroke:'#7b251f',strokeThickness:6,align:'center'
     }).setOrigin(.5).setDepth(84);box.add(continueLabel);
-    const continueHit=this.add.zone(...at(.5,.885),panel.displayWidth*.48,panel.displayHeight*.105).setDepth(85);
+    const continueHit=this.add.zone(...at(.5,.882),panel.displayWidth*.48,panel.displayHeight*.105).setDepth(85);
     box.add(continueHit);
 
     const rewards=Phaser.Utils.Array.Shuffle(['coins_100','booster_1','royal_bonus']);
@@ -564,7 +576,7 @@ class Title extends Phaser.Scene{
         });
 
         hint.setText('ВАШ ПОДАРОК').setFontSize(27);
-        const [resultTitleX,resultTitleY]=at(.69,.43);
+        const [resultTitleX,resultTitleY]=at(.69,.455);
         this.tweens.add({targets:hint,x:resultTitleX,y:resultTitleY,duration:230,ease:'Sine.out'});
 
         const [chosenX,chosenY]=at(.34,.625);
