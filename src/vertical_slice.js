@@ -19,7 +19,7 @@ function fit(img,maxW,maxH){const s=Math.min(maxW/img.width,maxH/img.height);img
 
 // Fast boot: only the title artwork is blocking. Everything needed after the title
 // is fetched in the background while the player already sees the game.
-const ASSET_REV='ui-20260928-daily1';
+const ASSET_REV='ui-20260928-daily2';
 function ensureDailyAssets(scene){
   if(window.__berriesDailyAssetsPromise)return window.__berriesDailyAssetsPromise;
   window.__berriesDailyAssetsPromise=new Promise(resolve=>{
@@ -31,8 +31,10 @@ function ensureDailyAssets(scene){
     I('daily_chest_closed','assets/ui/popups/gift_01.png');
     I('daily_chest_lid','assets/ui/popups/gift_02.png');
     I('daily_chest_base','assets/ui/popups/gift_03.png');
-    I('daily_magic','assets/ui/popups/gift_magik.png');
-    I('daily_sparkles','assets/ui/popups/gift_magik2.png');
+    I('ui_coin','assets/ui/icons/ui_coin.png');
+    I('hammer','assets/boosters/booster_hammer.png');
+    I('shuffle','assets/boosters/booster_shuffle.png');
+    I('fan','assets/boosters/booster_fan.png');
     if(!queued){window.__berriesDailyAssetsReady=true;resolve(true);return}
     scene.load.once('complete',()=>{window.__berriesDailyAssetsReady=true;resolve(true)});
     if(!scene.load.isLoading())scene.load.start();
@@ -366,8 +368,6 @@ class Title extends Phaser.Scene{
     }).setOrigin(.5);
 
     const restoreReady=window.__berriesRestorePromise||Promise.resolve();
-    // Load the light daily-reward pack first. Once it is ready, the heavy core continues
-    // in the background while the player can already interact with the title/reward flow.
     const dailyReady=ensureDailyAssets(this);
     const coreReady=dailyReady.then(()=>ensureCoreAssets(this));
     const mapReady=Promise.all([
@@ -389,16 +389,21 @@ class Title extends Phaser.Scene{
     this.makeButton(W/2,805,'ИГРАТЬ',async()=>{
       if(entering)return;
       entering=true;
-      if(!window.__berriesDailyAssetsReady)prepStatus.setText('Готовим ежедневный подарок…');
+
+      // Immediate visual response: no more "dead" 2-3 seconds after pressing Play.
+      const transition=this.showFairytaleTransition();
+
       await Promise.all([restoreReady,dailyReady]);
       prepStatus.setText('');
+
       if(Campaign.dailyRewardAvailable?.()){
+        await transition.hide();
         this.showDailyReward(mapReady);
         return;
       }
-      if(!window.__berriesStartupReady)prepStatus.setText('Подготавливаем игру…');
+
       await mapReady;
-      prepStatus.setText('');
+      await transition.finish();
       this.scene.start('Map');
     });
     window.BerriesYandex.loadingReady();
@@ -409,25 +414,87 @@ class Title extends Phaser.Scene{
       color:'#fff8d9',stroke:'#3b2012',strokeThickness:6
     }).setOrigin(.5);
   }
+
+  showFairytaleTransition(){
+    const box=this.add.container(0,0).setDepth(72);
+    const shade=this.add.rectangle(W/2,H/2,W,H,0x071d13,0).setDepth(0);
+    box.add(shade);
+    this.tweens.add({targets:shade,alpha:.88,duration:180,ease:'Sine.out'});
+
+    // Forest curtains close toward the centre while the game finishes background work.
+    const left=this.add.rectangle(-W*.25,H/2,W*.58,H,0x0b2b1c,.92).setDepth(1);
+    const right=this.add.rectangle(W*1.25,H/2,W*.58,H,0x0b2b1c,.92).setDepth(1);
+    box.add([left,right]);
+    this.tweens.add({targets:left,x:W*.18,duration:360,ease:'Sine.out'});
+    this.tweens.add({targets:right,x:W*.82,duration:360,ease:'Sine.out'});
+
+    const glow=this.add.circle(W/2,H/2,72,0xffe59b,.11).setStrokeStyle(3,0xffdda0,.32).setDepth(2);
+    const glow2=this.add.circle(W/2,H/2,132,0xffd66b,.035).setDepth(2);
+    box.add([glow2,glow]);
+    this.tweens.add({targets:[glow,glow2],scale:{from:.72,to:1.22},alpha:{from:.08,to:.30},duration:950,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+
+    const title=this.add.text(W/2,H/2-8,'ОТКРЫВАЕМ ВОРОТА В СКАЗКУ…',{
+      fontFamily:FONT,fontSize:'38px',fontStyle:'bold',color:'#fff0b1',
+      stroke:'#4f2918',strokeThickness:7,align:'center'
+    }).setOrigin(.5).setAlpha(0).setDepth(4);
+    const sub=this.add.text(W/2,H/2+55,'Лесное королевство уже рядом',{
+      fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#fff6d8',
+      stroke:'#2d2015',strokeThickness:4,align:'center'
+    }).setOrigin(.5).setAlpha(0).setDepth(4);
+    box.add([title,sub]);
+    this.tweens.add({targets:[title,sub],alpha:1,duration:260,delay:100});
+
+    // Lightweight code-only fireflies/sparkles: no extra sprite asset.
+    const motes=[];
+    for(let i=0;i<20;i++){
+      const angle=(i/20)*Math.PI*2,rad=95+(i%5)*34;
+      const x=W/2+Math.cos(angle)*rad,y=H/2+Math.sin(angle)*rad*.62;
+      const size=i%4===0?7:4;
+      const mote=this.add.rectangle(x,y,size,size,0xffe69b,.75).setAngle(45).setDepth(3);
+      motes.push(mote);box.add(mote);
+      this.tweens.add({
+        targets:mote,y:y-55-(i%4)*14,alpha:{from:.18,to:.95},
+        scale:{from:.45,to:1.15},duration:760+(i%6)*120,delay:(i%7)*70,
+        yoyo:true,repeat:-1,ease:'Sine.inOut'
+      });
+    }
+
+    let closing=false;
+    const fadeOut=(bright=false)=>new Promise(resolve=>{
+      if(closing){resolve();return}
+      closing=true;
+      if(bright){
+        const flash=this.add.circle(W/2,H/2,90,0xfff2c6,.18).setDepth(5);box.add(flash);
+        this.tweens.add({targets:flash,scale:8,alpha:.86,duration:170,ease:'Quad.in'});
+      }
+      this.tweens.add({
+        targets:box,alpha:0,duration:bright?220:150,delay:bright?120:0,
+        onComplete:()=>{box.destroy();resolve()}
+      });
+    });
+    return {hide:()=>fadeOut(false),finish:()=>fadeOut(true)};
+  }
+
   showDailyReward(mapReady){
     if(this._dailyRewardModal?.active)return;
     const box=this.add.container(0,0).setDepth(80);this._dailyRewardModal=box;
     const shade=this.add.rectangle(W/2,H/2,W,H,0x102419,.84).setInteractive();box.add(shade);
     const panel=fit(this.add.image(W/2,H/2,'daily_popup'),1660,930).setInteractive();box.add(panel);
     const at=(u,v)=>[panel.x+(u-.5)*panel.displayWidth,panel.y+(v-.5)*panel.displayHeight];
-    const title=this.add.text(...at(.5,.17),'ЕЖЕДНЕВНАЯ НАГРАДА',{
-      fontFamily:FONT,fontSize:'42px',fontStyle:'bold',color:'#ffe69a',
-      stroke:'#6b2e17',strokeThickness:8,align:'center'
-    }).setOrigin(.5).setDepth(83);box.add(title);
-    if(title.width>panel.displayWidth*.48)title.setFontSize(Math.max(28,Math.floor(42*panel.displayWidth*.48/title.width)));
 
-    const hint=this.add.text(...at(.5,.37),'Выберите один из трёх сундуков',{
-      fontFamily:FONT,fontSize:'30px',fontStyle:'bold',color:'#6a3b20',
-      align:'center',stroke:'#fff1c7',strokeThickness:2
+    const title=this.add.text(...at(.5,.17),'ЕЖЕДНЕВНАЯ НАГРАДА',{
+      fontFamily:FONT,fontSize:'38px',fontStyle:'bold',color:'#ffe69a',
+      stroke:'#6b2e17',strokeThickness:7,align:'center'
+    }).setOrigin(.5).setDepth(83);box.add(title);
+    if(title.width>panel.displayWidth*.47)title.setFontSize(Math.max(27,Math.floor(38*panel.displayWidth*.47/title.width)));
+
+    const hint=this.add.text(...at(.5,.355),'Выберите один из трёх сундуков',{
+      fontFamily:FONT,fontSize:'27px',fontStyle:'bold',color:'#6a3b20',
+      align:'center'
     }).setOrigin(.5).setDepth(83);box.add(hint);
 
     const continueLabel=this.add.text(...at(.5,.885),'ВЫБЕРИТЕ СУНДУК',{
-      fontFamily:FONT,fontSize:'31px',fontStyle:'bold',color:'#fff2c2',
+      fontFamily:FONT,fontSize:'29px',fontStyle:'bold',color:'#fff2c2',
       stroke:'#7b251f',strokeThickness:6,align:'center'
     }).setOrigin(.5).setDepth(84);box.add(continueLabel);
     const continueHit=this.add.zone(...at(.5,.885),panel.displayWidth*.48,panel.displayHeight*.105).setDepth(85);
@@ -435,18 +502,36 @@ class Title extends Phaser.Scene{
 
     const rewards=Phaser.Utils.Array.Shuffle(['coins_100','booster_1','royal_bonus']);
     const chestXs=[.25,.5,.75],chests=[];let chosen=false;
-    const rewardLabel=result=>{
-      if(result.coins&&result.boosterCount)return `+${result.coins} МОНЕТ\n+1 БУСТЕР`;
-      if(result.coins)return `+${result.coins} МОНЕТ`;
-      return '+1 БУСТЕР';
-    };
 
     const goNext=async()=>{
       continueHit.disableInteractive();
-      if(!window.__berriesStartupReady)continueLabel.setText('ЗАГРУЖАЕМ…');
+      if(!window.__berriesStartupReady)continueLabel.setText('ОТКРЫВАЕМ КАРТУ…');
       await mapReady;
-      continueLabel.setText('ДАЛЬШЕ');
       this.scene.start('Map');
+    };
+
+    const addCodeSparkles=(container,best=false)=>{
+      const glow=this.add.circle(0,10,best?155:130,0xffd96a,best?.13:.09).setDepth(1);
+      const glow2=this.add.circle(0,10,best?105:88,0xfff1ad,best?.15:.11).setDepth(1);
+      container.add([glow,glow2]);
+      this.tweens.add({targets:[glow,glow2],scale:{from:.78,to:1.18},alpha:{from:.05,to:best?.20:.14},duration:780,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+      for(let i=0;i<(best?14:10);i++){
+        const a=(i/(best?14:10))*Math.PI*2,rad=115+(i%3)*28;
+        const star=this.add.rectangle(Math.cos(a)*rad,Math.sin(a)*rad*.65-8,i%4===0?8:5,i%4===0?8:5,0xffdf7a,.9).setAngle(45).setDepth(6);
+        container.add(star);
+        this.tweens.add({targets:star,y:star.y-32-(i%3)*12,alpha:{from:.15,to:1},scale:{from:.45,to:1.25},duration:540+(i%5)*110,delay:(i%6)*55,yoyo:true,repeat:-1,ease:'Sine.inOut'});
+      }
+    };
+
+    const addRewardRow=(x,y,key,value)=>{
+      const icon=fit(this.add.image(x-72,y,key),76,76).setDepth(86);
+      const tx=this.add.text(x+28,y,value,{
+        fontFamily:FONT,fontSize:'42px',fontStyle:'bold',color:'#6a361e',
+        stroke:'#fff0bd',strokeThickness:3,align:'left'
+      }).setOrigin(.5).setDepth(86);
+      box.add([icon,tx]);
+      tx.setAlpha(0);icon.setAlpha(0);
+      this.tweens.add({targets:[icon,tx],alpha:1,x:'+=12',duration:260,ease:'Back.out'});
     };
 
     chestXs.forEach((u,index)=>{
@@ -455,12 +540,11 @@ class Title extends Phaser.Scene{
       c.add(closed);box.add(c);
       const bob=this.tweens.add({targets:c,y:y-8,duration:1150+index*120,yoyo:true,repeat:-1,ease:'Sine.inOut'});
       const entry={container:c,closed,bob};chests.push(entry);
+
       closed.on('pointerdown',()=>{
         if(chosen)return;chosen=true;
-        chests.forEach((item,j)=>{
-          item.closed.disableInteractive();item.bob.stop();
-          if(j!==index)this.tweens.add({targets:item.container,alpha:.42,scale:.92,duration:220});
-        });
+        chests.forEach(item=>{item.closed.disableInteractive();item.bob.stop()});
+
         const result=Campaign.claimDailyReward?.(rewards[index]);
         if(!result?.ok){
           continueLabel.setText('ДАЛЬШЕ');
@@ -468,30 +552,58 @@ class Title extends Phaser.Scene{
           return;
         }
         window.BerriesYandex?.flushCloud?.();
-        hint.setText('Ваш подарок!');
-        closed.destroy();
 
-        const magic=fit(this.add.image(0,-18,'daily_magic'),result.best?360:300,result.best?360:300).setAlpha(0).setScale(.35).setDepth(1);
-        const base=fit(this.add.image(0,0,'daily_chest_base'),270,270).setDepth(3);
-        const lid=fit(this.add.image(0,-8,'daily_chest_lid'),270,270).setDepth(5);
-        const sparks=fit(this.add.image(0,-45,'daily_sparkles'),result.best?330:260,result.best?330:260).setAlpha(0).setScale(.5).setDepth(6);
-        const reward=this.add.text(0,-168,rewardLabel(result),{
-          fontFamily:FONT,fontSize:result.best?'31px':'28px',fontStyle:'bold',color:'#fff2a8',
-          stroke:'#6a3118',strokeThickness:7,align:'center',lineSpacing:4
-        }).setOrigin(.5).setAlpha(0).setDepth(7);
-        c.add([magic,base,lid,sparks,reward]);
-        this.tweens.add({targets:magic,alpha:result.best?1:.78,scale:1,duration:320,ease:'Back.out'});
-        this.tweens.add({targets:lid,y:-82,angle:-7,duration:360,ease:'Back.out'});
-        this.tweens.add({targets:sparks,alpha:1,scale:1,duration:260,ease:'Back.out',yoyo:true,hold:180});
-        this.tweens.add({targets:reward,alpha:1,y:-180,duration:330,delay:170,ease:'Back.out'});
-        this.tweens.add({targets:c,scale:1.08,duration:180,yoyo:true,ease:'Sine.inOut'});
-        // Crystal/glitter chime is synced to the moment the lid starts opening.
-        this.fx.chestOpen();
+        // Result state: only the chosen chest remains. Others melt away.
+        chests.forEach((item,j)=>{
+          if(j===index)return;
+          this.tweens.add({
+            targets:item.container,alpha:0,scale:.72,
+            x:item.container.x+(j<index?-120:120),duration:260,ease:'Sine.in',
+            onComplete:()=>item.container.destroy()
+          });
+        });
+
+        hint.setText('ВАШ ПОДАРОК').setFontSize(27);
+        const [resultTitleX,resultTitleY]=at(.69,.43);
+        this.tweens.add({targets:hint,x:resultTitleX,y:resultTitleY,duration:230,ease:'Sine.out'});
+
+        const [chosenX,chosenY]=at(.34,.625);
+        this.tweens.add({
+          targets:c,x:chosenX,y:chosenY,scale:1.03,duration:230,ease:'Sine.inOut',
+          onComplete:()=>{
+            closed.destroy();
+            addCodeSparkles(c,!!result.best);
+            const base=fit(this.add.image(0,12,'daily_chest_base'),285,285).setDepth(3);
+            const lid=fit(this.add.image(0,-2,'daily_chest_lid'),285,285).setDepth(5);
+            c.add([base,lid]);
+            this.tweens.add({targets:lid,y:-88,angle:-8,duration:360,ease:'Back.out'});
+            this.tweens.add({targets:c,scale:1.09,duration:170,yoyo:true,ease:'Sine.inOut'});
+            this.fx.chestOpen();
+          }
+        });
+
+        // Clean reward card on the right: icons + numbers instead of overlapping copy.
+        const [cardX,cardY]=at(.69,.625);
+        const card=this.add.rectangle(cardX,cardY,420,result.coins&&result.boosterCount?238:160,0xfff0cc,.88)
+          .setStrokeStyle(4,0xd59a3c,.9).setDepth(85).setAlpha(0);
+        box.add(card);
+        this.tweens.add({targets:card,alpha:1,scale:{from:.92,to:1},duration:240,ease:'Back.out'});
+
+        if(result.coins&&result.boosterCount){
+          addRewardRow(cardX,cardY-55,'ui_coin','+'+result.coins);
+          addRewardRow(cardX,cardY+55,result.booster||'hammer','+'+result.boosterCount);
+        }else if(result.coins){
+          addRewardRow(cardX,cardY,'ui_coin','+'+result.coins);
+        }else{
+          addRewardRow(cardX,cardY,result.booster||'hammer','+'+result.boosterCount);
+        }
+
         continueLabel.setText('ДАЛЬШЕ');
         continueHit.setInteractive({useHandCursor:true}).once('pointerdown',()=>{this.fx.click();goNext()});
       });
     });
   }
+
   makeButton(x,y,label,cb){
     const c=this.add.container(x,y),
       b=fit(this.add.image(0,0,'btn'),432,156).setInteractive({useHandCursor:true}),
