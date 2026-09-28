@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const {LEVELS,create,REGEN_MS}=require('../src/campaign.js');
+const {LEVELS,create,REGEN_MS,DAY_MS}=require('../src/campaign.js');
 let time=1e6;const mem={berries_vs_04:JSON.stringify({done:[1,6,11,16,21,30],coins:1500})};const storage={getItem:k=>mem[k]??null,setItem:(k,v)=>mem[k]=v};const api=create(storage,()=>time);
 assert.equal(Object.keys(LEVELS).length,30);
 for(const [n,l] of Object.entries(LEVELS)){
@@ -25,6 +25,18 @@ while(api.buy('fan')){}const poor=api.read();assert(!api.buy('fan'));assert.equa
 time+=REGEN_MS*10;assert.equal(api.read().lives,5);
 for(let n=2;n<=30;n++){const t=api.begin(n);assert(t,'level '+n);assert(api.win(t));assert.equal(api.unlocked(),Math.min(30,n+1))}
 assert.equal(api.read().done.length,30);
+
+let dailyTime=new Date(2026,8,28,12,0,0).getTime(),dailyMem={};
+const dailyStorage={getItem:k=>dailyMem[k]??null,setItem:(k,v)=>dailyMem[k]=v};
+const daily=create(dailyStorage,()=>dailyTime);
+assert(daily.dailyRewardAvailable(),'daily reward available on first day');
+const beforeDaily=daily.read().coins,firstDaily=daily.claimDailyReward('coins_100');
+assert(firstDaily.ok);assert.equal(daily.read().coins,beforeDaily+100);assert(!daily.dailyRewardAvailable());
+assert.equal(daily.claimDailyReward('royal_bonus').reason,'already_claimed','cannot claim twice in one day');
+dailyTime+=DAY_MS;assert(daily.dailyRewardAvailable(),'daily reward resets next calendar day');
+const inventoryBefore={...daily.read().inventory},secondDaily=daily.claimDailyReward('booster_1');
+assert(secondDaily.ok);assert(secondDaily.booster);assert.equal(daily.read().inventory[secondDaily.booster],inventoryBefore[secondDaily.booster]+1);
+
 (async()=>{
 const source=fs.readFileSync(path.join(__dirname,'../src/vertical_slice.js'),'utf8');
 const method=source.slice(source.indexOf('async clearCells'),source.indexOf('async fallRefill')).trim();
@@ -39,5 +51,5 @@ cell[0][1]={ice:2,block:'acorn'};
 await clear.call(ctx,new Set(['0,1']));assert.equal(cell[0][1].ice,1);assert.equal(acGoals,0);
 await clear.call(ctx,new Set(['0,1']));assert.equal(cell[0][1].ice,0);assert.equal(acGoals,0);
 await clear.call(ctx,new Set(['0,1']));assert.equal(acGoals,1);
-console.log('PASS campaign economy, life accounting, 30 layouts and both ice layers');
+console.log('PASS campaign economy, daily rewards, life accounting, 30 layouts and both ice layers');
 })().catch(e=>{console.error(e);process.exitCode=1});
