@@ -83,8 +83,6 @@ ASSET_FILES = [
     "assets/ui/popups/gift_01.png",
     "assets/ui/popups/gift_02.png",
     "assets/ui/popups/gift_03.png",
-    "assets/ui/popups/gift_magik.png",
-    "assets/ui/popups/gift_magik2.png",
 ]
 
 AUDIO_COPY = [
@@ -128,8 +126,6 @@ PNG_MAX = {
     "assets/ui/popups/gift_01.png": (384, 384),
     "assets/ui/popups/gift_02.png": (384, 384),
     "assets/ui/popups/gift_03.png": (384, 384),
-    "assets/ui/popups/gift_magik.png": (384, 384),
-    "assets/ui/popups/gift_magik2.png": (384, 384),
 }
 
 def run(*args):
