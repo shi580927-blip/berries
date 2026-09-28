@@ -539,22 +539,38 @@ function install(){
     const closeHit=this.add.zone(...at(.91,.17),panel.displayWidth*.12,panel.displayHeight*.09).setInteractive({useHandCursor:true});
     closeHit.on('pointerdown',close);box.add(closeHit);
 
-    const header=this.add.text(...at(.5,.335),'ВЫБЕРИТЕ НАБОР',{
-      fontFamily:FONT,fontSize:'24px',fontStyle:'bold',color:'#6b3b20',
+    const header=this.add.text(...at(.595,.327),'Выберите',{
+      fontFamily:FONT,fontSize:'27px',fontStyle:'bold',color:'#6b3b20',
       stroke:'#fff0c7',strokeThickness:2,align:'center'
     }).setOrigin(.5).setDepth(94);box.add(header);
 
-    const status=this.add.text(...at(.5,.895),'',{
-      fontFamily:FONT,fontSize:'19px',fontStyle:'bold',color:'#6b3b20',
-      align:'center',wordWrap:{width:panel.displayWidth*.60}
+    const status=this.add.text(...at(.5,.9),'',{
+      fontFamily:FONT,fontSize:'18px',fontStyle:'bold',color:'#6b3b20',
+      align:'center',wordWrap:{width:panel.displayWidth*.55}
     }).setOrigin(.5).setDepth(95);box.add(status);
+    const setStatus=message=>{
+      status.setFontSize(18).setText(message);
+      if(status.height>panel.displayHeight*.062)
+        status.setFontSize(Math.max(14,Math.floor(18*panel.displayHeight*.062/status.height)));
+    };
 
     const products=[
-      ['coins_1000',.475,'1000 МОНЕТ','Начислено 1000 монет'],
-      ['lives_5',.625,'ВОССТАНОВИТЬ ДО 5 ЖИЗНЕЙ','Жизни восстановлены'],
-      ['boosters_3',.775,'ПО 3 БУСТЕРА КАЖДОГО ВИДА','Начислено по 3 бустера']
+      ['coins_1000',.472,'1000 монет','Начислено 1000 монет'],
+      ['lives_5',.634,'Восстановить\nдо 5 жизней','Жизни восстановлены'],
+      ['boosters_3',.789,'По 3 бустера\nкаждого вида','Начислено по 3 бустера']
     ];
     const controls=[];let pending=false;
+
+    const layoutPrice=control=>{
+      const {price,currencyIcon,x,y}=control;
+      const iconWidth=currencyIcon?.displayWidth||0;
+      const gap=iconWidth?8:0;
+      const maxTextWidth=panel.displayWidth*.22-iconWidth-gap;
+      price.setFontSize(24);
+      if(price.width>maxTextWidth)price.setFontSize(Math.max(16,Math.floor(24*maxTextWidth/price.width)));
+      price.setPosition(x+(iconWidth+gap)/2,y);
+      if(currencyIcon)currencyIcon.setPosition(x-(price.width+gap)/2,y);
+    };
 
     const setCurrencyIcon=(control,item)=>{
       const uri=typeof item?.getPriceCurrencyImage==='function'?item.getPriceCurrencyImage('small'):null;
@@ -563,8 +579,9 @@ function install(){
       const attach=()=>{
         if(!this.scene?.isActive?.()||!this.textures.exists(key))return;
         control.currencyIcon?.destroy?.();
-        control.currencyIcon=fit(this.add.image(control.x-58,control.y,key),26,26).setDepth(94);
+        control.currencyIcon=fit(this.add.image(control.x,control.y,key),26,26).setDepth(94);
         box.add(control.currencyIcon);
+        layoutPrice(control);
       };
       if(this.textures.exists(key)){attach();return}
       this.load.once('filecomplete-image-'+key,attach);
@@ -573,34 +590,35 @@ function install(){
     };
 
     for(const [id,v,title,successText] of products){
-      const [x,y]=at(.795,v),w=panel.displayWidth*.25,h=panel.displayHeight*.082;
-      const [tx,ty]=at(.49,v);
+      const [x,y]=at(.77,v),w=panel.displayWidth*.25,h=panel.displayHeight*.09;
+      const [tx,ty]=at(.475,v);
       const productText=this.add.text(tx,ty,title,{
-        fontFamily:FONT,fontSize:'22px',fontStyle:'bold',color:'#674028',
-        align:'center',wordWrap:{width:panel.displayWidth*.30}
-      }).setOrigin(.5).setDepth(94);box.add(productText);
-      if(productText.height>panel.displayHeight*.075)productText.setFontSize(18);
+        fontFamily:FONT,fontSize:'24px',fontStyle:'bold',color:'#674028',
+        align:'center',wordWrap:{width:panel.displayWidth*.285}
+      }).setOrigin(.5).setLineSpacing(-2).setDepth(94);box.add(productText);
+      if(productText.width>panel.displayWidth*.285||productText.height>panel.displayHeight*.09)
+        productText.setFontSize(21);
 
-      const price=this.add.text(x+7,y,'',{
-        fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff7c9',
+      const price=this.add.text(x,y,'',{
+        fontFamily:FONT,fontSize:'24px',fontStyle:'bold',color:'#fff7c9',
         stroke:'#4e2b16',strokeThickness:4,align:'center'
       }).setOrigin(.5).setDepth(94);box.add(price);
 
       const hit=this.add.zone(x,y,w,h).setDepth(96);
       hit.on('pointerdown',async()=>{
         if(pending)return;
-        pending=true;this.fx?.click?.();status.setText('Открываем оплату…');
+        pending=true;this.fx?.click?.();setStatus('Открываем оплату…');
         controls.forEach(c=>c.hit.disableInteractive());
         const result=await window.BerriesYandex.purchaseProduct(id);
         if(result.ok){
-          this.fx?.reward?.();status.setText(successText);
+          this.fx?.reward?.();setStatus(successText);
           this.updateHud?.();this.refreshLifeDisplay?.();this.refreshBoosters?.();
         }else if(result.reason==='save_pending'){
-          status.setText('Покупка сохранена. Начисление завершится после восстановления сети');
+          setStatus('Покупка сохранена. Начисление завершится после восстановления сети');
         }else if(result.reason==='unavailable'){
-          status.setText('Покупки временно недоступны');
+          setStatus('Покупки временно недоступны');
         }else{
-          status.setText('Покупка отменена');
+          setStatus('Покупка отменена');
         }
         pending=false;
         controls.forEach(c=>{if(c.available)c.hit.setInteractive({useHandCursor:true})});
@@ -616,17 +634,17 @@ function install(){
         control.available=!!item;
         if(item){
           control.price.setText(item.price||'');
-          control.price.setFontSize(25);
-          if(control.price.width>116)control.price.setFontSize(Math.max(17,Math.floor(25*116/control.price.width)));
+          layoutPrice(control);
           setCurrencyIcon(control,item);
           control.hit.setInteractive({useHandCursor:true});
         }else{
           control.price.setText('—');
+          layoutPrice(control);
           control.hit.disableInteractive();
         }
       });
-      if(!catalog.length)status.setText('Покупки временно недоступны');
-    }).catch(()=>status.setText('Покупки временно недоступны'));
+      if(!catalog.length)setStatus('Покупки временно недоступны');
+    }).catch(()=>setStatus('Покупки временно недоступны'));
   };
 
   p.openShop=function(){
