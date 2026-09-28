@@ -39,28 +39,28 @@ jobs:
 
       - name: Build optimized Yandex archive
         env:
-          BERRIES_RELEASE_NAME: berries_yandex_v6.zip
+          BERRIES_RELEASE_NAME: berries_yandex_v9.zip
         run: |
           python scripts/build_release.py
 
       - name: Validate release policy
         run: |
           set -euo pipefail
-          test -f berries_yandex_v6.zip
+          test -f berries_yandex_v9.zip
           test -f berries_build_manifest.json
-          test "$(unzip -Z1 berries_yandex_v6.zip | grep -c '^index.html$')" -eq 1
-          ! unzip -Z1 berries_yandex_v6.zip | grep -E '(^|/)\.gitkeep$|^archive_unused/'
-          ! unzip -Z1 berries_yandex_v6.zip | grep -E 'music_event_adventureland|berry_pop\.mp3|characters/queen'
-          ! unzip -Z1 berries_yandex_v6.zip | grep -E 'panel_2\.png|panel_berries1\.png|panel_buttom[12]\.png|panel_progress\.png|panel_championat\.png|board_frame_forest\.png'
-          echo "ZIP bytes: $(stat -c%s berries_yandex_v6.zip)"
+          test "$(unzip -Z1 berries_yandex_v9.zip | grep -c '^index.html$')" -eq 1
+          ! unzip -Z1 berries_yandex_v9.zip | grep -E '(^|/)\.gitkeep$|^archive_unused/'
+          ! unzip -Z1 berries_yandex_v9.zip | grep -E 'music_event_adventureland|berry_pop\.mp3|characters/queen'
+          ! unzip -Z1 berries_yandex_v9.zip | grep -E 'panel_2\.png|panel_berries1\.png|panel_buttom[12]\.png|panel_progress\.png|panel_championat\.png|board_frame_forest\.png'
+          echo "ZIP bytes: $(stat -c%s berries_yandex_v9.zip)"
           cat berries_build_manifest.json
 
       - name: Upload release
         uses: actions/upload-artifact@v4
         with:
-          name: berries-yandex-v6
+          name: berries-yandex-v9
           path: |
-            berries_yandex_v6.zip
+            berries_yandex_v9.zip
             berries_build_manifest.json
           if-no-files-found: error
           retention-days: 30
