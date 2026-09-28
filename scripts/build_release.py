@@ -11,7 +11,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 RELEASE = ROOT / "release"
-OUTPUT = ROOT / os.environ.get("BERRIES_RELEASE_NAME", "berries_yandex_v6.zip")
+OUTPUT = ROOT / os.environ.get("BERRIES_RELEASE_NAME", "berries_yandex_v9.zip")
 MANIFEST = ROOT / "berries_build_manifest.json"
 
 RUNTIME_FILES = [
@@ -78,7 +78,13 @@ ASSET_FILES = [
     "assets/ui/panels/popup33.png",
     "assets/ui/popups/popup_level_lose.png",
     "assets/ui/popups/popup_level_win.png",
-    "assets/ui/popups/popup_shop_main.png",
+    "assets/ui/popups/popup_king_shop_ru.png",
+    "assets/ui/popups/popup_everyday.png",
+    "assets/ui/popups/gift_01.png",
+    "assets/ui/popups/gift_02.png",
+    "assets/ui/popups/gift_03.png",
+    "assets/ui/popups/gift_magik.png",
+    "assets/ui/popups/gift_magik2.png",
 ]
 
 AUDIO_COPY = [
@@ -117,7 +123,13 @@ PNG_MAX = {
     "assets/ui/panels/popup33.png": (1086, 1448),
     "assets/ui/popups/popup_level_lose.png": (1024, 1280),
     "assets/ui/popups/popup_level_win.png": (1024, 1280),
-    "assets/ui/popups/popup_shop_main.png": (1024, 1280),
+    "assets/ui/popups/popup_king_shop_ru.png": (900, 1145),
+    "assets/ui/popups/popup_everyday.png": (1660, 930),
+    "assets/ui/popups/gift_01.png": (384, 384),
+    "assets/ui/popups/gift_02.png": (384, 384),
+    "assets/ui/popups/gift_03.png": (384, 384),
+    "assets/ui/popups/gift_magik.png": (384, 384),
+    "assets/ui/popups/gift_magik2.png": (384, 384),
 }
 
 def run(*args):
