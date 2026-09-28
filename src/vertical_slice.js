@@ -25,6 +25,8 @@ function ensureDailyAssets(scene){
   window.__berriesDailyAssetsPromise=new Promise(resolve=>{
     let queued=0;
     const I=(k,p)=>{if(scene.textures.exists(k))return;scene.load.image(k,p+'?v='+ASSET_REV);queued++};
+    const A=(k,p)=>{if(scene.cache.audio.exists(k))return;scene.load.audio(k,p);queued++};
+    A('sfx_combo_glitter','audio/sfx/combo_glitter_chime.mp3');
     I('daily_popup','assets/ui/popups/popup_everyday.png');
     I('daily_chest_closed','assets/ui/popups/gift_01.png');
     I('daily_chest_lid','assets/ui/popups/gift_02.png');
@@ -210,6 +212,11 @@ class Sfx{
     if(!this.can('combo-glitter',260))return;
     if(this.sample('sfx_combo_glitter',.78))return;
     [1320,1640,1980].forEach((f,i)=>this.tone(f,.08,.010,'sine',150,i*.035));
+  }
+  chestOpen(){
+    if(!this.can('daily-chest-open',260))return;
+    if(this.sample('sfx_combo_glitter',.72))return;
+    this.reward();
   }
   rainbow(){
     if(!this.can('special-rainbow',420))return;
@@ -478,7 +485,8 @@ class Title extends Phaser.Scene{
         this.tweens.add({targets:sparks,alpha:1,scale:1,duration:260,ease:'Back.out',yoyo:true,hold:180});
         this.tweens.add({targets:reward,alpha:1,y:-180,duration:330,delay:170,ease:'Back.out'});
         this.tweens.add({targets:c,scale:1.08,duration:180,yoyo:true,ease:'Sine.inOut'});
-        this.fx.reward();
+        // Crystal/glitter chime is synced to the moment the lid starts opening.
+        this.fx.chestOpen();
         continueLabel.setText('ДАЛЬШЕ');
         continueHit.setInteractive({useHandCursor:true}).once('pointerdown',()=>{this.fx.click();goNext()});
       });
