@@ -36,6 +36,8 @@ jobs:
           node tests/campaign.cjs
           node tests/special-label-lifecycle.cjs
           node tests/rewarded-guard.cjs
+          node tests/sdk-language.cjs
+          node tests/purchases.cjs
 
       - name: Build optimized Yandex archive
         env:

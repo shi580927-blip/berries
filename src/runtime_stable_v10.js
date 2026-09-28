@@ -615,6 +615,8 @@ function install(){
           this.updateHud?.();this.refreshLifeDisplay?.();this.refreshBoosters?.();
         }else if(result.reason==='save_pending'){
           setStatus('Покупка сохранена. Начисление завершится после восстановления сети');
+        }else if(result.reason==='confirm_pending'){
+          setStatus('Награда начислена. Подтверждение завершится при следующем запуске');
         }else if(result.reason==='unavailable'){
           setStatus('Покупки временно недоступны');
         }else{

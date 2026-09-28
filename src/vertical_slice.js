@@ -337,6 +337,8 @@ window.BerriesMusicBus=MusicBus;
 class Boot extends Phaser.Scene{
   constructor(){super('Boot')}
   preload(){
+    // Detect the platform language while the boot screen is loading.
+    window.__berriesSdkReadyPromise??=window.BerriesYandex.languageReady();
     const t=this.add.text(W/2,H/2,'Запускаем…',{fontSize:'32px',color:'#fff7dc'}).setOrigin(.5);
     this.load.on('progress',v=>t.setText(`Запускаем… ${Math.round(v*100)}%`));
     const I=(k,p)=>this.load.image(k,p+'?v='+ASSET_REV);
@@ -345,12 +347,12 @@ class Boot extends Phaser.Scene{
     I('btn','assets/ui/buttons/button_wood.png');
   }
   create(){
-    // Start cloud/player restore immediately, but never keep the first visual screen hidden for it.
-    window.__berriesRestorePromise??=(async()=>{
-      await window.BerriesYandex.init();
-      return window.BerriesYandex.restoreCampaign();
-    })();
-    this.scene.start('Title');
+    // Keep the loading screen until SDK language detection completes.
+    // Cloud restore still runs in the background after the title appears.
+    window.__berriesSdkReadyPromise.then(()=>{
+      window.__berriesRestorePromise??=window.BerriesYandex.restoreCampaign();
+      if(this.scene.isActive())this.scene.start('Title');
+    });
   }
 }
 class Title extends Phaser.Scene{

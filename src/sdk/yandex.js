@@ -1,8 +1,11 @@
 (() => {
 'use strict';
 const REWARDED_COOLDOWN_MS=2*60*1000,REWARDED_AT_KEY='berries_rewarded_last_at';
-const state={ysdk:null,player:null,payments:null,ready:false,gameplayActive:false,initPromise:null,paymentsPromise:null,purchasePromise:null,cloudLoaded:false,adPromise:null,rewardedBlock:{reason:null,remainingMs:0}};
+const state={ysdk:null,player:null,payments:null,ready:false,gameplayActive:false,initPromise:null,paymentsPromise:null,purchasePromise:null,cloudLoaded:false,adPromise:null,rewardedBlock:{reason:null,remainingMs:0},language:{detected:null,supported:['ru'],current:'ru'}};
 let queued=null,saveTimer=null,saving=false;
+let languageReadyResolve;
+const languageReadyPromise=new Promise(resolve=>{languageReadyResolve=resolve});
+function languageReady(){init();return languageReadyPromise}
 function rewardedCooldownRemaining(){
  let last=0;try{last=Number(localStorage.getItem(REWARDED_AT_KEY)||0)}catch{}
  return Math.max(0,REWARDED_COOLDOWN_MS-(Date.now()-last));
@@ -28,14 +31,21 @@ function rewardedOfferEligible(){
 async function init(){
  if(state.initPromise)return state.initPromise;
  state.initPromise=(async()=>{
-  if(!window.YaGames?.init)return null;
+  if(!window.YaGames?.init){languageReadyResolve();return null}
   try{
    state.ysdk=await window.YaGames.init();
+   // Read the portal language during launch, before the first playable scene.
+   // The current release contains RU assets only; unsupported languages fall back to RU.
+   const detected=String(state.ysdk.environment?.i18n?.lang||'ru').toLowerCase().split('-')[0];
+   state.language.detected=detected;
+   state.language.current=state.language.supported.includes(detected)?detected:'ru';
+   if(document.documentElement)document.documentElement.lang=state.language.current;
+   languageReadyResolve();
    state.ysdk.on?.('game_api_pause',()=>window.BerriesLifecycle.set('platform',true));
    state.ysdk.on?.('game_api_resume',()=>window.BerriesLifecycle.set('platform',false));
    try{state.player=await state.ysdk.getPlayer()}catch(e){console.warn('[Yandex] local save mode',e)}
    return state.ysdk;
-  }catch(e){console.warn('[Yandex] standalone mode',e);return null}
+  }catch(e){languageReadyResolve();console.warn('[Yandex] standalone mode',e);return null}
  })();return state.initPromise;
 }
 async function loadingReady(){await init();if(state.ready)return;state.ready=true;(()=>{try{state.ysdk?.features?.LoadingAPI?.ready()}catch(e){console.warn(e)}})()}
@@ -79,7 +89,10 @@ async function creditPurchase(purchase){
  const productID=purchase?.productID,purchaseToken=purchase?.purchaseToken;
  const result=window.BerriesCampaign?.grantPurchase?.(productID,purchaseToken);if(!result?.ok)return {ok:false,reason:'unknown_product'};
  saveCloudData(window.BerriesCampaign.read());const saved=await flushCloud();if(!saved)return {ok:false,reason:'save_pending'};
- const payments=await getPayments();await payments.consumePurchase(purchaseToken);return {ok:true,duplicate:result.duplicate,productID};
+ const payments=await getPayments();
+ try{await payments.consumePurchase(purchaseToken)}
+ catch(e){console.warn('[Yandex] purchase confirmation queued for retry',e);return {ok:false,reason:'confirm_pending'}}
+ return {ok:true,duplicate:result.duplicate,productID};
 }
 async function restorePurchases(){
  const payments=await getPayments();if(!payments||!state.player)return [];
@@ -90,7 +103,7 @@ function purchaseProduct(productID){
  if(state.purchasePromise)return state.purchasePromise;
  state.purchasePromise=(async()=>{
   if(!window.BerriesCampaign?.ROYAL_PRODUCTS?.[productID])return {ok:false,reason:'unknown_product'};
-  const payments=await getPayments();if(!payments||!state.player)return {ok:false,reason:'unavailable'};
+  const payments=await getPayments();if(!payments||!state.player||!state.cloudLoaded)return {ok:false,reason:'unavailable'};
   window.BerriesLifecycle.set('purchase',true);await gameplayStop();
   try{const purchase=await payments.purchase({id:productID});return await creditPurchase(purchase)}
   catch(e){console.warn('[Yandex] purchase cancelled or failed',e);return {ok:false,reason:'cancelled'}}
@@ -124,8 +137,8 @@ function showRewardedVideo(){
 }
 document.addEventListener('visibilitychange',()=>{if(document.hidden)flushCloud()});
 window.addEventListener('pagehide',flushCloud);
-window.BerriesYandex={init,loadingReady,gameplayStart,gameplayStop,restoreCampaign,saveCloudData,flushCloud,showRewardedVideo,getPurchaseCatalog,purchaseProduct,restorePurchases,rewardedCooldownRemaining,rewardedCooldownLabel,rewardedOfferEligible,REWARDED_COOLDOWN_MS,
+window.BerriesYandex={init,languageReady,loadingReady,gameplayStart,gameplayStop,restoreCampaign,saveCloudData,flushCloud,showRewardedVideo,getPurchaseCatalog,purchaseProduct,restorePurchases,rewardedCooldownRemaining,rewardedCooldownLabel,rewardedOfferEligible,REWARDED_COOLDOWN_MS,
  get rewardedBlock(){const remaining=rewardedCooldownRemaining();return remaining>0?{reason:'cooldown',remainingMs:remaining}:{...state.rewardedBlock,remainingMs:0}},
- get language(){const detected=state.ysdk?.environment?.i18n?.lang||navigator.language||'ru';return {detected,supported:['ru'],current:'ru'}},
+ get language(){return {...state.language,supported:[...state.language.supported]}},
  get sdk(){return state.ysdk},get player(){return state.player}};
 })();
