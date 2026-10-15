@@ -743,6 +743,13 @@ function install(){
     if(label)this.boosterHint.setText(label);
   };
 
+  const juiceBaseRender=p.render;
+  p.render=function(...args){
+    const result=juiceBaseRender.apply(this,args),[r,c]=args;
+    if(this.board[r]?.[c]?.sp)window.BerriesJuice.get(this).aura(this.spr[r]?.[c]);
+    return result;
+  };
+
   // Cosmetic objects only. No tween below owns a berry sprite or gates a move.
   p.fxAllow=function(key,gap=180){
     this._fxTimes??={};const now=this.time.now;
@@ -863,6 +870,7 @@ function install(){
   };
   p.specialCreateFx=function(cell){
     const q=this.pos(cell.r,cell.c);
+    window.BerriesJuice.get(this).glow(q.x,q.y,0xffd86c,190);
     this.fxWave(q.x,q.y,0xffdf6a,88);
     this.fxBits(q.x,q.y,[0xffed9c,0xffffff,0xffa851],18,110);
     this.music?.duck?.(180,.72);
@@ -870,43 +878,18 @@ function install(){
   };
   p.lineFx=function(r,c,dir){
     if(!this.fxAllow('line-'+dir+'-'+(dir==='h'?r:c),180))return;
-    const q=this.pos(r,c),horizontal=dir==='h';
-    const x=horizontal?BX+C*CELL/2:q.x,y=horizontal?q.y:BY+R*CELL/2;
-    [38,15,5].forEach((thickness,i)=>{
-      const beam=this.add.rectangle(x,y,horizontal?C*CELL:thickness,horizontal?thickness:R*CELL,i===2?0xffffff:0xffdf76,i===0?.22:.9).setDepth(13+i);
-      beam.setScale(horizontal?.05:1,horizontal?1:.05);
-      this.fxTween(beam,{scaleX:1,scaleY:1,alpha:0,duration:330+i*65,ease:'Expo.out'});
-    });
-    for(let i=0;i<8;i++){
-      const at=this.pos(horizontal?r:i,horizontal?i:c);
-      this.fxBits(at.x,at.y,[0xffee9f,0xffffff],4,52);
-    }
+    const q=this.pos(r,c),h=dir==='h';
+    window.BerriesJuice.get(this).line(h?{x:BX,y:q.y}:{x:q.x,y:BY},h?{x:BX+C*CELL,y:q.y}:{x:q.x,y:BY+R*CELL});
   };
   p.bombFx=function(r,c){
-    if(!this.fxAllow('bomb-'+r+'-'+c,220))return;
-    const q=this.pos(r,c);
-    this.fxWave(q.x,q.y,0xffd268,CELL*1.5);
-    this.fxWave(q.x,q.y,0xff7697,CELL*1.25);
-    this.fxBits(q.x,q.y,[0xffc45e,0xfff7be,0xff7c99],28,CELL*1.7);
-    const colors=[0xf4a0c9,0xb8a5ef,0x8fd9d2,0xffcb94];
-    for(let i=0;i<8;i++){
-      const angle=i*Math.PI/4;
-      const cloud=this.add.graphics().setPosition(q.x,q.y).setDepth(12);
-      cloud.fillStyle(colors[i%colors.length],.34);
-      cloud.fillCircle(-15,0,20);cloud.fillCircle(6,-10,25);cloud.fillCircle(23,6,18);cloud.fillCircle(3,13,20);
-      cloud.setScale(.35);
-      this.fxTween(cloud,{x:q.x+Math.cos(angle)*110,y:q.y+Math.sin(angle)*95-30,scale:1.35,alpha:0,angle:(i%2?1:-1)*25,duration:950+i*45,ease:'Cubic.out'});
-    }
-    const flash=this.add.circle(q.x,q.y,42,0xfff0b0,.5).setDepth(13);
-    this.fxTween(flash,{scale:2.2,alpha:0,duration:190,ease:'Quad.out'});
+    if(this.fxAllow('bomb-'+r+'-'+c,220)){const q=this.pos(r,c);window.BerriesJuice.get(this).bomb(q.x,q.y)}
   };
   p.rainbowFx=function(){
     if(!this.fxAllow('rainbow',650))return;
-    const x=BX+C*CELL/2,y=BY+R*CELL/2,colors=[0xff719c,0xffd56b,0x81edb0,0x72d8ff,0xc78aff];
-    colors.forEach((color,i)=>{
-      this.fxWave(x,y,color,170+i*42);
-      this.fxBits(x,y,[color,0xffffff],9,180+i*30);
-    });
+    const targets=[];for(let r=0;r<R;r++)for(let c=0;c<C;c++)if(this.board[r][c])targets.push(this.pos(r,c));
+    // Even distribution across the board; presentation does not select cleared cells.
+    const sample=targets.filter((_,i)=>i%Math.max(1,Math.floor(targets.length/10))===0);
+    window.BerriesJuice.get(this).rainbow({x:BX+C*CELL/2,y:BY+R*CELL/2},sample);
     this.music?.accent('combo');this.fx.rainbow();this.kingReact('celebrate',900);
   };
   const baseResultPopup=p.resultPopup;
@@ -914,6 +897,7 @@ function install(){
     const result=baseResultPopup.call(this,win,...args);
     if(win){
       this.music?.accent('victory');
+      window.BerriesJuice.get(this).coins(W/2,H*.45);
       // Confetti stays behind popup controls; never captures input.
       [[W/2-420,H/2],[W/2+420,H/2]].forEach(([x,y])=>{
         this.fxBits(x,y,[0xffd35f,0xff79a6,0x7de4c5,0xffffff],36,280,30);

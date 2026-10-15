@@ -24,6 +24,7 @@ RUNTIME_FILES = [
     "src/campaign.js",
     "src/vertical_slice.js",
     "src/runtime_stable_v10.js",
+    "src/vfx/juice.js",
     "src/sdk/yandex.js",
 ]
 
