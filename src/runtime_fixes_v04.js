@@ -29,7 +29,7 @@
 
   function saveData(data) {
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-    window.BerriesYandex?.saveCloudData?.(data, false);
+    window.BerriesPlatform?.saveProgress?.(data, false);
   }
 
   function getPlayPrototype() {
@@ -208,7 +208,7 @@
           if (this.winRewardDoubled) return;
           ad.im.disableInteractive().setAlpha(.55);
           ad.tx.setText('ЗАГРУЗКА…');
-          const ok = await window.BerriesYandex?.showRewardedVideo?.();
+          const ok = await window.BerriesPlatform?.showRewardedVideo?.();
           if (ok) {
             const sv = loadSave();
             sv.coins = (sv.coins || 0) + baseReward;
@@ -234,7 +234,7 @@
           if (this.continueUsed) return;
           ad.im.disableInteractive().setAlpha(.55);
           ad.tx.setText('ЗАГРУЗКА…');
-          const ok = await window.BerriesYandex?.showRewardedVideo?.();
+          const ok = await window.BerriesPlatform?.showRewardedVideo?.();
           if (ok) {
             this.continueUsed = true;
             this.moves += 5;
@@ -243,7 +243,7 @@
             box.destroy();
             this.busy = false;
             window.__berriesGameplayShouldRun = true;
-            window.BerriesYandex?.gameplayStart?.();
+            window.BerriesPlatform?.gameplayStart?.();
             this.kingAnim('idle');
             this.updateHud();
             this.scheduleHint();

@@ -14,7 +14,7 @@ const LV=Campaign.LEVELS;
 const pause=ms=>window.BerriesLifecycle.wait(ms);
 const inBounds=(r,c)=>r>=0&&r<R&&c>=0&&c<C;
 function loadSave(){return Campaign.read()}
-function saveLocal(data){localStorage.setItem(KEY,JSON.stringify(data));window.BerriesYandex?.saveCloudData?.(data,false)}
+function saveLocal(data){localStorage.setItem(KEY,JSON.stringify(data));window.BerriesPlatform?.saveProgress?.(data,false)}
 function fit(img,maxW,maxH){const s=Math.min(maxW/img.width,maxH/img.height);img.setScale(s);return img}
 
 // Fast boot: only the title artwork is blocking. Everything needed after the title
@@ -338,7 +338,7 @@ class Boot extends Phaser.Scene{
   constructor(){super('Boot')}
   preload(){
     // Detect the platform language while the boot screen is loading.
-    window.__berriesSdkReadyPromise??=window.BerriesYandex.languageReady();
+    window.__berriesPlatformReadyPromise??=window.BerriesPlatform.languageReady();
     const t=this.add.text(W/2,H/2,'Запускаем…',{fontSize:'32px',color:'#fff7dc'}).setOrigin(.5);
     this.load.on('progress',v=>t.setText(`Запускаем… ${Math.round(v*100)}%`));
     const I=(k,p)=>this.load.image(k,p+'?v='+ASSET_REV);
@@ -347,10 +347,10 @@ class Boot extends Phaser.Scene{
     I('btn','assets/ui/buttons/button_wood.png');
   }
   create(){
-    // Keep the loading screen until SDK language detection completes.
+    // Keep the loading screen until platform language detection completes.
     // Cloud restore still runs in the background after the title appears.
-    window.__berriesSdkReadyPromise.then(()=>{
-      window.__berriesRestorePromise??=window.BerriesYandex.restoreCampaign();
+    window.__berriesPlatformReadyPromise.then(()=>{
+      window.__berriesRestorePromise??=window.BerriesPlatform.restoreProgress();
       if(this.scene.isActive())this.scene.start('Title');
     });
   }
@@ -359,7 +359,7 @@ class Title extends Phaser.Scene{
   constructor(){super('Title')}
   create(){
     window.__berriesGameplayShouldRun=false;
-    window.BerriesYandex?.gameplayStop?.();
+    window.BerriesPlatform?.gameplayStop?.();
     this.fx=new Sfx(this);
     this.add.image(W/2,H/2,'title').setDisplaySize(W,H);
     fit(this.add.image(W/2,345,'logo'),820,560);
@@ -408,7 +408,7 @@ class Title extends Phaser.Scene{
       await transition.finish();
       this.scene.start('Map');
     });
-    window.BerriesYandex.loadingReady();
+    window.BerriesPlatform.loadingReady();
 
     this.add.rectangle(W/2,974,1110,128,0x3a2417,.68).setStrokeStyle(3,0xe8c77d,.75);
     this.add.text(W/2,974,'Меняй соседние ягоды местами и собирай от трёх в ряд.\nВыполняй цели слева, пока не закончатся ходы.',{
@@ -565,7 +565,7 @@ class Title extends Phaser.Scene{
           continueHit.setInteractive({useHandCursor:true}).once('pointerdown',goNext);
           return;
         }
-        window.BerriesYandex?.flushCloud?.();
+        window.BerriesPlatform?.flushProgress?.();
 
         // Result state: only the chosen chest remains. Others melt away.
         chests.forEach((item,j)=>{
@@ -629,7 +629,7 @@ class Title extends Phaser.Scene{
 }
 class Map extends Phaser.Scene{
   constructor(){super('Map')}
-  create(){window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();this.fx=new Sfx(this);this.add.image(W/2,H/2,'mapbg').setDisplaySize(W,H);this.add.text(W/2,75,'ЛЕСНОЕ КОРОЛЕВСТВО',{fontSize:'44px',fontStyle:'bold',color:'#fff1b0',stroke:'#542b15',strokeThickness:8}).setOrigin(.5);const sv=loadSave(),done=new Set(sv.done||[]),a=[{n:1,x:360,y:760},{n:6,x:610,y:610},{n:11,x:860,y:735},{n:16,x:1110,y:545},{n:21,x:1370,y:670},{n:30,x:1580,y:410}];a.forEach(({n,x,y},i)=>{const unlocked=i===0||done.has(a[i-1]?.n),k=done.has(n)?'lvl_completed':(unlocked?'lvl_current':'lvl_locked'),im=fit(this.add.image(x,y,k),150,150);if(unlocked)im.setInteractive({useHandCursor:true}).on('pointerdown',()=>{this.fx.click();this.scene.start('Play',{n})});this.add.text(x,y,String(n),{fontSize:'42px',fontStyle:'bold',color:unlocked?'#fff4ca':'#b9a98d',stroke:'#5b2c14',strokeThickness:7}).setOrigin(.5);this.tweens.add({targets:im,y:y-8,duration:1400+i*90,yoyo:true,repeat:-1,ease:'Sine.inOut'})});const k=fit(this.add.image(1660,815,'king_point'),330,330);this.tweens.add({targets:k,y:800,angle:{from:-2,to:2},duration:1250,yoyo:true,repeat:-1,ease:'Sine.inOut'})}
+  create(){window.__berriesGameplayShouldRun=false;window.BerriesPlatform?.gameplayStop?.();this.fx=new Sfx(this);this.add.image(W/2,H/2,'mapbg').setDisplaySize(W,H);this.add.text(W/2,75,'ЛЕСНОЕ КОРОЛЕВСТВО',{fontSize:'44px',fontStyle:'bold',color:'#fff1b0',stroke:'#542b15',strokeThickness:8}).setOrigin(.5);const sv=loadSave(),done=new Set(sv.done||[]),a=[{n:1,x:360,y:760},{n:6,x:610,y:610},{n:11,x:860,y:735},{n:16,x:1110,y:545},{n:21,x:1370,y:670},{n:30,x:1580,y:410}];a.forEach(({n,x,y},i)=>{const unlocked=i===0||done.has(a[i-1]?.n),k=done.has(n)?'lvl_completed':(unlocked?'lvl_current':'lvl_locked'),im=fit(this.add.image(x,y,k),150,150);if(unlocked)im.setInteractive({useHandCursor:true}).on('pointerdown',()=>{this.fx.click();this.scene.start('Play',{n})});this.add.text(x,y,String(n),{fontSize:'42px',fontStyle:'bold',color:unlocked?'#fff4ca':'#b9a98d',stroke:'#5b2c14',strokeThickness:7}).setOrigin(.5);this.tweens.add({targets:im,y:y-8,duration:1400+i*90,yoyo:true,repeat:-1,ease:'Sine.inOut'})});const k=fit(this.add.image(1660,815,'king_point'),330,330);this.tweens.add({targets:k,y:800,angle:{from:-2,to:2},duration:1250,yoyo:true,repeat:-1,ease:'Sine.inOut'})}
 }
 
 class Play extends Phaser.Scene{
@@ -640,13 +640,13 @@ class Play extends Phaser.Scene{
     if(!this.attemptId){this.scene.start('Map');return false}
     const attemptId=this.attemptId;this.events.once('shutdown',()=>Campaign.abandon(attemptId));
     this.winRewardDoubled=false;
-    window.__berriesGameplayShouldRun=true;window.BerriesYandex?.gameplayStart?.();this.fx=new Sfx(this);this.music=new MusicBus(this);
+    window.__berriesGameplayShouldRun=true;window.BerriesPlatform?.gameplayStart?.();this.fx=new Sfx(this);this.music=new MusicBus(this);
     this.moves=this.cfg.m;this.score=0;this.busy=false;this.sel=null;this.last=null;this.boosterMode=null;this.continueUsed=false;this.hintTimer=null;this.hintObjs=[];
     this.goals=this.cfg.g.map(x=>({type:x[0],id:x[1],need:x[2],done:0}));this.inventory=Campaign.read().inventory;this.board=Array.from({length:R},()=>Array(C).fill(null));this.cell=Array.from({length:R},()=>Array.from({length:C},()=>({ice:0,block:null,over:null})));this.spr=Array.from({length:R},()=>Array(C).fill(null));
     this.add.image(W/2,H/2,'gamebg').setDisplaySize(W,H);this.add.rectangle(W/2,H/2,W,H,0x06140a,.08);this.hud();this.cfg.ice.forEach(([r,c,h])=>this.cell[r][c].ice=h);this.cfg.ac.forEach(([r,c])=>this.cell[r][c].block='acorn');this.cfg.root.forEach(([r,c])=>this.cell[r][c].block='roots');this.seed();this.drawAll(true);this.updateHud();this.kingAnim('idle');this.scheduleHint();
   }
   hud(){
-    fit(this.add.image(W/2,64,'plevel'),560,125);this.add.text(W/2,64,`УРОВЕНЬ ${this.no}`,{fontSize:'44px',fontStyle:'bold',color:'#ffeeb0',stroke:'#622f17',strokeThickness:8}).setOrigin(.5);this.add.text(115,64,'←',{fontSize:'58px',fontStyle:'bold',color:'#fff5c7',stroke:'#4f2a15',strokeThickness:7}).setOrigin(.5).setInteractive({useHandCursor:true}).on('pointerdown',()=>{this.fx.click();window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});this.mt=this.add.text(1510,64,'',{fontSize:'34px',fontStyle:'bold',color:'#fff5cb',stroke:'#4e2b16',strokeThickness:6}).setOrigin(.5);this.st=this.add.text(1720,64,'',{fontSize:'26px',color:'#fff5cb',stroke:'#4e2b16',strokeThickness:5}).setOrigin(.5);
+    fit(this.add.image(W/2,64,'plevel'),560,125);this.add.text(W/2,64,`УРОВЕНЬ ${this.no}`,{fontSize:'44px',fontStyle:'bold',color:'#ffeeb0',stroke:'#622f17',strokeThickness:8}).setOrigin(.5);this.add.text(115,64,'←',{fontSize:'58px',fontStyle:'bold',color:'#fff5c7',stroke:'#4f2a15',strokeThickness:7}).setOrigin(.5).setInteractive({useHandCursor:true}).on('pointerdown',()=>{this.fx.click();window.BerriesPlatform?.gameplayStop?.();this.scene.start('Map')});this.mt=this.add.text(1510,64,'',{fontSize:'34px',fontStyle:'bold',color:'#fff5cb',stroke:'#4e2b16',strokeThickness:6}).setOrigin(.5);this.st=this.add.text(1720,64,'',{fontSize:'26px',color:'#fff5cb',stroke:'#4e2b16',strokeThickness:5}).setOrigin(.5);
     fit(this.add.image(285,410,'pgoals'),430,570);this.add.text(285,205,'ЦЕЛИ',{fontSize:'38px',fontStyle:'bold',color:'#ffeaae',stroke:'#613117',strokeThickness:7}).setOrigin(.5);this.gt=this.goals.map((g,i)=>this.add.text(285,300+i*105,'',{fontSize:'27px',fontStyle:'bold',align:'center',color:'#4a3826',stroke:'#fff2cf',strokeThickness:2,wordWrap:{width:320}}).setOrigin(.5));
     fit(this.add.image(1640,365,'pboost'),375,445);this.add.text(1640,205,'БУСТЕРЫ',{fontSize:'30px',fontStyle:'bold',color:'#ffeaae',stroke:'#613117',strokeThickness:6}).setOrigin(.5);this.boosterButtons={};[['hammer',1540,320],['shuffle',1640,320],['fan',1740,320]].forEach(([id,x,y])=>{const im=fit(this.add.image(x,y,id),88,88).setInteractive({useHandCursor:true}),tx=this.add.text(x,y+68,'',{fontSize:'22px',fontStyle:'bold',color:'#fff6d0',stroke:'#4b2915',strokeThickness:4}).setOrigin(.5);im.on('pointerdown',()=>this.pickBooster(id));this.boosterButtons[id]={im,tx}});this.boosterHint=this.add.text(1640,455,'',{fontSize:'20px',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:300}}).setOrigin(.5);
     this.king=fit(this.add.image(1650,750,'king_idle'),330,330);this.kingBaseY=750;this.kingBaseScale=this.king.scaleX;
@@ -760,8 +760,8 @@ class Play extends Phaser.Scene{
     }
     this._kingReturnTimer=this.time.delayedCall(ms,()=>{if(this.scene?.isActive?.())this.kingAnim('idle')});
   }
-  async win(){if(this.busy)return;this.busy=true;clearTimeout(this.hintTimer);window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();this.kingAnim('celebrate');this.fx.win();Campaign.win(this.attemptId);this.updateHud();this.resultPopup(true,Campaign.read())}
-  async lose(){if(this.busy)return;this.busy=true;clearTimeout(this.hintTimer);window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();Campaign.lose(this.attemptId);this.updateHud();this.kingAnim('sad');this.fx.lose();this.resultPopup(false,Campaign.read())}
+  async win(){if(this.busy)return;this.busy=true;clearTimeout(this.hintTimer);window.__berriesGameplayShouldRun=false;window.BerriesPlatform?.gameplayStop?.();this.kingAnim('celebrate');this.fx.win();Campaign.win(this.attemptId);this.updateHud();this.resultPopup(true,Campaign.read())}
+  async lose(){if(this.busy)return;this.busy=true;clearTimeout(this.hintTimer);window.__berriesGameplayShouldRun=false;window.BerriesPlatform?.gameplayStop?.();Campaign.lose(this.attemptId);this.updateHud();this.kingAnim('sad');this.fx.lose();this.resultPopup(false,Campaign.read())}
 
 }
 

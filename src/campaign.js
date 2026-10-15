@@ -122,5 +122,5 @@ return {read,restore,unlocked,begin,abandon,lose,resume,win,doubleReward,consume
 }
 const api={KEY,LEVELS,PRICES,ROYAL_PRODUCTS,DAILY_REWARDS,create,REGEN_MS,DAY_MS};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
-else root.BerriesCampaign={...api,...create(root.localStorage,Date.now,s=>root.BerriesYandex?.saveCloudData?.(s,false))};
+else root.BerriesCampaign={...api,...create(root.localStorage,Date.now,s=>root.BerriesPlatform?.saveProgress?.(s,false))};
 })(typeof window!=='undefined'?window:this);

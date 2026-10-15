@@ -14,8 +14,8 @@ const api={
   for(const scene of scenes)apply(scene,api.paused);
   const ctx=window.__berriesGame?.sound?.context;
   if(api.paused)ctx?.suspend?.().catch(()=>{});else ctx?.resume?.().catch(()=>{});
-  if(api.paused)window.BerriesYandex?.gameplayStop?.();
-  else if(window.__berriesGameplayShouldRun)window.BerriesYandex?.gameplayStart?.();
+  if(api.paused)window.BerriesPlatform?.gameplayStop?.();
+  else if(window.__berriesGameplayShouldRun)window.BerriesPlatform?.gameplayStart?.();
  },
  wait(ms){return new Promise(resolve=>{
   let left=ms,last=performance.now();

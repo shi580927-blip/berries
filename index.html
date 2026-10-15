@@ -8,8 +8,6 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="assets/map-digits.css" />
   <script>window.berriesDigitsReady=document.fonts.load('700 32px BerriesDigits','0123456789').catch(()=>[]);</script>
-  <!-- На Яндекс Играх /sdk.js доступен платформой. В standalone может вернуть 404 — игра продолжит работу. -->
-  <script src="/sdk.js"></script>
   <script src="vendor/phaser.min.js"></script>
 </head>
 <body>
@@ -18,7 +16,8 @@
     <div id="rotate-hint" role="status">Поверните устройство горизонтально 🌿</div>
   </main>
   <script src="src/lifecycle.js"></script>
-  <script src="src/sdk/yandex.js?v=mvp-20260928-sdk-purchases1"></script>
+  <script src="src/platform/platform.js?v=base-20261015"></script>
+  <script src="src/platform/local.js?v=base-20261015"></script>
   <script src="src/campaign.js?v=mvp-20260928-daily4"></script>
 <script src="src/vertical_slice.js?v=mvp-20260928-sdk-lang1"></script>
 <script src="src/runtime_stable_v10.js?v=mvp-20260928-shop-purchases1"></script>

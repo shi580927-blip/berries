@@ -11,7 +11,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 RELEASE = Path(os.environ.get("BERRIES_RELEASE_DIR", ROOT / "release"))
-OUTPUT = ROOT / os.environ.get("BERRIES_RELEASE_NAME", "berries_yandex_v9.zip")
+OUTPUT = ROOT / os.environ.get("BERRIES_RELEASE_NAME", "berries_base.zip")
 MANIFEST = ROOT / "berries_build_manifest.json"
 
 RUNTIME_FILES = [
@@ -24,7 +24,8 @@ RUNTIME_FILES = [
     "src/campaign.js",
     "src/vertical_slice.js",
     "src/runtime_stable_v10.js",
-    "src/sdk/yandex.js",
+    "src/platform/platform.js",
+    "src/platform/local.js",
 ]
 
 ASSET_FILES = [

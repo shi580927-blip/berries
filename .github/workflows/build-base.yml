@@ -1,8 +1,8 @@
-name: Build Yandex release
+name: Build SDK-free base
 
 on:
   push:
-    branches: [ main ]
+    branches: [ base ]
     paths:
       - 'index.html'
       - 'styles.css'
@@ -11,7 +11,7 @@ on:
       - 'audio/**'
       - 'scripts/build_release.py'
       - 'tests/**'
-      - '.github/workflows/build-yandex.yml'
+      - '.github/workflows/build-base.yml'
   workflow_dispatch:
 
 permissions:
@@ -35,34 +35,32 @@ jobs:
         run: |
           node tests/campaign.cjs
           node tests/special-label-lifecycle.cjs
-          node tests/rewarded-guard.cjs
-          node tests/sdk-language.cjs
-          node tests/purchases.cjs
+          node tests/platform.cjs
 
-      - name: Build optimized Yandex archive
+      - name: Build optimized base archive
         env:
-          BERRIES_RELEASE_NAME: berries_yandex_v9.zip
+          BERRIES_RELEASE_NAME: berries_base.zip
         run: |
           python scripts/build_release.py
 
       - name: Validate release policy
         run: |
           set -euo pipefail
-          test -f berries_yandex_v9.zip
+          test -f berries_base.zip
           test -f berries_build_manifest.json
-          test "$(unzip -Z1 berries_yandex_v9.zip | grep -c '^index.html$')" -eq 1
-          ! unzip -Z1 berries_yandex_v9.zip | grep -E '(^|/)\.gitkeep$|^archive_unused/'
-          ! unzip -Z1 berries_yandex_v9.zip | grep -E 'music_event_adventureland|berry_pop\.mp3|characters/queen'
-          ! unzip -Z1 berries_yandex_v9.zip | grep -E 'panel_2\.png|panel_berries1\.png|panel_buttom[12]\.png|panel_progress\.png|panel_championat\.png|board_frame_forest\.png'
-          echo "ZIP bytes: $(stat -c%s berries_yandex_v9.zip)"
+          test "$(unzip -Z1 berries_base.zip | grep -c '^index.html$')" -eq 1
+          ! unzip -Z1 berries_base.zip | grep -E '(^|/)\.gitkeep$|^archive_unused/'
+          ! unzip -Z1 berries_base.zip | grep -E 'music_event_adventureland|berry_pop\.mp3|characters/queen'
+          ! unzip -Z1 berries_base.zip | grep -E 'panel_2\.png|panel_berries1\.png|panel_buttom[12]\.png|panel_progress\.png|panel_championat\.png|board_frame_forest\.png'
+          echo "ZIP bytes: $(stat -c%s berries_base.zip)"
           cat berries_build_manifest.json
 
       - name: Upload release
         uses: actions/upload-artifact@v4
         with:
-          name: berries-yandex-v9
+          name: berries-base
           path: |
-            berries_yandex_v9.zip
+            berries_base.zip
             berries_build_manifest.json
           if-no-files-found: error
           retention-days: 30

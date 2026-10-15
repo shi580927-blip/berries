@@ -1,40 +1,37 @@
-# Безумные ягодки: Лесное королевство
+# Безумные ягодки — общая база без SDK
 
-Playable vertical slice на Phaser 3.
+Актуальная основа для следующих платформенных версий: ветка `base`.
+Исходник: сохранённая альфа `3b55807f81350e1b4eb57f725c03daca4691ca47`.
+Экспериментальная бета отклонена и в эту базу не входит.
 
-## Что уже работает
-- landscape 16:9, FIT + CENTER_BOTH;
-- заставка и тестовая карта;
-- уровни 1 / 6 / 11 / 16 / 21 / 30;
-- базовый swap/match-3;
-- каскады и refill;
-- 4-match → line special;
-- 5-match → rainbow special;
-- лёд, жёлуди и корни;
-- цели, ходы и счёт;
-- win/lose;
-- локальное сохранение пройденных test-levels;
-- программные tween-анимации;
-- временный procedural ASMR-SFX слой через WebAudio.
+Игра: Phaser 3, 30 уровней, локальные сохранения, ежедневные сундуки, жизни и магазин бустеров за игровые монеты. Визуал и геометрия интерфейса взяты из альфы.
 
 ## Запуск
-Это статический проект. Нужен HTTP-сервер (не открывать `index.html` напрямую через `file://`).
 
-Например:
+Запускать корень через HTTP, например `python -m http.server 8080`.
+Игра не загружает `/sdk.js` или сторонние SDK. Внешняя реклама и реальные покупки недоступны, награды за них не имитируются.
+
+## Архитектура
+
+- `src/platform/platform.js`: единый интерфейс `window.BerriesPlatform`, registry адаптеров, язык, общая защита rewarded, паузы.
+- `src/platform/local.js`: текущий локальный адаптер без SDK и сетевых запросов.
+- `src/campaign.js`: независимая экономика и прогресс; исходный формат localStorage сохранён.
+- `src/lifecycle.js`: общая пауза, звук и восстановление.
+- `src/vertical_slice.js`, `src/runtime_stable_v10.js`: сцены и стабильное ядро альфы.
+- `docs/PLATFORM_BASE.md`: контракт и порядок подключения платформ.
+
+Яндекс-адаптер и его тесты сохранены в исходной ветке `alpha`, из `base` исключены. Основная ветка `main` и замороженная `alpha` не подменялись этой версией. Старые документы описывают историю альфы; для этой ветки приоритет у README и PLATFORM_BASE.md.
+
+## Проверки и сборка
+
 ```bash
-python -m http.server 8080
+node tests/platform.cjs
+node tests/campaign.cjs
+node tests/special-label-lifecycle.cjs
+python scripts/build_release.py
 ```
-После этого открыть `http://localhost:8080`.
 
-Для GitHub Pages можно публиковать корень ветки `main`.
+Результат: `berries_base.zip`; CI: `.github/workflows/build-base.yml`.
+В ZIP нет платформенных SDK и экспериментальных эффектов. Отдельные платформенные адаптеры пока не реализованы.
 
-## Следующий проход
-- Yandex Games SDK: loading/gameplay/rewarded/save;
-- внешний лицензированный SFX-пак из `docs/LICENSES_AUDIO.md`;
-- музыка Kevin MacLeod / Pixabay после помещения файлов в `audio/music`;
-- bomb/T-L и комбинации specials;
-- boosters;
-- production popups и адаптивный HUD;
-- проверка mobile landscape.
-
-Документация: `PROJECT_STATE.md`, `docs/GAME_DESIGN.md`, `docs/AUDIO_ANIMATION_SPEC.md`, `docs/LICENSES_AUDIO.md`.
+GitHub Pages продолжает использовать прежнюю настройку репозитория. Публикация на Sites в эту задачу не входит.

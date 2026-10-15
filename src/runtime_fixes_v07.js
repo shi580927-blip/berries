@@ -134,7 +134,7 @@
         this.children.list.filter(o=>o.type==='Text'&&o.text==='←').forEach(o=>o.setVisible(false));
 
         const back=fit(this.add.image(92,66,'ui_back'),62,62).setDepth(20).setInteractive({useHandCursor:true});
-        back.on('pointerdown',()=>{this.fx.click();window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
+        back.on('pointerdown',()=>{this.fx.click();window.BerriesPlatform?.gameplayStop?.();this.scene.start('Map')});
 
         fit(this.add.image(1285,64,'ui_life'),50,50).setDepth(20);
         this.add.text(1320,64,'5',{fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff3c4',stroke:'#5a2e18',strokeThickness:4}).setOrigin(.5).setDepth(20);

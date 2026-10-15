@@ -408,7 +408,7 @@ function install(){
     this.add.zone(lifePanel.x+lifePanel.displayWidth*.39,lifePanel.y,lifePanel.displayWidth*.22,lifePanel.displayHeight*.9).setDepth(21).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openPaidShop());
     wood(300,180,300,88);this.mt=label(300,180,'',29);
     this.st=null;
-    backOnly(72,74,()=>{window.BerriesYandex?.gameplayStop?.();this.scene.start('Map')});
+    backOnly(72,74,()=>{window.BerriesPlatform?.gameplayStop?.();this.scene.start('Map')});
     const shopButton=fit(this.add.image(1285,1016,'shop_plaque_new'),370,96).setDepth(17).setInteractive({useHandCursor:true});
     label(1325,1016,'МАГАЗИН',28);shopButton.on('pointerdown',()=>{this.fx.click();this.openShop()});
 
@@ -609,7 +609,7 @@ function install(){
         if(pending)return;
         pending=true;this.fx?.click?.();setStatus('Открываем оплату…');
         controls.forEach(c=>c.hit.disableInteractive());
-        const result=await window.BerriesYandex.purchaseProduct(id);
+        const result=await window.BerriesPlatform.purchaseProduct(id);
         if(result.ok){
           this.fx?.reward?.();setStatus(successText);
           this.updateHud?.();this.refreshLifeDisplay?.();this.refreshBoosters?.();
@@ -629,7 +629,8 @@ function install(){
       box.add(hit);
     }
 
-    window.BerriesYandex.getPurchaseCatalog().then(catalog=>{
+    if(!window.BerriesPlatform.capabilities.purchases)setStatus('Покупки недоступны в этой версии');
+    window.BerriesPlatform.getPurchaseCatalog().then(catalog=>{
       const byId=new Map(catalog.map(item=>[item.id,item]));
       controls.forEach(control=>{
         const item=byId.get(control.id);
@@ -699,34 +700,36 @@ function install(){
     };
     hit(win?.891:.918,win?.172:.237,.14,.115,()=>this.scene.start('Map'));
     if(win){
-      hit(.5,.737,.74,.16,async area=>{
+      const doubleAd=hit(.5,.737,.74,.16,async area=>{
         if(this.winRewardDoubled)return;
         const attempt=this.attemptId;
         area.disableInteractive();
-        const ok=await window.BerriesYandex?.showRewardedVideo?.();
+        const ok=await window.BerriesPlatform?.showRewardedVideo?.();
         if(!this.scene.isActive()||this.attemptId!==attempt)return;
         if(ok&&Campaign.doubleReward(attempt)){
           this.updateHud();
           this.winRewardDoubled=true;this.fx.reward();refreshInfo();adStatus.setText("Монеты удвоены");
         }else{area.setInteractive({useHandCursor:true});adStatus.setText('Реклама недоступна. Попробуй позже.')}
       });
+      if(!window.BerriesPlatform.capabilities.rewarded){doubleAd.disableInteractive();adStatus.setText('Удвоение награды недоступно')}
       hit(.5,.899,.55,.13,()=>{
         const next=this.no<30?this.no+1:null;
         if(next)this.scene.start('Play',{n:next});else this.scene.start('Map');
       });
     }else{
-      hit(.5,.697,.74,.16,async area=>{
+      const continueAd=hit(.5,.697,.74,.16,async area=>{
         if(this.continueUsed){adStatus.setText('Продолжение уже использовано');return}
         const attempt=this.attemptId;
         area.disableInteractive();
-        const ok=await window.BerriesYandex?.showRewardedVideo?.();
+        const ok=await window.BerriesPlatform?.showRewardedVideo?.();
         if(!this.scene.isActive()||this.attemptId!==attempt)return;
         if(ok&&Campaign.resume(attempt)){
           this.continueUsed=true;this.moves+=5;this.fx.reward();shade.destroy();box.destroy();this.busy=false;
-          window.__berriesGameplayShouldRun=true;window.BerriesYandex?.gameplayStart?.();
+          window.__berriesGameplayShouldRun=true;window.BerriesPlatform?.gameplayStart?.();
           this.kingAnim('idle');this.updateHud();this.scheduleHint();
         }else{area.setInteractive({useHandCursor:true});adStatus.setText('Реклама недоступна. Попробуй позже.')}
       });
+      if(!window.BerriesPlatform.capabilities.rewarded){continueAd.disableInteractive();adStatus.setText('Продолжение за рекламу недоступно')}
       hit(.294,.873,.40,.105,()=>this.scene.restart({n:this.no}));
       hit(.714,.873,.40,.105,()=>this.scene.start('Map'));
     }
@@ -1014,7 +1017,7 @@ function install(){
     };
     mapProto.create=function createMapWithEditor(){
       this.music=new window.BerriesMusicBus(this);
-      window.__berriesGameplayShouldRun=false;window.BerriesYandex?.gameplayStop?.();
+      window.__berriesGameplayShouldRun=false;window.BerriesPlatform?.gameplayStop?.();
       this.add.image(W/2,H/2,'mapbg').setDisplaySize(W,H);
       fit(this.add.image(W/2,100,'map_header_levels'),560,175).setDepth(8);
 
@@ -1086,11 +1089,12 @@ function install(){
         this.add.zone(1640,1006,520,140).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.openShop());
         const refreshTimer=lifeTimer(this,timerPanel,timer);
         let pending=false;
-        this.add.zone(1100,1006,390,140).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
+        const lifeAd=this.add.zone(1100,1006,390,140).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
           if(pending||Campaign.read().lives!==0)return;pending=true;timer.setText('ЗАГРУЗКА…');
-          try{const ok=await window.BerriesYandex?.showRewardedVideo?.();if(ok)Campaign.addLife();else timer.setText('РЕКЛАМА\nНЕДОСТУПНА')}
+          try{const ok=await window.BerriesPlatform?.showRewardedVideo?.();if(ok)Campaign.addLife();else timer.setText('РЕКЛАМА\nНЕДОСТУПНА')}
           finally{pending=false}
         });
+        if(!window.BerriesPlatform.capabilities.rewarded)lifeAd.disableInteractive();
         const update=()=>{const state=Campaign.read(),lifeParts=Campaign.lifeLabel().split(' • ');
           lives.setText(String(state.lives));
           if(!pending)refreshTimer();

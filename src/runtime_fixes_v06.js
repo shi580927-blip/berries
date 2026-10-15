@@ -33,7 +33,7 @@
         fontFamily:FONT,fontSize:'56px',fontStyle:'bold',color:'#fff5c7',
         stroke:'#4f2a15',strokeThickness:6
       }).setOrigin(.5).setInteractive({useHandCursor:true}).on('pointerdown',()=>{
-        this.fx.click();window.BerriesYandex?.gameplayStop?.();this.scene.start('Map');
+        this.fx.click();window.BerriesPlatform?.gameplayStop?.();this.scene.start('Map');
       });
 
       this.mt=this.add.text(1510,64,'',{
@@ -112,7 +112,7 @@
         hit(0,112,455,96,async z=>{
           if(this.winRewardDoubled)return;
           z.disableInteractive();
-          const ok=await window.BerriesYandex?.showRewardedVideo?.();
+          const ok=await window.BerriesPlatform?.showRewardedVideo?.();
           if(ok){
             const reward=this.no<=5?80:this.no<=10?100:this.no<=15?120:this.no<=20?140:this.no<=25?160:180;
             const sv=loadSave();sv.coins=(sv.coins||0)+reward;saveLocal(sv);
@@ -131,11 +131,11 @@
         hit(0,90,465,104,async z=>{
           if(this.continueUsed)return;
           z.disableInteractive();
-          const ok=await window.BerriesYandex?.showRewardedVideo?.();
+          const ok=await window.BerriesPlatform?.showRewardedVideo?.();
           if(ok){
             this.continueUsed=true;this.moves+=5;this.fx.reward();
             shade.destroy();box.destroy();this.busy=false;
-            window.__berriesGameplayShouldRun=true;window.BerriesYandex?.gameplayStart?.();
+            window.__berriesGameplayShouldRun=true;window.BerriesPlatform?.gameplayStart?.();
             this.kingAnim('idle');this.updateHud();this.scheduleHint();
           }else z.setInteractive({useHandCursor:true});
         });
