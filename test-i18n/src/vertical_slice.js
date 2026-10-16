@@ -20,7 +20,7 @@ function fit(img,maxW,maxH){const s=Math.min(maxW/img.width,maxH/img.height);img
 // Fast boot: only the title artwork is blocking. Everything needed after the title
 // is fetched in the background while the player already sees the game.
 const ASSET_REV='ui-20260928-daily4';
-const imagePath=path=>window.__berriesRuntimeImages?.[path]||path;
+const imagePath=path=>window.BerriesLocalizedUI?.imagePath(path)||window.__berriesRuntimeImages?.[path]||path;
 // Sound downloads survive scene changes and never hold the image loader open.
 const pendingAudio=new Set();
 function queueAudio(scene,key,path){
@@ -428,7 +428,8 @@ class Title extends Phaser.Scene{
     const mapReady=Promise.all([
       restoreReady,
       window.berriesDigitsReady||Promise.resolve(),
-      coreReady
+      coreReady,
+      window.BerriesLocalizedUI?.prepare(this.textures)||Promise.resolve()
     ]).then(()=>{
       prepStatus.setText('');
       window.__berriesStartupReady=true;

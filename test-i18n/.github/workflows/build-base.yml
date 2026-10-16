@@ -38,6 +38,7 @@ jobs:
           node tests/platform.cjs
           node tests/i18n.cjs
           node tests/localization-preview.cjs
+          node tests/prepared-localization.cjs
 
       - name: Build optimized base archive
         env:

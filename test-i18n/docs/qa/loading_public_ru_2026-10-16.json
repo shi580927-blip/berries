@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-16",
+  "environment": "Published GitHub Pages, Chromium mobile emulation through proxy; not user connection",
+  "readyMs": 12915,
+  "results": [
+    {
+      "win": true,
+      "ms": 27,
+      "resultDownloads": []
+    },
+    {
+      "win": false,
+      "ms": 3,
+      "resultDownloads": []
+    }
+  ],
+  "errors": []
+}

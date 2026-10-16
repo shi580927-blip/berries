@@ -1,0 +1,146 @@
+[
+  {
+    "path": "assets/i18n/ready/shared/logo_crazy_berries.webp",
+    "size": [
+      1800,
+      1105
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 1.3984375
+  },
+  {
+    "path": "assets/i18n/ready/en/panel_head_boosters.webp",
+    "size": [
+      1789,
+      500
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 1.8825363825363826
+  },
+  {
+    "path": "assets/i18n/ready/tr/panel_head_boosters.webp",
+    "size": [
+      1789,
+      500
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 1.6827956989247312
+  },
+  {
+    "path": "assets/i18n/ready/en/map_header_levels.webp",
+    "size": [
+      1893,
+      500
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 1.5570175438596492
+  },
+  {
+    "path": "assets/i18n/ready/tr/map_header_levels.webp",
+    "size": [
+      1893,
+      500
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 1.7760141093474426
+  },
+  {
+    "path": "assets/i18n/ready/en/panel_goals.webp",
+    "size": [
+      612,
+      1149
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 1.8092868988391377
+  },
+  {
+    "path": "assets/i18n/ready/tr/panel_goals.webp",
+    "size": [
+      612,
+      1149
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 1.9541666666666666
+  },
+  {
+    "path": "assets/i18n/ready/en/panel_king_shop.webp",
+    "size": [
+      1400,
+      467
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 1.6084425036390102
+  },
+  {
+    "path": "assets/i18n/ready/tr/panel_king_shop.webp",
+    "size": [
+      1400,
+      467
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 1.636734693877551
+  },
+  {
+    "path": "assets/i18n/ready/en/button_royal_family_soon.webp",
+    "size": [
+      520,
+      364
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 2.1944444444444446
+  },
+  {
+    "path": "assets/i18n/ready/tr/button_royal_family_soon.webp",
+    "size": [
+      520,
+      364
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 2.463768115942029
+  },
+  {
+    "path": "assets/i18n/ready/en/popup_booster_shop.webp",
+    "size": [
+      1086,
+      1448
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 1.3474178403755868
+  },
+  {
+    "path": "assets/i18n/ready/tr/popup_booster_shop.webp",
+    "size": [
+      1086,
+      1448
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 1.4656084656084656
+  },
+  {
+    "path": "assets/i18n/ready/shared/popup_level_win_clean.webp",
+    "size": [
+      1479,
+      1800
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 1.3587570621468927
+  },
+  {
+    "path": "assets/i18n/ready/shared/popup_level_lose_clean.webp",
+    "size": [
+      1472,
+      1800
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 1.693089430894309
+  },
+  {
+    "path": "assets/i18n/ready/shared/popup_king_shop_all_min.webp",
+    "size": [
+      1280,
+      1600
+    ],
+    "alphaDifferences": 0,
+    "opaqueMeanRgbError": 1.7080176161742042
+  }
+]

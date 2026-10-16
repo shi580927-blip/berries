@@ -1,6 +1,15 @@
 (function(root){
 'use strict';
 const KEY='berries_campaign_v1',LEGACY='berries_vs_04',MAX_LIVES=5,REGEN_MS=30*60*1000,DAY_MS=24*60*60*1000;
+
+const LEVELS_PER_LOCATION=20;
+const locationForLevel=level=>{
+ if(!Number.isSafeInteger(level)||level<1)return null;
+ const index=Math.floor((level-1)/LEVELS_PER_LOCATION);
+ return {id:'location_'+String(index+1).padStart(3,'0'),index,
+  firstLevel:index*LEVELS_PER_LOCATION+1,lastLevel:(index+1)*LEVELS_PER_LOCATION,
+  localLevel:(level-1)%LEVELS_PER_LOCATION+1};
+};
 const PRICES={hammer:250,shuffle:300,fan:400};
 const DAILY_REWARDS={
  coins_100:{coins:100},
@@ -40,8 +49,9 @@ const rows=[
 ];
 const LEVELS=Object.fromEntries(rows.map((row,i)=>{
 const [m,n,g,ic=0,h=1,a=0,r=0,frozenAc=0]=row;
-return [i+1,{m,n,g,ice:[...iceSlots.slice(0,ic).map(([y,x],k)=>[y,x,h==='mixed'?(k%3===0?2:1):h]),...acSlots.slice(0,frozenAc).map(([y,x])=>[y,x,1])],ac:acSlots.slice(0,a).map(x=>x.slice()),root:rootSlots.slice(0,r).map(x=>x.slice())}];
+return [i+1,{locationId:locationForLevel(i+1).id,m,n,g,ice:[...iceSlots.slice(0,ic).map(([y,x],k)=>[y,x,h==='mixed'?(k%3===0?2:1):h]),...acSlots.slice(0,frozenAc).map(([y,x])=>[y,x,1])],ac:acSlots.slice(0,a).map(x=>x.slice()),root:rootSlots.slice(0,r).map(x=>x.slice())}];
 }));
+const MAX_LEVEL=Math.max(...Object.keys(LEVELS).map(Number));
 function create(storage,now=Date.now,cloud=()=>{}){
 const number=(v,f=0)=>Number.isFinite(Number(v))?Math.max(0,Math.floor(Number(v))):f;
 const dayKey=(value=now())=>{const d=new Date(value),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
@@ -60,7 +70,7 @@ s={version:1,lifePolicy:2,done:[],coins:number(old?.coins),inventory:{hammer:2,s
 }
 // One-time compensation: old saves did not distinguish losses from exits.
 if(s.lifePolicy!==2){s.lives=MAX_LIVES;s.nextLifeAt=null;s.lifePolicy=2;write(s)}
-s.done=[...new Set((s.done||[]).filter(n=>Number.isInteger(n)&&n>=1&&n<=30))];
+s.done=[...new Set((s.done||[]).filter(n=>Number.isInteger(n)&&n>=1&&n<=MAX_LEVEL))];
 s.coins=number(s.coins);s.inventory??={};
 for(const id of Object.keys(PRICES))s.inventory[id]=number(s.inventory[id]);
 s.purchaseTokens=Array.isArray(s.purchaseTokens)?s.purchaseTokens.filter(x=>typeof x==='string').slice(-100):[];
@@ -78,7 +88,7 @@ const useRemote=!local||local.version!==1||remoteTime>localTime||(!remoteTime&&!
 if(useRemote){if(local)storage.setItem(KEY+'_before_cloud',JSON.stringify(local));const copy=JSON.parse(JSON.stringify(remote));copy.active=null;storage.setItem(KEY,JSON.stringify(copy))}
 return read();
 }
-function unlocked(s=read()){let n=1;const done=new Set(s.done);while(n<30&&done.has(n))n++;return n}
+function unlocked(s=read()){let n=1;const done=new Set(s.done);while(n<MAX_LEVEL&&done.has(n))n++;return n}
 function debit(s){s.lives=Math.max(0,s.lives-1);if(!s.nextLifeAt)s.nextLifeAt=now()+REGEN_MS}
 function abandon(token){const s=read();if(!s.active||(token&&s.active.id!==token))return s;s.active=null;return write(s)}
 function begin(n){
@@ -120,7 +130,7 @@ s.purchaseTokens=[...s.purchaseTokens,purchaseToken].slice(-100);write(s);return
 function lifeLabel(){const s=read();if(s.lives===5)return '5 / 5';const sec=Math.max(0,Math.ceil((s.nextLifeAt-now())/1000));return s.lives+' / 5  • '+Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
 return {read,restore,unlocked,begin,abandon,lose,resume,win,doubleReward,consume,buy,addLife,dailyRewardAvailable,claimDailyReward,grantPurchase,lifeLabel};
 }
-const api={KEY,LEVELS,PRICES,ROYAL_PRODUCTS,DAILY_REWARDS,create,REGEN_MS,DAY_MS};
+const api={KEY,LEVELS,LEVELS_PER_LOCATION,MAX_LEVEL,locationForLevel,PRICES,ROYAL_PRODUCTS,DAILY_REWARDS,create,REGEN_MS,DAY_MS};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 else root.BerriesCampaign={...api,...create(root.localStorage,Date.now,s=>root.BerriesPlatform?.saveProgress?.(s,false))};
 })(typeof window!=='undefined'?window:this);

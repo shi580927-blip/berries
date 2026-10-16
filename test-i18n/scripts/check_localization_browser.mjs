@@ -19,11 +19,12 @@ const records=[];
 for(const mobile of (process.env.BERRIES_QA_MOBILE_ONLY==='1'?[true]:[false,true])) for(const lang of ['en','tr']) {
  const browser=await pw.launch({executablePath,args,headless:true});
  const context=await browser.newContext({viewport:mobile?{width:915,height:412}:{width:1920,height:1080},isMobile:mobile,hasTouch:mobile,userAgent:mobile?devices['Pixel 7'].userAgent:undefined,deviceScaleFactor:mobile?2:1});
- const page=await context.newPage(),errors=[],failed=[];
+ const page=await context.newPage(),errors=[],failed=[],warnings=[];
+ page.on('console',m=>{if(m.type()==='warning'||m.type()==='error')warnings.push(m.text())});
  page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)failed.push(r.status()+' '+r.url())});
  await page.addInitScript(()=>localStorage.setItem('berries_campaign_v1','{"coins":98765}'));
  await page.goto(origin+'/docs/game-localization-preview.html?lang='+lang);
- await page.waitForFunction(()=>window.__berriesStartupReady&&window.__berriesLocalizationPreview?.normalized.size===6,{},{timeout:60000}).catch(async e=>{console.log(JSON.stringify(await page.evaluate(()=>({ready:window.__berriesStartupReady,normalized:[...window.__berriesLocalizationPreview?.normalized||[]],error:document.querySelector('#preview-error')?.textContent}))),errors,failed);throw e});
+ await page.waitForFunction(()=>window.__berriesStartupReady&&window.__berriesLocalizationPreview?.prepared,{},{timeout:60000}).catch(async e=>{console.log(JSON.stringify(await page.evaluate(()=>({ready:window.__berriesStartupReady,prepared:window.__berriesLocalizationPreview?.prepared,error:document.querySelector('#preview-error')?.textContent,daily:window.__berriesDailyAssetsReady,fonts:document.fonts.status,textures:window.__berriesGame?.textures.getTextureKeys(),loaders:Object.fromEntries(Object.entries(window.__berriesGame?.scene.keys||{}).map(([key,s])=>[key,{active:s.scene.isActive(),loading:s.load.isLoading(),queue:s.load.list.size,inflight:s.load.inflight.size}]))}))),errors,failed,warnings);throw e});
  const deferred=await page.evaluate(()=>['popup_win','popup_lose','coin_shop_new','popup_royal_shop'].map(k=>({key:k,loaded:window.__berriesGame.textures.exists(k)})));
  if(deferred.some(x=>x.loaded))throw Error('Optional popup loaded during startup');
  const tap=async(x,y)=>{const r=await page.locator('#game canvas').boundingBox();const px=r.x+x*r.width/1920,py=r.y+y*r.height/1080;if(mobile)await page.touchscreen.tap(px,py);else await page.mouse.click(px,py)};
@@ -66,7 +67,7 @@ for(const mobile of (process.env.BERRIES_QA_MOBILE_ONLY==='1'?[true]:[false,true
  }
  }
  if(errors.length||failed.length)throw Error(JSON.stringify({errors,failed}));
- records.push({lang,mobile,errors,failed,font:await page.evaluate(()=>document.fonts.check('800 64px BerriesHeading')),normalized:await page.evaluate(()=>[...window.__berriesLocalizationPreview.normalized]),productionSave:await page.evaluate(()=>localStorage.getItem('berries_campaign_v1'))});if(records.at(-1).productionSave!=='{"coins":98765}'||records.at(-1).normalized.length!==10||!records.at(-1).font)throw Error('Preview isolation/assets/font assertion failed');
+ records.push({lang,mobile,errors,failed,font:await page.evaluate(()=>document.fonts.check('800 64px BerriesHeading')),localized:await page.evaluate(()=>['logo','head_boosters','map_header_levels','goals_panel_new','panel_king_shop','royal_family_soon','coin_shop_new','popup_win','popup_lose','popup_royal_shop'].map(key=>({key,width:window.__berriesGame.textures.get(key).getSourceImage().width,height:window.__berriesGame.textures.get(key).getSourceImage().height,isCanvas:window.__berriesGame.textures.get(key).getSourceImage() instanceof HTMLCanvasElement}))),imageRequests:await page.evaluate(()=>performance.getEntriesByType('resource').map(r=>r.name)),productionSave:await page.evaluate(()=>localStorage.getItem('berries_campaign_v1'))});if(records.at(-1).productionSave!=='{"coins":98765}'||records.at(-1).localized.length!==10||records.at(-1).localized.some(t=>t.isCanvas)||JSON.parse(fs.readFileSync(pathUtil.join(root,'docs/localization_assets_ready.json'))).assets.some(a=>!records.at(-1).imageRequests.some(url=>url.includes('/'+a.candidates[lang].path)))||records.at(-1).imageRequests.some(url=>url.includes('/assets/i18n/ready/'+(lang==='en'?'tr':'en')+'/'))||!records.at(-1).font)throw Error('Preview isolation/assets/font assertion failed: '+JSON.stringify(records.at(-1)));
  await browser.close();console.log("PROFILE "+stem+" PASSED");
 }
 console.log(JSON.stringify(records));fs.writeFileSync(pathUtil.join(output,"results.json"),JSON.stringify(records,null,2));server.close();
