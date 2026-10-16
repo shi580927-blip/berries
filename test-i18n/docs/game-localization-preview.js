@@ -78,8 +78,8 @@
       script.onload = resolve; script.onerror = () => reject(Error('Script load failed: ' + src));
       document.body.append(script);
     });
-    await loadScript('src/vertical_slice.js?v=transition-copy-1');
-    await loadScript('src/runtime_stable_v10.js?v=combo-coins-1');
+    await loadScript('src/vertical_slice.js?v=popup-lazy-1');
+    await loadScript('src/runtime_stable_v10.js?v=popup-lazy-1');
     const addLabel = (scene, box, art, spec) => {
       const x = art.x + (spec.x-.5)*art.displayWidth;
       const y = art.y + (spec.y-.5)*art.displayHeight;
@@ -116,8 +116,9 @@
       const proto = play && Object.getPrototypeOf(play);
       if(!proto?.__berriesStableV10) return false;
       const result = proto.resultPopup;
-      proto.resultPopup = function(win) {
-        result.call(this,win);
+      proto.resultPopup = async function(win) {
+        const shown=await result.call(this,win);
+        if(shown===false||!this.scene.isActive())return;
         const box = [...this.children.list].reverse().find(n=>n.type==='Container'&&n.depth===31);
         const art = box?.list?.find(n=>n.texture?.key===(win?'popup_win':'popup_lose'));
         if(!art) throw Error('Preview: result popup artwork not found');
@@ -125,9 +126,10 @@
         for(const spec of layers[win?'levelWin':'levelLose']) if(!skip.has(spec.key)) addLabel(this,box,art,spec);
       };
       // Map copies the shop method before this preview installs; wrap both scenes.
-      const decorateShop=original=>function() {
+      const decorateShop=original=>async function() {
         const existed=this._paidShopModal?.active;
-        original.call(this);
+        await original.call(this);
+        if(!this.scene.isActive())return;
         if(existed)return;
         const box=this._paidShopModal,art=box?.list?.find(n=>n.texture?.key==='popup_royal_shop');
         if(art)addLabel(this,box,art,{...layers.paidRoyalShop[0],x:.5,y:language==='tr'?.208:.19,w:.62,h:language==='tr'?.135:.12,twoLines:language==='tr',decorative:true});
@@ -140,14 +142,14 @@
     };
     let attempts=0;
     const timer=setInterval(()=>{try{if(install()||++attempts>500){clearInterval(timer);if(attempts>500)fail(Error('Phaser preview initialization timed out'));}}catch(e){clearInterval(timer);fail(e);}},20);
-    for(const button of document.querySelectorAll('[data-preview]')) button.onclick=()=>{
+    for(const button of document.querySelectorAll('[data-preview]')) button.onclick=async()=>{
       try {
         const play=window.__berriesGame?.scene?.keys?.Play;
         if(!play?.scene?.isActive()||!play.cfg){status.textContent='Сначала открой уровень через PLAY и карту.';return;}
         if(play._shopModal?.active||play._paidShopModal?.active||play.children.list.some(n=>n.type==='Container'&&n.depth===31)){status.textContent='Сначала закрой открытый попап.';return;}
         const kind=button.dataset.preview;
-        if(kind==='shop')play.openShop();else if(kind==='paid')play.openPaidShop();else if(kind==='combo')play.comboCelebration(4);
-        else {if(play.busy){status.textContent='Дождись завершения хода.';return;}play.busy=true;play.resultPopup(kind==='win');}
+        if(kind==='shop')await play.openShop();else if(kind==='paid')await play.openPaidShop();else if(kind==='combo')play.comboCelebration(4);
+        else {if(play.busy){status.textContent='Дождись завершения хода.';return;}play.busy=true;await play.resultPopup(kind==='win');}
         if(window.matchMedia?.('(max-width:1000px)').matches){tools.classList.remove('expanded');toggle.setAttribute('aria-expanded','false');}
         status.textContent='Черновик: '+kind+' / '+language.toUpperCase()+'. Награда не начисляется кнопкой стенда.';
       } catch(e) {fail(e);}

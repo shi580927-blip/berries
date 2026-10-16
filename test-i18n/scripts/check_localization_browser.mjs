@@ -23,7 +23,9 @@ for(const mobile of (process.env.BERRIES_QA_MOBILE_ONLY==='1'?[true]:[false,true
  page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)failed.push(r.status()+' '+r.url())});
  await page.addInitScript(()=>localStorage.setItem('berries_campaign_v1','{"coins":98765}'));
  await page.goto(origin+'/docs/game-localization-preview.html?lang='+lang);
- await page.waitForFunction(()=>window.__berriesStartupReady&&window.__berriesLocalizationPreview?.normalized.size===10);
+ await page.waitForFunction(()=>window.__berriesStartupReady&&window.__berriesLocalizationPreview?.normalized.size===6,{},{timeout:60000}).catch(async e=>{console.log(JSON.stringify(await page.evaluate(()=>({ready:window.__berriesStartupReady,normalized:[...window.__berriesLocalizationPreview?.normalized||[]],error:document.querySelector('#preview-error')?.textContent}))),errors,failed);throw e});
+ const deferred=await page.evaluate(()=>['popup_win','popup_lose','coin_shop_new','popup_royal_shop'].map(k=>({key:k,loaded:window.__berriesGame.textures.exists(k)})));
+ if(deferred.some(x=>x.loaded))throw Error('Optional popup loaded during startup');
  const tap=async(x,y)=>{const r=await page.locator('#game canvas').boundingBox();const px=r.x+x*r.width/1920,py=r.y+y*r.height/1080;if(mobile)await page.touchscreen.tap(px,py);else await page.mouse.click(px,py)};
  await tap(960,805);
  await page.waitForFunction(()=>window.__berriesGame.scene.keys.Title._dailyRewardModal?.active);
@@ -49,13 +51,14 @@ for(const mobile of (process.env.BERRIES_QA_MOBILE_ONLY==='1'?[true]:[false,true
  if(combo.expected.some(word=>!combo.texts.includes(word))||combo.texts.some(word=>/[А-Яа-яЁё]/.test(word)))throw Error('Combo localization failed: '+JSON.stringify(combo));
  await page.waitForTimeout(1600);
  const stem=(mobile?'android':'desktop')+'-'+lang;
- await page.screenshot({path:pathUtil.join(output,stem+'-level.png')});
+ if(process.env.BERRIES_QA_SKIP_SCREENSHOTS!=='1')await page.screenshot({path:pathUtil.join(output,stem+'-level.png')});
  for(const kind of ['win','lose','shop','paid']){
  if(!await page.evaluate(()=>window.__berriesGame.scene.keys.Play.scene.isActive()))await openLevel();
  const b=page.locator('[data-preview="'+kind+'"]');if(mobile&&!await b.isVisible())await page.locator('#preview-toggle').tap();if(mobile)await b.tap();else await b.click();
+ await page.waitForFunction(kind=>{const scene=window.__berriesGame.scene.keys.Play;return kind==='shop'?scene._shopModal?.active:kind==='paid'?scene._paidShopModal?.active:scene.children.list.some(n=>n.type==='Container'&&n.depth===31)},kind);
  await page.waitForTimeout(450);
  const err=await page.locator('#preview-error').textContent();if(err)throw Error(err);
- await page.screenshot({path:pathUtil.join(output,stem+'-'+kind+'.png')});
+ if(process.env.BERRIES_QA_SKIP_SCREENSHOTS!=='1')await page.screenshot({path:pathUtil.join(output,stem+'-'+kind+'.png')});
  if(kind==='win'||kind==='lose'){
  const p=await page.evaluate(win=>{const scene=window.__berriesGame.scene.keys.Play;const box=scene.children.list.find(n=>n.type==='Container'&&n.depth===31);const art=box.list.find(n=>n.texture?.key===(win?'popup_win':'popup_lose'));return {x:box.x+art.x+((win?.891:.918)-.5)*art.displayWidth,y:box.y+art.y+((win?.172:.237)-.5)*art.displayHeight}},kind==='win');await tap(p.x,p.y);await page.waitForFunction(()=>window.__berriesGame.scene.keys.Map.scene.isActive());
  }else if(kind==='shop'){await tap(1260,218)}else{

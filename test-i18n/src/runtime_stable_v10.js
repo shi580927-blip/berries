@@ -1020,6 +1020,41 @@ function install(){
   };
 
 
+
+  const withPopupAssets=(original,group)=>async function(...args){
+    const selected=typeof group==='function'?group(...args):group;
+    this._popupAssetPending??=new Set();
+    if(this._popupAssetPending.has(selected))return;
+    this._popupAssetPending.add(selected);
+    const notice=this.add.text(W/2,H-45,window.BerriesI18n.t('common.loading'),{
+      fontFamily:FONT,fontSize:'26px',color:'#fff4cf',stroke:'#402515',strokeThickness:4
+    }).setOrigin(.5).setDepth(100);
+    let failed=false;
+    try{
+      await window.__berriesEnsurePopupAssets(this,selected);
+      if(this.scene.isActive())return original.apply(this,args);
+    }catch(error){
+      if(this.scene.isActive()){
+        console.warn('[Assets]',selected,error.message);
+        failed=true;
+        notice.setText(window.BerriesI18n.t('result.retry')+' ↻').setInteractive({useHandCursor:true});
+        notice.once('pointerdown',()=>{
+          notice.destroy();
+          if(selected==='win'||selected==='lose')this.resultPopup(...args);
+          else if(selected==='royalShop')this.openPaidShop(...args);
+          else this.openShop(...args);
+        });
+        return false;
+      }
+    }finally{
+      this._popupAssetPending.delete(selected);
+      if(!failed&&notice.active)notice.destroy();
+    }
+  };
+  p.openShop=withPopupAssets(p.openShop,'boosterShop');
+  p.openPaidShop=withPopupAssets(p.openPaidShop,'royalShop');
+  p.resultPopup=withPopupAssets(p.resultPopup,win=>win?'win':'lose');
+
   // Full level map: logo asset plus 30 stops following the existing winding trail.
   const mapScene=window.__berriesGame?.scene?.keys?.Map;
   const mapProto=mapScene?Object.getPrototypeOf(mapScene):null;

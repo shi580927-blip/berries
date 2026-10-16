@@ -74,7 +74,6 @@ function ensureCoreAssets(scene){
     I('hero_stump_forest','assets/ui/decor/hero_stump_forest.png');
     I('goals_panel_new','assets/ui/panels/panel22.png');
     I('shop_plaque_new','assets/ui/panels/panel23.png');
-    I('coin_shop_new','assets/ui/panels/popup33.png');
     I('map_level_panel','assets/ui/panels/panel_level.png');
     I('time_panel','assets/ui/panels/panel_time.png');
     I('wood_flat','assets/ui/panels/panel_3.png');
@@ -85,9 +84,6 @@ function ensureCoreAssets(scene){
     I('pboost','assets/ui/panels/panel_boosters.png');
     I('plives','assets/ui/panels/panel_lives.png');
     I('pcoins','assets/ui/panels/panel_coins.png');
-    I('popup_win','assets/ui/popups/popup_level_win.png');
-    I('popup_lose','assets/ui/popups/popup_level_lose.png');
-    I('popup_royal_shop','assets/ui/popups/popup_king_shop_ru.png');
     I('level_done_new','assets/ui/buttons/level_completed5.png');
     I('level_current_new','assets/ui/buttons/level_current7.png');
     I('level_locked_new','assets/ui/buttons/level_completed7.png');
@@ -121,6 +117,34 @@ function ensureCoreAssets(scene){
   return window.__berriesCoreAssetsPromise;
 }
 window.__berriesEnsureCoreAssets=ensureCoreAssets;
+
+
+const OPTIONAL_POPUP_ASSETS={"boosterShop":[["coin_shop_new","assets/ui/panels/popup33.png"]],"royalShop":[["popup_royal_shop","assets/ui/popups/popup_king_shop_ru.png"]],"win":[["popup_win","assets/ui/popups/popup_level_win.png"]],"lose":[["popup_lose","assets/ui/popups/popup_level_lose.png"]]};
+const optionalPopupLoads=new globalThis.Map();
+function ensurePopupAssets(scene,group){
+ const files=OPTIONAL_POPUP_ASSETS[group];
+ if(!files)return Promise.reject(Error('Unknown popup asset group'));
+ if(files.every(([key])=>scene.textures.exists(key)))return Promise.resolve(true);
+ if(optionalPopupLoads.has(group))return optionalPopupLoads.get(group);
+ const promise=new Promise((resolve,reject)=>{
+  let timer,settled=false;
+  const finish=error=>{
+   if(settled)return;settled=true;
+   clearTimeout(timer);scene.load.off('complete',complete);scene.events.off('shutdown',cancel);
+   if(error)reject(error);else resolve(true);
+  };
+  const complete=()=>finish(files.every(([key])=>scene.textures.exists(key))?null:Error('Popup image failed to load'));
+  const cancel=()=>finish(Error('Popup scene closed'));
+  scene.load.once('complete',complete);scene.events.once('shutdown',cancel);
+  timer=setTimeout(()=>finish(Error('Popup image loading timed out')),20000);
+  for(const [key,path] of files)if(!scene.textures.exists(key))scene.load.image(key,path+'?v='+ASSET_REV);
+  if(!scene.load.isLoading())scene.load.start();
+ });
+ optionalPopupLoads.set(group,promise);
+ promise.then(()=>optionalPopupLoads.delete(group),()=>optionalPopupLoads.delete(group));
+ return promise;
+}
+window.__berriesEnsurePopupAssets=ensurePopupAssets;
 
 class Sfx{
   constructor(scene){this.s=scene;this.nodes=new Set();this._muted=localStorage.getItem("berries_sfx_muted")==="1";this.master=2.35;this.last={};this.voices={};scene.events.once('shutdown',()=>{this.stopAll();for(const pool of Object.values(this.voices))for(const sound of pool)sound.destroy()})}
