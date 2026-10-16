@@ -789,7 +789,7 @@ function install(){
         shadow:{offsetX:0,offsetY:8,color:'#32152a',blur:18,fill:true}
       }).setOrigin(.5).setDepth(27).setAlpha(alpha).setAngle((t-.5)*14).setScale(.76);
       this.fxTween(letter,{
-        x:letter.x+(t-.5)*34,y:letter.y-size*.14,scale:1.06,alpha:{value:0,ease:'Expo.in'},angle:letter.angle+(t-.5)*5,
+        y:letter.y-size*.14,scale:1.06,alpha:{value:0,ease:'Expo.in'},angle:letter.angle+(t-.5)*5,
         duration:3150+i*22,ease:'Cubic.out'
       });
     });
@@ -804,16 +804,27 @@ function install(){
     ];
     this.comboArcWord(chain>=4?window.BerriesI18n.t('combo.combo'):window.BerriesI18n.t('combo.juicy'),W*.51,H*.49,chain>=4?285:255,chain>=4?.78:.70);
     const count=chain>=3?4:3;
-    satellites.slice(0,count).forEach((spec,i)=>{
+    const slots=satellites.slice(0,count);
+    const shift=1+Math.floor(Math.random()*(count-1));
+    slots.forEach((spec,i)=>{
       const label=this.add.text(spec.x,spec.y,spec.text,{
         fontFamily:FONT,fontSize:spec.size+'px',fontStyle:'bold',color:'#ffffff',
         stroke:'#5b2940',strokeThickness:Math.round(spec.size*.07),
         shadow:{offsetX:0,offsetY:6,color:'#35182a',blur:14,fill:true}
       }).setOrigin(.5).setDepth(25).setAlpha(spec.alpha).setAngle(spec.angle).setScale(.78);
       label.setTint?.(rainbow[(i+chain)%6],rainbow[(i+chain+1)%6],rainbow[(i+chain+3)%6],rainbow[(i+chain+4)%6]);
+      // Exchange whole words between slots along curved, two-dimensional paths.
+      const target=slots[(i+shift)%count];
+      const bend=i%2?110:-110;
+      const cx=(spec.x+target.x)/2+bend,cy=(spec.y+target.y)/2-bend;
+      label.comboMixProgress=0;
       this.fxTween(label,{
-        x:spec.x+(i%2?28:-28),y:spec.y-35-(i%2)*22,scale:1.08,alpha:{value:0,ease:'Expo.in'},angle:spec.angle+(i%2?5:-5),
-        duration:2980+i*80,ease:'Cubic.out'
+        comboMixProgress:1,scale:1.08,alpha:{value:0,ease:'Expo.in'},angle:target.angle,
+        duration:2980+i*80,ease:'Sine.inOut',
+        onUpdate:()=>{
+          const t=label.comboMixProgress,u=1-t;
+          label.setPosition(u*u*spec.x+2*u*t*cx+t*t*target.x,u*u*spec.y+2*u*t*cy+t*t*target.y);
+        }
       });
     });
     // Large shimmering stars.
