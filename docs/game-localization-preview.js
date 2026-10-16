@@ -78,7 +78,7 @@
       script.onload = resolve; script.onerror = () => reject(Error('Script load failed: ' + src));
       document.body.append(script);
     });
-    await loadScript('src/vertical_slice.js');
+    await loadScript('src/vertical_slice.js?v=transition-copy-1');
     await loadScript('src/runtime_stable_v10.js');
     const addLabel = (scene, box, art, spec) => {
       const x = art.x + (spec.x-.5)*art.displayWidth;
