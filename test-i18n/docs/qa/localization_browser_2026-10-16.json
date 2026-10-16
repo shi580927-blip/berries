@@ -1,0 +1,153 @@
+{
+  "date": "2026-10-16",
+  "scope": [
+    "title",
+    "daily chest selection and continue",
+    "level 1 from map",
+    "result preview win and lose",
+    "booster and paid shops open/close",
+    "heading font",
+    "all 10 localized texture substitutions",
+    "production campaign isolation"
+  ],
+  "baselineProfiles": [
+    {
+      "lang": "en",
+      "mobile": false,
+      "errors": [],
+      "failed": [],
+      "font": true,
+      "normalized": [
+        "logo",
+        "boosters",
+        "royalShop",
+        "royalFamily",
+        "goals",
+        "boosterShop",
+        "paidRoyalShop",
+        "levelLose",
+        "map",
+        "levelWin"
+      ],
+      "productionSave": "{\"coins\":98765}"
+    },
+    {
+      "lang": "tr",
+      "mobile": false,
+      "errors": [],
+      "failed": [],
+      "font": true,
+      "normalized": [
+        "logo",
+        "boosters",
+        "paidRoyalShop",
+        "royalShop",
+        "royalFamily",
+        "boosterShop",
+        "map",
+        "levelLose",
+        "goals",
+        "levelWin"
+      ],
+      "productionSave": "{\"coins\":98765}"
+    },
+    {
+      "lang": "en",
+      "mobile": true,
+      "errors": [],
+      "failed": [],
+      "font": true,
+      "normalized": [
+        "logo",
+        "boosters",
+        "paidRoyalShop",
+        "royalShop",
+        "royalFamily",
+        "boosterShop",
+        "map",
+        "levelLose",
+        "goals",
+        "levelWin"
+      ],
+      "productionSave": "{\"coins\":98765}"
+    },
+    {
+      "lang": "tr",
+      "mobile": true,
+      "errors": [],
+      "failed": [],
+      "font": true,
+      "normalized": [
+        "logo",
+        "boosters",
+        "royalFamily",
+        "royalShop",
+        "boosterShop",
+        "goals",
+        "paidRoyalShop",
+        "levelLose",
+        "map",
+        "levelWin"
+      ],
+      "productionSave": "{\"coins\":98765}"
+    }
+  ],
+  "androidUserAgentRetest": [
+    {
+      "lang": "en",
+      "mobile": true,
+      "errors": [],
+      "failed": [],
+      "font": true,
+      "normalized": [
+        "logo",
+        "boosters",
+        "royalShop",
+        "royalFamily",
+        "boosterShop",
+        "goals",
+        "paidRoyalShop",
+        "levelLose",
+        "levelWin",
+        "map"
+      ],
+      "productionSave": "{\"coins\":98765}"
+    },
+    {
+      "lang": "tr",
+      "mobile": true,
+      "errors": [],
+      "failed": [],
+      "font": true,
+      "normalized": [
+        "logo",
+        "boosters",
+        "royalFamily",
+        "royalShop",
+        "boosterShop",
+        "goals",
+        "paidRoyalShop",
+        "levelLose",
+        "levelWin",
+        "map"
+      ],
+      "productionSave": "{\"coins\":98765}"
+    }
+  ],
+  "desktopViewport": [
+    1920,
+    1080
+  ],
+  "mobileViewport": [
+    915,
+    412
+  ],
+  "mobileDeviceScaleFactor": 2,
+  "realAndroidDeviceTested": false,
+  "limitations": [
+    "headless emulation, not user hardware",
+    "no real ads or payments in SDK-free base",
+    "not a full playthrough of 30 levels",
+    "not a complete review of every goal slot/plus anchor"
+  ]
+}

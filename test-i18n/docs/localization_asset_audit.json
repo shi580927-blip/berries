@@ -1,0 +1,237 @@
+{
+  "date": "2026-10-16",
+  "uniqueCandidates": 16,
+  "comparisonCount": 30,
+  "checks": "decode, size, sha256, alpha, manifest coverage",
+  "browserChecked": true,
+  "runtimeIntegrated": false,
+  "assets": [
+    {
+      "path": "assets/i18n/drafts/shared/logo_crazy_berries.png",
+      "size": [
+        1601,
+        983
+      ],
+      "alphaBounds": [
+        1,
+        1,
+        1599,
+        957
+      ],
+      "sha256": "8b8fe808baa50012197b76f5cd17285282d7cb65b495403577a649dc8c246e67"
+    },
+    {
+      "path": "assets/i18n/drafts/en/panel_head_boosters.png",
+      "size": [
+        2170,
+        725
+      ],
+      "alphaBounds": [
+        9,
+        59,
+        2155,
+        663
+      ],
+      "sha256": "eab97248db153db007437e5265cc2409b6948e925a5c400a7288adab187cd091"
+    },
+    {
+      "path": "assets/i18n/drafts/tr/panel_head_boosters.png",
+      "size": [
+        2170,
+        725
+      ],
+      "alphaBounds": [
+        10,
+        61,
+        2148,
+        659
+      ],
+      "sha256": "89a2cc64c977d7ce7f88e858c63a7e8126540d8811f81607e2734d1620cd2944"
+    },
+    {
+      "path": "assets/i18n/drafts/en/map_header_levels.png",
+      "size": [
+        2172,
+        724
+      ],
+      "alphaBounds": [
+        11,
+        81,
+        2136,
+        639
+      ],
+      "sha256": "bfeb58e517464227eec3cc54086a2b5494c610a39130ef2c1323af8104273f90"
+    },
+    {
+      "path": "assets/i18n/drafts/tr/map_header_levels.png",
+      "size": [
+        2172,
+        724
+      ],
+      "alphaBounds": [
+        12,
+        85,
+        2135,
+        638
+      ],
+      "sha256": "6527ba50549c6976dc9b49849a0f8bd8c964c4ad34ffd9145934686d65b03f30"
+    },
+    {
+      "path": "assets/i18n/drafts/en/panel_goals.png",
+      "size": [
+        915,
+        1719
+      ],
+      "alphaBounds": [
+        0,
+        14,
+        915,
+        1706
+      ],
+      "sha256": "7bfecd6d70acdf6553baaf23e36c89e7d7e26efd9f63aa4567dbdeb24bd71424"
+    },
+    {
+      "path": "assets/i18n/drafts/tr/panel_goals.png",
+      "size": [
+        915,
+        1719
+      ],
+      "alphaBounds": [
+        0,
+        15,
+        915,
+        1706
+      ],
+      "sha256": "688aa42015637f285a023e6f3c3699e92e78c66ecbb370ad92f0fee7709f2e77"
+    },
+    {
+      "path": "assets/i18n/drafts/en/panel_king_shop.png",
+      "size": [
+        2171,
+        724
+      ],
+      "alphaBounds": [
+        6,
+        7,
+        2167,
+        708
+      ],
+      "sha256": "f0ab93b17d8d9517743e4ec7977ac36bbb7f942821319373873ee7565ab803e9"
+    },
+    {
+      "path": "assets/i18n/drafts/tr/panel_king_shop.png",
+      "size": [
+        2170,
+        725
+      ],
+      "alphaBounds": [
+        6,
+        7,
+        2166,
+        710
+      ],
+      "sha256": "336240bef0a10f74400f4cc4a5c7a62d0727843d9e0ceeb9ce6958db40d72533"
+    },
+    {
+      "path": "assets/i18n/drafts/en/button_royal_family_soon.png",
+      "size": [
+        1500,
+        1049
+      ],
+      "alphaBounds": [
+        167,
+        0,
+        1422,
+        1043
+      ],
+      "sha256": "b1de5a76b1583ddb7a9fdc682086a2efa40d89878dd14572ce58da124fc62a69"
+    },
+    {
+      "path": "assets/i18n/drafts/tr/button_royal_family_soon.png",
+      "size": [
+        1500,
+        1049
+      ],
+      "alphaBounds": [
+        163,
+        0,
+        1419,
+        1049
+      ],
+      "sha256": "091cb40b8814a3c4d558227e19276384aa6a280bd2934dd35a616d9173f3c20f"
+    },
+    {
+      "path": "assets/i18n/drafts/en/popup_booster_shop.png",
+      "size": [
+        1086,
+        1448
+      ],
+      "alphaBounds": [
+        10,
+        4,
+        1080,
+        1442
+      ],
+      "sha256": "8c6ec3db496401c47bb62d92b5767286568430157d99a929ae4509681361483b"
+    },
+    {
+      "path": "assets/i18n/drafts/tr/popup_booster_shop.png",
+      "size": [
+        1086,
+        1448
+      ],
+      "alphaBounds": [
+        10,
+        4,
+        1081,
+        1442
+      ],
+      "sha256": "24b05a437ff7baa2bf8fda9baac8d8a13e8308f5cdc4687306655ccbf1064b2c"
+    },
+    {
+      "path": "assets/i18n/drafts/shared/popup_level_win_clean.png",
+      "size": [
+        1137,
+        1383
+      ],
+      "alphaBounds": [
+        1,
+        1,
+        1137,
+        1383
+      ],
+      "sha256": "7729fca0cf0245578bfa5d042f5294bb67468d686d8991fe28455b7605cf33a6"
+    },
+    {
+      "path": "assets/i18n/drafts/shared/popup_level_lose_clean.png",
+      "size": [
+        1134,
+        1387
+      ],
+      "alphaBounds": [
+        3,
+        2,
+        1132,
+        1387
+      ],
+      "sha256": "d555a4c88eb5eb68a47f27e1f7e1d05e1c0d7ff453a6068fae3ea3df8617aeeb"
+    },
+    {
+      "path": "assets/ui/popups/popup_king_shop_all_min.png",
+      "size": [
+        1122,
+        1402
+      ],
+      "alphaBounds": [
+        1,
+        3,
+        1120,
+        1399
+      ],
+      "sha256": "2504808a662d02d6c72adc05255ddf0d62af9718769593765611ac0e6e785270"
+    }
+  ],
+  "browserScope": "docs/qa/localization_browser_2026-10-16.json",
+  "realAndroidDeviceChecked": false,
+  "gamePreviewIntegrated": true
+}

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Магазин бустеров — проверка RU / EN / TR</title>
+<style>body{margin:20px;background:#182321;color:#fff;font:16px system-ui}main{max-width:1440px;margin:auto}canvas{width:100%;aspect-ratio:16/9;background:#20362a;outline:1px solid #789}select,button{font:inherit;margin:8px;padding:8px}a{color:#b9eeaa}#status{min-height:2em}</style>
+<main><h1>Магазин бустеров: проверка компоновки</h1><p>Отдельный стенд 1920×1080. Исходные холсты, масштаб и координаты взяты из openShop. Это макет на Canvas, не проверка Phaser или покупки в игре. Прогресс игрока не используется.</p>
+<label>Язык <select id="language"><option value="ru">RU</option><option value="en">EN</option><option value="tr">TR</option></select></label>
+<label><input id="zones" type="checkbox" checked> Зоны нажатия</label>
+<label><input id="stress" type="checkbox"> Большие числа (999999 / 999)</label>
+<button id="reset">Сбросить тестовый баланс</button><a href="localization-preview.html">Все изображения</a>
+<p id="status" role="status"></p><canvas width="1920" height="1080" aria-label="Макет магазина"></canvas></main>
+<script>
+const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
+const status=document.querySelector('#status');
+const paths={ru:'assets/ui/panels/popup33.png',en:'assets/i18n/drafts/en/popup_booster_shop.png',tr:'assets/i18n/drafts/tr/popup_booster_shop.png'};
+const ids=['hammer','shuffle','fan'];let catalog={},images={},prices={},coins=1000,counts=[0,0,0],message='',ready=false;
+let panel={x:0,y:0,w:0,h:0};const at=(u,v)=>[panel.x+u*panel.w,panel.y+v*panel.h];
+const lang=()=>document.querySelector('#language').value;
+const t=(id,params={})=>catalog[lang()][id].replace(/\{(\w+)\}/g,(s,k)=>Object.hasOwn(params,k)?String(params[k]):s);
+function text(u,v,value,size,color='#59331d',stroke=false){const [x,y]=at(u,v);ctx.font=`bold ${size}px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';const lines=value.split('\n');for(let i=0;i<lines.length;i++){const yy=y+(i-(lines.length-1)/2)*size*1.15;if(stroke){ctx.lineWidth=8;ctx.strokeStyle='#276318';ctx.strokeText(lines[i],x,yy)}ctx.fillStyle=color;ctx.fillText(lines[i],x,yy)}}
+function render(){if(!ready)return;const img=images[lang()],scale=Math.min(720/img.width,960/img.height);panel={w:img.width*scale,h:img.height*scale};panel.x=960-panel.w/2;panel.y=540-panel.h/2;ctx.clearRect(0,0,1920,1080);ctx.drawImage(img,panel.x,panel.y,panel.w,panel.h);
+ const stress=document.querySelector('#stress').checked;text(.635,.33,t('hud.coins',{count:stress?999999:coins}),24);text(.5,.92,message||t('shop.persistent'),18);
+ ids.forEach((id,i)=>{const v=[.473,.632,.792][i];text(.465,v,t('booster.'+id)+'\n'+t('shop.inventory',{count:stress?999:counts[i]}),22);text(.775,v,t('shop.coinsAmount',{count:prices[id]}),24,'#fff7c9',true);
+ if(document.querySelector('#zones').checked){const [x,y]=at(.775,v);ctx.strokeStyle='#ff70ff';ctx.lineWidth=2;ctx.strokeRect(x-panel.w*.125,y-panel.h*.0425,panel.w*.25,panel.h*.085)}});
+ if(document.querySelector('#zones').checked){ctx.strokeStyle='#ff70ff';ctx.strokeRect(1215,173,90,90)}
+}
+canvas.onclick=e=>{if(!ready)return;const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*1920/r.width,y=(e.clientY-r.top)*1080/r.height;if(x>=1215&&x<=1305&&y>=173&&y<=263){status.textContent='Зона закрытия работает на стенде.';return}ids.forEach((id,i)=>{const [cx,cy]=at(.775,[.473,.632,.792][i]);if(Math.abs(x-cx)<=panel.w*.125&&Math.abs(y-cy)<=panel.h*.0425){if(coins>=prices[id]){coins-=prices[id];counts[i]++;message=t('shop.bought',{item:t('booster.'+id)})}else message=t('shop.insufficient');render()}})};
+for(const id of ['language','zones','stress'])document.querySelector('#'+id).onchange=()=>{message='';render()};document.querySelector('#reset').onclick=()=>{coins=1000;counts=[0,0,0];message='';render()};
+async function load(){for(const l of ['ru','en','tr']){const res=await fetch('../src/i18n/drafts/'+l+'.json');if(!res.ok)throw Error('Словарь '+l+': '+res.status);catalog[l]=await res.json();const img=new Image();img.src='../'+paths[l];await img.decode();images[l]=img}
+ const res=await fetch('../src/campaign.js');if(!res.ok)throw Error('Цены: '+res.status);const code=await res.text();const match=code.match(/const\s+PRICES\s*=\s*\{([^}]+)\}/);if(!match)throw Error('Не удалось прочитать цены из campaign.js');for(const id of ids){const p=match[1].match(new RegExp(id+'\\s*:\\s*(\\d+)'));if(!p)throw Error('Нет цены '+id);prices[id]=Number(p[1])}
+ ready=true;status.textContent='Загружено. Можно проверить подписи, большие числа и три тестовые покупки.';render()}
+load().catch(e=>status.textContent='Ошибка: '+e.message);
+</script></html>

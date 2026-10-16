@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Безумные ягодки — тест спецзвуков</title>
+<style>
+  :root{color-scheme:dark}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:linear-gradient(#142719,#08120c);color:#fff6d9;font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;display:grid;place-items:center;padding:20px}
+  .card{width:min(760px,100%);background:#243421e8;border:1px solid #b88a46;border-radius:24px;padding:22px;box-shadow:0 16px 50px #0008}
+  h1{font-size:clamp(26px,5vw,42px);margin:0 0 8px}
+  p{line-height:1.45;color:#eadfbd}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+  button{min-height:76px;border:0;border-radius:18px;background:linear-gradient(#8b5a2e,#5d351d);color:#fff4c5;font-weight:800;font-size:18px;box-shadow:inset 0 0 0 2px #d8aa66,0 6px 12px #0006}
+  button:active{transform:translateY(2px)}
+  .wide{grid-column:1/-1;background:linear-gradient(#76419b,#4a285f)}
+  .small{font-size:14px;color:#cabf9f;margin-top:15px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Тест спецзвуков</h1>
+  <p>Нажимай на телефоне при обычной громкости. Спецэффект должен быть заметно слышнее мягкого «чпока», но не раздражать.</p>
+  <div class="grid">
+    <button data-s="create">Создание спец-ягоды</button>
+    <button data-s="lineh">Горизонтальная линия</button>
+    <button data-s="linev">Вертикальная линия</button>
+    <button data-s="bomb">Бомба</button>
+    <button data-s="rainbow">Радуга</button>
+    <button data-s="pop">Обычный мягкий чпок</button>
+    <button class="wide" data-s="combo">Две спец-ягоды</button>
+    <button class="wide" data-s="cascade">Серия комбо ×4</button>
+  </div>
+  <div class="small">Это тест синтезированных базовых SFX из текущей логики. Музыка здесь выключена специально, чтобы сначала оценить сами звуки.</div>
+</div>
+<script>
+let ctx=null,last={};
+function C(){ctx ||= new (window.AudioContext||window.webkitAudioContext)(); if(ctx.state==='suspended')ctx.resume(); return ctx}
+function tone(f,d=.06,g=.02,t='sine',end=0,delay=0){
+  const c=C(),n=c.currentTime+delay,o=c.createOscillator(),a=c.createGain();
+  o.type=t;o.frequency.setValueAtTime(f,n);if(end)o.frequency.exponentialRampToValueAtTime(Math.max(55,f+end),n+d);
+  a.gain.setValueAtTime(.0001,n);a.gain.exponentialRampToValueAtTime(g*2.35,n+.004);a.gain.exponentialRampToValueAtTime(.0001,n+d);
+  o.connect(a).connect(c.destination);o.start(n);o.stop(n+d+.03)
+}
+function noise(){
+  const c=C(),buffer=c.createBuffer(1,Math.ceil(c.sampleRate*.18),c.sampleRate),data=buffer.getChannelData(0);
+  for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2);
+  const source=c.createBufferSource(),filter=c.createBiquadFilter(),gain=c.createGain();
+  source.buffer=buffer;filter.type='lowpass';filter.frequency.value=1500;
+  gain.gain.setValueAtTime(.090*2.35,c.currentTime);gain.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.18);
+  source.connect(filter).connect(gain).connect(c.destination);source.start();source.stop(c.currentTime+.2)
+}
+function create(){tone(820,.095,.020,'sine',340);tone(1260,.085,.015,'triangle',260,.035)}
+function lineh(){tone(620,.115,.032,'sine',760);tone(940,.085,.018,'triangle',430,.026);tone(1480,.055,.010,'triangle',-720,.010)}
+function linev(){tone(1180,.115,.030,'sine',-650);tone(760,.095,.018,'triangle',-300,.024);tone(1460,.055,.010,'triangle',-700,.010)}
+function bomb(){tone(155,.27,.085,'sine',-95);tone(290,.13,.028,'triangle',-170,.008);tone(920,.065,.032,'triangle',-590,.010);noise()}
+function rainbow(){tone(420,.18,.020,'sine',920);[720,960,1260,1680].forEach((f,i)=>tone(f,.11,.022,'sine',180,i*.036))}
+function combo(){tone(320,.20,.035,'sine',520);tone(760,.15,.026,'triangle',760,.018);tone(1280,.13,.018,'sine',420,.060)}
+function pop(){tone(430,.055,.010,'sine',90);tone(690,.045,.006,'triangle',80,.012)}
+const map={create,lineh,linev,bomb,rainbow,combo,pop,cascade(){
+  [0,.22,.48,.78].forEach((d,i)=>setTimeout(()=>{combo(); if(i===3)rainbow()},d*1000))
+}};
+document.addEventListener('click',e=>{const k=e.target?.dataset?.s;if(k){C();map[k]?.()}});
+</script>
+</body>
+</html>

@@ -1,0 +1,517 @@
+[
+  {
+    "file": "src/vertical_slice.js",
+    "key": "common.play",
+    "original": "ИГРАТЬ"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "help.basics",
+    "original": "Меняй соседние ягоды местами и собирай от трёх в ряд.\nВыполняй цели слева, пока не закончатся ходы."
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "transition.title",
+    "original": "ОТКРЫВАЕМ ВОРОТА В СКАЗКУ…"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "transition.subtitle",
+    "original": "Лесное королевство уже рядом"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "daily.title",
+    "original": "ЕЖЕДНЕВНАЯ НАГРАДА"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "daily.hint",
+    "original": "Выберите один из трёх сундуков"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "daily.choose",
+    "original": "ВЫБЕРИТЕ СУНДУК"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "daily.openingMap",
+    "original": "ОТКРЫВАЕМ КАРТУ…"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "common.next",
+    "original": "ДАЛЬШЕ"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "daily.gift",
+    "original": "ВАШ ПОДАРОК"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "common.next",
+    "original": "ДАЛЬШЕ"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "map.kingdom",
+    "original": "ЛЕСНОЕ КОРОЛЕВСТВО"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "hud.goals",
+    "original": "ЦЕЛИ"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "hud.boosters",
+    "original": "БУСТЕРЫ"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "booster.hammerHint",
+    "original": "Молоток: выбери клетку"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "booster.fanHint",
+    "original": "Веер: выбери ряд"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "berry.strawberry",
+    "original": "Клубника"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "berry.raspberry",
+    "original": "Малина"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "berry.blueberry",
+    "original": "Черника"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "berry.gooseberry",
+    "original": "Крыжовник"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "berry.blackberry",
+    "original": "Ежевика"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "berry.cloudberry",
+    "original": "Морошка"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "obstacle.ice",
+    "original": "Лёд"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "obstacle.acorn",
+    "original": "Жёлуди"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "obstacle.roots",
+    "original": "Корни"
+  },
+  {
+    "file": "src/vertical_slice.js",
+    "key": "goal.score",
+    "original": "Очки"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "lives.next",
+    "original": "+1 жизнь"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "lives.max",
+    "original": "МАКСИМУМ"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "special.lineH",
+    "original": "ПОЛОСАТАЯ • поменяй с соседней ягодой → очистит РЯД"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "special.lineV",
+    "original": "ПОЛОСАТАЯ • поменяй с соседней ягодой → очистит КОЛОНКУ"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "special.bomb",
+    "original": "БОМБА • поменяй с соседней ягодой → взрыв 3×3"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "special.rainbow",
+    "original": "РАДУГА • поменяй с ягодой → уберёт весь её цвет"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "shop.title",
+    "original": "МАГАЗИН"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "settings.title",
+    "original": "НАСТРОЙКИ"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "common.off",
+    "original": "ВЫКЛ"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "common.on",
+    "original": "ВКЛ"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "settings.sound",
+    "original": "ЗВУК"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "settings.music",
+    "original": "МУЗЫКА"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "settings.credits",
+    "original": "О музыке"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "settings.creditsBody",
+    "original": "Музыка: Kevin MacLeod (incompetech.com)\nMorning • Devonshire Waltz Moderato\nMagic Escape Room • Adventures in Adventureland\nАкценты: фрагменты с плавным началом и окончанием\nLicensed under Creative Commons: By Attribution 4.0\nhttps://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "common.close",
+    "original": "ЗАКРЫТЬ"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "common.choose",
+    "original": "Выберите"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "product.coins1000",
+    "original": "1000 монет"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "purchase.coinsGranted",
+    "original": "Начислено 1000 монет"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "product.lives5",
+    "original": "Восстановить\nдо 5 жизней"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "purchase.livesGranted",
+    "original": "Жизни восстановлены"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "product.boosters3",
+    "original": "По 3 бустера\nкаждого вида"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "purchase.boostersGranted",
+    "original": "Начислено по 3 бустера"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "purchase.opening",
+    "original": "Открываем оплату…"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "purchase.savePending",
+    "original": "Покупка сохранена. Начисление завершится после восстановления сети"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "purchase.confirmPending",
+    "original": "Награда начислена. Подтверждение завершится при следующем запуске"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "purchase.unavailable",
+    "original": "Покупки временно недоступны"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "purchase.cancelled",
+    "original": "Покупка отменена"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "purchase.unsupported",
+    "original": "Покупки недоступны в этой версии"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "purchase.unavailable",
+    "original": "Покупки временно недоступны"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "purchase.unavailable",
+    "original": "Покупки временно недоступны"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "shop.persistent",
+    "original": "Бустеры сохраняются\nмежду уровнями"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "booster.hammer",
+    "original": "Молоток"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "booster.shuffle",
+    "original": "Перемешивание"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "booster.fan",
+    "original": "Вентилятор"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "shop.insufficient",
+    "original": "Не хватает монет\nЗаработайте их на уровнях"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "berry.strawberry",
+    "original": "Клубника"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "berry.raspberry",
+    "original": "Малина"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "berry.blueberry",
+    "original": "Черника"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "berry.gooseberry",
+    "original": "Крыжовник"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "berry.blackberry",
+    "original": "Ежевика"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "berry.cloudberry",
+    "original": "Морошка"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "obstacle.ice",
+    "original": "Лёд"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "obstacle.roots",
+    "original": "Корни"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "obstacle.acorn",
+    "original": "Жёлуди"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "goal.score",
+    "original": "Очки"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "goal.generic",
+    "original": "Цель"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "result.doubled",
+    "original": "Монеты удвоены"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "ads.unavailable",
+    "original": "Реклама недоступна. Попробуй позже."
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "result.noDouble",
+    "original": "Удвоение награды недоступно"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "result.continueUsed",
+    "original": "Продолжение уже использовано"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "ads.unavailable",
+    "original": "Реклама недоступна. Попробуй позже."
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "result.noContinue",
+    "original": "Продолжение за рекламу недоступно"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "booster.hammerPrompt",
+    "original": "МОЛОТОК — выбери одну клетку"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "booster.fanPrompt",
+    "original": "ВЕЕР — выбери ряд"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "combo.juicy",
+    "original": "СОЧНО!"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "combo.wow",
+    "original": "ВАУ!"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "combo.boom",
+    "original": "БУМ!"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "combo.more",
+    "original": "ЕЩЁ!"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "combo.combo",
+    "original": "КОМБО!"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "combo.juicy",
+    "original": "СОЧНО!"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "debug.hideGrid",
+    "original": "G — скрыть сетку"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "settings.title",
+    "original": "НАСТРОЙКИ"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "common.off",
+    "original": "ВЫКЛ"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "common.on",
+    "original": "ВКЛ"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "settings.sound",
+    "original": "ЗВУК"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "settings.music",
+    "original": "МУЗЫКА"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "hud.levelLabel",
+    "original": "УРОВЕНЬ"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "common.loading",
+    "original": "ЗАГРУЗКА…"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "ads.shortUnavailable",
+    "original": "РЕКЛАМА\nНЕДОСТУПНА"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "shop.title",
+    "original": "МАГАЗИН"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "common.saved",
+    "original": "Сохранено"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "debug.copy",
+    "original": "КОПИРОВАТЬ JSON"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "debug.copied",
+    "original": "JSON скопирован"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "debug.savedLocal",
+    "original": "JSON сохранён в localStorage"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "debug.reset",
+    "original": "СБРОСИТЬ"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "debug.drag",
+    "original": "Перетащите точку • колёсико меняет размер"
+  },
+  {
+    "file": "src/runtime_stable_v10.js",
+    "key": "debug.chooseLevel",
+    "original": "Выберите уровень"
+  }
+]
