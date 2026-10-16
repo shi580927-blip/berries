@@ -164,11 +164,73 @@
           "geometryChecked": false
         }
       }
+    },
+    {
+      "id": "royalFamily",
+      "source": "assets/ui/buttons/button_royal_family_soon.png",
+      "sourceSize": [
+        520,
+        364
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/drafts/en/button_royal_family_soon.png",
+          "text": "ROYAL FAMILY / SOON",
+          "size": [
+            1500,
+            1049
+          ],
+          "sha256": "b1de5a76b1583ddb7a9fdc682086a2efa40d89878dd14572ce58da124fc62a69",
+          "status": "candidate_not_runtime",
+          "geometryChecked": false
+        },
+        "tr": {
+          "path": "assets/i18n/drafts/tr/button_royal_family_soon.png",
+          "text": "KRALİYET AİLESİ / YAKINDA",
+          "size": [
+            1500,
+            1049
+          ],
+          "sha256": "091cb40b8814a3c4d558227e19276384aa6a280bd2934dd35a616d9173f3c20f",
+          "status": "candidate_not_runtime",
+          "geometryChecked": false
+        }
+      }
+    },
+    {
+      "id": "boosterShop",
+      "source": "assets/ui/panels/popup33.png",
+      "sourceSize": [
+        1086,
+        1448
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/drafts/en/popup_booster_shop.png",
+          "text": "SHOP",
+          "size": [
+            1086,
+            1448
+          ],
+          "sha256": "8c6ec3db496401c47bb62d92b5767286568430157d99a929ae4509681361483b",
+          "status": "candidate_not_runtime",
+          "geometryChecked": false
+        },
+        "tr": {
+          "path": "assets/i18n/drafts/tr/popup_booster_shop.png",
+          "text": "MAĞAZA",
+          "size": [
+            1086,
+            1448
+          ],
+          "sha256": "24b05a437ff7baa2bf8fda9baac8d8a13e8308f5cdc4687306655ccbf1064b2c",
+          "status": "candidate_not_runtime",
+          "geometryChecked": false
+        }
+      }
     }
   ],
   "pending": [
-    "royal_family_soon",
-    "booster_shop_popup",
     "level_win_popup",
     "level_lose_popup",
     "royal_shop_popup"
