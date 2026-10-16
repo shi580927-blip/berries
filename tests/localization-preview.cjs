@@ -7,7 +7,7 @@ async function check(language){
  const values=new Map([[campaign.KEY,JSON.stringify({coins:98765})]]),reads=[],requests=[],nodes=new Map();
  const storage={getItem:k=>{reads.push(k);return values.get(k)||null},setItem:(k,v)=>values.set(k,v)};
  const node=id=>{if(!nodes.has(id))nodes.set(id,{style:{},textContent:'',value:'',append(){}});return nodes.get(id)};
- const document={querySelector:node,querySelectorAll:()=>[],documentElement:{},createElement:tag=>({tag})};
+ const document={fonts:{load:async()=>[{}]},querySelector:node,querySelectorAll:()=>[],documentElement:{},createElement:tag=>({tag})};
  document.body={append(script){queueMicrotask(()=>script.onload())}};
  const loaded=[];
  class Loader{image(...args){loaded.push(args);return this}once(name,fn){this.event=name;this.complete=fn}}

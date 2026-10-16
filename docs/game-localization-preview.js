@@ -20,6 +20,8 @@
       read('src/i18n/drafts/' + language + '.json'),
       read('docs/localization_assets.json'), read('docs/localization_popup_layers.json')
     ]);
+    const loadedFonts = await document.fonts.load('800 64px BerriesHeading', dictionary['result.win']+' '+dictionary['result.lose']);
+    if (!loadedFonts.length) throw Error('BerriesHeading font failed to load');
     const originalI18n = window.BerriesI18n;
     window.BerriesI18n = Object.freeze({
       language, availableLanguages: [language], init: () => language,
@@ -74,6 +76,15 @@
     const addLabel = (scene, box, art, spec) => {
       const x = art.x + (spec.x-.5)*art.displayWidth;
       const y = art.y + (spec.y-.5)*art.displayHeight;
+      if(spec.decorative) {
+        const width=art.displayWidth*spec.w,height=art.displayHeight*spec.h;
+        const canvas=document.createElement('canvas');canvas.width=Math.ceil(width*2);canvas.height=Math.ceil(height*2);
+        window.BerriesHeadingPainter.draw(canvas.getContext('2d'),window.BerriesI18n.t(spec.key),{cx:canvas.width/2,cy:canvas.height/2,w:canvas.width,h:canvas.height});
+        const key='preview_heading_'+language+'_'+spec.key;
+        if(scene.textures.exists(key))scene.textures.remove(key);
+        scene.textures.addCanvas(key,canvas);
+        const node=scene.add.image(x,y,key).setDisplaySize(width,height);box.add(node);return node;
+      }
       let size = Math.round(art.displayWidth*spec.size);
       const node = scene.add.text(x,y,window.BerriesI18n.t(spec.key),{
         fontFamily:'Arial Rounded MT Bold, Trebuchet MS, Arial, sans-serif',fontStyle:'bold',

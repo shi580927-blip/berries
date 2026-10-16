@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Проверка графики RU / EN / TR</title>
+<link rel="stylesheet" href="../assets/fonts/heading.css"><script src="heading-painter.js"></script><title>Проверка графики RU / EN / TR</title>
 <style>body{margin:24px;background:#182321;color:#fff;font:16px system-ui}main{max-width:1400px;margin:auto}section{border-top:1px solid #678;margin-top:24px}.row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}canvas{width:100%;background:repeating-conic-gradient(#35433f 0% 25%,#46534f 0% 50%) 0/20px 20px;outline:1px solid #789}label{display:block;margin:16px 0}button{padding:10px}small{display:block;color:#c9d7d1} @media(max-width:700px){.row{grid-template-columns:1fr}}</style>
 <main><h1>Графика RU / EN / TR</h1><p>Игровой стенд: <a href="game-localization-preview.html?lang=en">EN</a> · <a href="game-localization-preview.html?lang=tr">TR</a>. Черновики, отдельный прогресс; требуется HTTP-сервер.</p><p>Черновики. Русская графика показана для сравнения и остаётся без изменений. По умолчанию показан полный холст, как при загрузке текстуры в игре. Обрезка по alpha — отдельный режим сравнения; её нельзя считать проверкой игровых якорей.</p><label><input id="bounds" type="checkbox" checked> Показывать границу видимой области</label><label><input id="crop" type="checkbox"> Вписывать по видимым alpha-границам (не runtime)</label><p><a href="booster-shop-preview.html">Магазин: горизонтальная сцена с текстами и зонами нажатия</a></p><div id="status">Загрузка…</div><div id="panels"></div></main>
 <script>
@@ -8,6 +8,7 @@ const root='../';
 let entries=[],dictionaries={},popupLayers={};
 async function render(){
  const status=document.querySelector('#status');status.textContent='';
+ const fonts=await document.fonts.load('800 64px BerriesHeading','VICTORY! SO CLOSE! ZAFER! AZ KALDI!');if(!fonts.length)throw Error('BerriesHeading font failed to load');
  for(const lang of ['en','tr']) dictionaries[lang]=await fetch('../src/i18n/drafts/'+lang+'.json').then(r=>r.json());
  popupLayers=await fetch('localization_popup_layers.json').then(r=>r.json());
  const m=await fetch('localization_assets.json').then(r=>{if(!r.ok)throw Error(r.status);return r.json()});
@@ -37,6 +38,7 @@ function drawLabels(e,ctx,x,y,x0,y0,scale){
   const value=(template.replace(/\{(\w+)\}/g,(s,k)=>Object.hasOwn(l.params||{},k)?String(l.params[k]):s)+(l.suffix||'')).trim();
   const lines=value.split('\n');let size=e.img.width*l.size*scale;
   const maxW=e.img.width*l.w*scale,maxH=e.img.height*l.h*scale;
+  if(l.decorative){window.BerriesHeadingPainter.draw(ctx,value,{cx:x+(e.img.width*l.x-x0)*scale,cy:y+(e.img.height*l.y-y0)*scale,w:maxW,h:maxH});continue;}
   ctx.font=`bold ${size}px Arial`;const measured=Math.max(...lines.map(t=>ctx.measureText(t).width));
   size*=Math.min(1,maxW/Math.max(measured,1),maxH/(size*1.15*lines.length));ctx.font=`bold ${size}px Arial`;
   const cx=x+(e.img.width*l.x-x0)*scale,cy=y+(e.img.height*l.y-y0)*scale;
