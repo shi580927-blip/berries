@@ -119,14 +119,17 @@
         const skip = new Set(['result.reward','result.remaining','berry.strawberry','obstacle.ice']);
         for(const spec of layers[win?'levelWin':'levelLose']) if(!skip.has(spec.key)) addLabel(this,box,art,spec);
       };
-      const paid = proto.openPaidShop;
-      proto.openPaidShop = function() {
-        const existed = this._paidShopModal?.active;
-        paid.call(this);
-        if(existed) return;
+      // Map copies the shop method before this preview installs; wrap both scenes.
+      const decorateShop=original=>function() {
+        const existed=this._paidShopModal?.active;
+        original.call(this);
+        if(existed)return;
         const box=this._paidShopModal,art=box?.list?.find(n=>n.texture?.key==='popup_royal_shop');
-        if(art) addLabel(this,box,art,layers.paidRoyalShop[0]);
+        if(art)addLabel(this,box,art,{...layers.paidRoyalShop[0],x:.5,y:.19,w:.62,h:.12,decorative:true});
       };
+      proto.openPaidShop=decorateShop(proto.openPaidShop);
+      const mapProto=Object.getPrototypeOf(game.scene.keys.Map);
+      mapProto.openPaidShop=decorateShop(mapProto.openPaidShop);
       status.textContent='Стенд готов. PLAY → карта → уровень. Попапы — кнопками сверху.';
       return true;
     };
