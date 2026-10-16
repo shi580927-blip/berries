@@ -25,6 +25,7 @@
 ## Проверки и сборка
 
 ```bash
+node tests/i18n.cjs
 node tests/platform.cjs
 node tests/campaign.cjs
 node tests/special-label-lifecycle.cjs

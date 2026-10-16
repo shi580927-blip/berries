@@ -1,9 +1,12 @@
 // Isolated lifecycle regression; uses real resolve/showSpecialInfo with scene/render stubs.
 // Run: node tests/special-label-lifecycle.cjs
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const i18nWindow={};
+require('node:vm').runInNewContext(fs.readFileSync(path.join(__dirname,'../src/i18n/manager.js'),'utf8'),{window:i18nWindow});
+require('node:vm').runInNewContext(fs.readFileSync(path.join(__dirname,'../src/i18n/ru.js'),'utf8'),{window:i18nWindow});
 function compileShow(code){
 const a=code.indexOf("p.showSpecialInfo=function"),b=code.indexOf("\n  const baseSelect",a);
-return new Function("W","FONT","clearTimeout","setTimeout","return "+code.slice(a+"p.showSpecialInfo=".length,b).trim().replace(/;$/,""))(1920,"Arial",()=>{},()=>0);
+return new Function("window","W","FONT","clearTimeout","setTimeout","return "+code.slice(a+"p.showSpecialInfo=".length,b).trim().replace(/;$/,""))(i18nWindow,1920,"Arial",()=>{},()=>0);
 }
 function compileResolve(code){
 const a=code.indexOf("p.resolve=async function"),b=code.indexOf("\n  const baseSwap",a);

@@ -21,9 +21,9 @@ function lifeTimer(scene,panel,text){
     if(lives<5){
       fullSince=null;fading=false;scene.tweens.killTweensOf([panel,text]);
       panel.setVisible(true).setAlpha(1);text.setVisible(true).setAlpha(1);
-      text.setText(['+1 жизнь',(Campaign.lifeLabel().split(' • ')[1]||'')].join('\n'));
+      text.setText([window.BerriesI18n.t('lives.next'),(Campaign.lifeLabel().split(' • ')[1]||'')].join('\n'));
     }else if(fullSince!==null&&Date.now()-fullSince<5000){
-      panel.setVisible(true);text.setVisible(true).setText('МАКСИМУМ');
+      panel.setVisible(true);text.setVisible(true).setText(window.BerriesI18n.t('lives.max'));
     }else if(fullSince!==null&&!fading){
       fading=true;scene.tweens.add({targets:[panel,text],alpha:0,duration:300,onComplete:()=>{panel.setVisible(false);text.setVisible(false)}});
     }else if(fullSince===null){panel.setVisible(false);text.setVisible(false)}
@@ -349,10 +349,10 @@ function install(){
   };
 
   p.showSpecialInfo=function(sp,autoHide=3100){
-    const label=sp==='line_h'?'ПОЛОСАТАЯ • поменяй с соседней ягодой → очистит РЯД':
-      sp==='line_v'?'ПОЛОСАТАЯ • поменяй с соседней ягодой → очистит КОЛОНКУ':
-      sp==='bomb'?'БОМБА • поменяй с соседней ягодой → взрыв 3×3':
-      sp==='rainbow'?'РАДУГА • поменяй с ягодой → уберёт весь её цвет':'';
+    const label=sp==='line_h'?window.BerriesI18n.t('special.lineH'):
+      sp==='line_v'?window.BerriesI18n.t('special.lineV'):
+      sp==='bomb'?window.BerriesI18n.t('special.bomb'):
+      sp==='rainbow'?window.BerriesI18n.t('special.rainbow'):'';
     if(!label)return;
     if(!this.specialInfoText?.scene)this.specialInfoText=this.add.text(W/2,955,'',{
       fontFamily:FONT,fontSize:'25px',fontStyle:'bold',color:'#fff7c8',stroke:'#512715',
@@ -389,7 +389,7 @@ function install(){
       return {icon,hit};
     };
     fit(this.add.image(960,73,'plevel'),610,140).setDepth(18);
-    label(960,70,`УРОВЕНЬ ${this.no}`,42);
+    label(960,70,window.BerriesI18n.t('hud.level',{level:this.no}),42);
     let save=Campaign.read();
     const coinPanel=fit(this.add.image(300,77,'pcoins'),380,104).setDepth(18).setInteractive({useHandCursor:true});
     this.coinText=label(310,77,String(save.coins||0),32,'#57301d');
@@ -410,7 +410,7 @@ function install(){
     this.st=null;
     backOnly(72,74,()=>{window.BerriesPlatform?.gameplayStop?.();this.scene.start('Map')});
     const shopButton=fit(this.add.image(1285,1016,'shop_plaque_new'),370,96).setDepth(17).setInteractive({useHandCursor:true});
-    label(1325,1016,'МАГАЗИН',28);shopButton.on('pointerdown',()=>{this.fx.click();this.openShop()});
+    label(1325,1016,window.BerriesI18n.t('shop.title'),28);shopButton.on('pointerdown',()=>{this.fx.click();this.openShop()});
 
     const settingsBg=this.add.circle(1858,66,38*TOUCH_SCALE,0x75401f,.97).setStrokeStyle(4,0xe5bd6b,.96).setDepth(19);
     const settings=fit(this.add.image(1858,66,'ui_settings'),49*TOUCH_SCALE,49*TOUCH_SCALE).setDepth(20).setInteractive({useHandCursor:true});
@@ -425,14 +425,14 @@ function install(){
       const blocker=this.add.zone(0,0,470,290).setInteractive();
       box.add(blocker);
       const text=(x,y,value,size=26)=>this.add.text(x,y,value,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color:'#543922',align:'center'}).setOrigin(.5);
-      box.add(text(0,-100,'НАСТРОЙКИ',30));
+      box.add(text(0,-100,window.BerriesI18n.t('settings.title'),30));
       const close=text(200,-108,'×',34).setInteractive({useHandCursor:true});
       close.on('pointerdown',()=>{box.destroy();this._soundMenu=null});box.add(close);
       const row=(y,title,bus)=>{
         box.add(text(-112,y,title));
         const button=fit(this.add.image(106,y,'btn'),170,65).setInteractive({useHandCursor:true});
         const label=text(106,y,'',22);label.setColor('#fff5da').setStroke('#59331c',3);
-        const update=()=>label.setText(bus?.muted?'ВЫКЛ':'ВКЛ');
+        const update=()=>label.setText(bus?.muted?window.BerriesI18n.t('common.off'):window.BerriesI18n.t('common.on'));
         button.on('pointerdown',()=>{
           if(!bus)return;bus.muted=!bus.muted;
           if(bus===this.music){
@@ -443,15 +443,15 @@ function install(){
         });
         update();box.add([button,label]);
       };
-      row(-22,'ЗВУК',this.fx);row(70,'МУЗЫКА',this.music);
-      const credits=text(0,122,'О музыке',18).setInteractive({useHandCursor:true});
+      row(-22,window.BerriesI18n.t('settings.sound'),this.fx);row(70,window.BerriesI18n.t('settings.music'),this.music);
+      const credits=text(0,122,window.BerriesI18n.t('settings.credits'),18).setInteractive({useHandCursor:true});
       credits.on('pointerdown',()=>{
         if(this._musicCredits?.active){this._musicCredits.destroy();return}
         const card=this.add.container(960,540).setDepth(60);
         card.add(this.add.rectangle(0,0,1080,430,0xfff7e9,.98).setStrokeStyle(3,0xcda36a).setInteractive());
-        const copy='Музыка: Kevin MacLeod (incompetech.com)\nMorning • Devonshire Waltz Moderato\nMagic Escape Room • Adventures in Adventureland\nАкценты: фрагменты с плавным началом и окончанием\nLicensed under Creative Commons: By Attribution 4.0\nhttps://creativecommons.org/licenses/by/4.0/';
+        const copy=window.BerriesI18n.t('settings.creditsBody');
         card.add(text(0,-20,copy,26));
-        const exit=text(0,155,'ЗАКРЫТЬ',26).setInteractive({useHandCursor:true});
+        const exit=text(0,155,window.BerriesI18n.t('common.close'),26).setInteractive({useHandCursor:true});
         exit.on('pointerdown',()=>card.destroy());card.add(exit);this._musicCredits=card;
       });
       box.add(credits);
@@ -539,7 +539,7 @@ function install(){
     const closeHit=this.add.zone(...at(.91,.17),panel.displayWidth*.12,panel.displayHeight*.09).setInteractive({useHandCursor:true});
     closeHit.on('pointerdown',close);box.add(closeHit);
 
-    const header=this.add.text(...at(.595,.327),'Выберите',{
+    const header=this.add.text(...at(.595,.327),window.BerriesI18n.t('common.choose'),{
       fontFamily:FONT,fontSize:'27px',fontStyle:'bold',color:'#6b3b20',
       stroke:'#fff0c7',strokeThickness:2,align:'center'
     }).setOrigin(.5).setDepth(94);box.add(header);
@@ -555,9 +555,9 @@ function install(){
     };
 
     const products=[
-      ['coins_1000',.472,'1000 монет','Начислено 1000 монет'],
-      ['lives_5',.634,'Восстановить\nдо 5 жизней','Жизни восстановлены'],
-      ['boosters_3',.789,'По 3 бустера\nкаждого вида','Начислено по 3 бустера']
+      ['coins_1000',.472,window.BerriesI18n.t('product.coins1000'),window.BerriesI18n.t('purchase.coinsGranted')],
+      ['lives_5',.634,window.BerriesI18n.t('product.lives5'),window.BerriesI18n.t('purchase.livesGranted')],
+      ['boosters_3',.789,window.BerriesI18n.t('product.boosters3'),window.BerriesI18n.t('purchase.boostersGranted')]
     ];
     const controls=[];let pending=false;
 
@@ -607,20 +607,20 @@ function install(){
       const hit=this.add.zone(x,y,w,h).setDepth(96);
       hit.on('pointerdown',async()=>{
         if(pending)return;
-        pending=true;this.fx?.click?.();setStatus('Открываем оплату…');
+        pending=true;this.fx?.click?.();setStatus(window.BerriesI18n.t('purchase.opening'));
         controls.forEach(c=>c.hit.disableInteractive());
         const result=await window.BerriesPlatform.purchaseProduct(id);
         if(result.ok){
           this.fx?.reward?.();setStatus(successText);
           this.updateHud?.();this.refreshLifeDisplay?.();this.refreshBoosters?.();
         }else if(result.reason==='save_pending'){
-          setStatus('Покупка сохранена. Начисление завершится после восстановления сети');
+          setStatus(window.BerriesI18n.t('purchase.savePending'));
         }else if(result.reason==='confirm_pending'){
-          setStatus('Награда начислена. Подтверждение завершится при следующем запуске');
+          setStatus(window.BerriesI18n.t('purchase.confirmPending'));
         }else if(result.reason==='unavailable'){
-          setStatus('Покупки временно недоступны');
+          setStatus(window.BerriesI18n.t('purchase.unavailable'));
         }else{
-          setStatus('Покупка отменена');
+          setStatus(window.BerriesI18n.t('purchase.cancelled'));
         }
         pending=false;
         controls.forEach(c=>{if(c.available)c.hit.setInteractive({useHandCursor:true})});
@@ -629,7 +629,7 @@ function install(){
       box.add(hit);
     }
 
-    if(!window.BerriesPlatform.capabilities.purchases)setStatus('Покупки недоступны в этой версии');
+    if(!window.BerriesPlatform.capabilities.purchases)setStatus(window.BerriesI18n.t('purchase.unsupported'));
     window.BerriesPlatform.getPurchaseCatalog().then(catalog=>{
       const byId=new Map(catalog.map(item=>[item.id,item]));
       controls.forEach(control=>{
@@ -646,8 +646,8 @@ function install(){
           control.hit.disableInteractive();
         }
       });
-      if(!catalog.length)setStatus('Покупки временно недоступны');
-    }).catch(()=>setStatus('Покупки временно недоступны'));
+      if(!catalog.length)setStatus(window.BerriesI18n.t('purchase.unavailable'));
+    }).catch(()=>setStatus(window.BerriesI18n.t('purchase.unavailable')));
   };
 
   p.openShop=function(){
@@ -659,15 +659,15 @@ function install(){
     const panel=fit(this.add.image(960,540,'coin_shop_new'),720,960).setInteractive();box.add(panel);
     const text=(x,y,t,size=28)=>this.add.text(x,y,t,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color:'#59331d',align:'center'}).setOrigin(.5);
     const at=(u,v)=>[panel.x+(u-.5)*panel.displayWidth,panel.y+(v-.5)*panel.displayHeight];
-    const coins=text(...at(.635,.33),'',24),message=text(...at(.5,.92),'Бустеры сохраняются\nмежду уровнями',18);message.setLineSpacing(0);box.add([coins,message]);
+    const coins=text(...at(.635,.33),'',24),message=text(...at(.5,.92),window.BerriesI18n.t('shop.persistent'),18);message.setLineSpacing(0);box.add([coins,message]);
     const counts=[];
-    const refresh=()=>{const state=Campaign.read();coins.setText('МОНЕТЫ\n'+state.coins);counts.forEach(([id,title,t])=>t.setText(title+'\nВ запасе: '+state.inventory[id]));if(this.inventory)this.inventory={...state.inventory};this.refreshBoosters?.()};
-    [['hammer','Молоток'],['shuffle','Перемешивание'],['fan','Вентилятор']].forEach(([id,title],i)=>{
+    const refresh=()=>{const state=Campaign.read();coins.setText(window.BerriesI18n.t('hud.coins',{count:state.coins}));counts.forEach(([id,title,t])=>t.setText(title+'\n'+window.BerriesI18n.t('shop.inventory',{count:state.inventory[id]})));if(this.inventory)this.inventory={...state.inventory};this.refreshBoosters?.()};
+    [['hammer',window.BerriesI18n.t('booster.hammer')],['shuffle',window.BerriesI18n.t('booster.shuffle')],['fan',window.BerriesI18n.t('booster.fan')]].forEach(([id,title],i)=>{
       const v=[.473,.632,.792][i];
       const count=text(...at(.465,v),'',22);counts.push([id,title,count]);box.add(count);
       const buy=this.add.zone(...at(.775,v),panel.displayWidth*.25,panel.displayHeight*.085).setInteractive({useHandCursor:true});
-      const price=text(...at(.775,v),Campaign.PRICES[id]+' монет',24);price.setColor('#fff7c9').setStroke('#276318',4);
-      buy.on('pointerdown',()=>{if(Campaign.buy(id)){this.fx?.reward?.();message.setText('Куплено:\n'+title);refresh();this.updateHud?.()}else message.setText('Не хватает монет\nЗаработайте их на уровнях')});
+      const price=text(...at(.775,v),window.BerriesI18n.t('shop.coinsAmount',{count:Campaign.PRICES[id]}),24);price.setColor('#fff7c9').setStroke('#276318',4);
+      buy.on('pointerdown',()=>{if(Campaign.buy(id)){this.fx?.reward?.();message.setText(window.BerriesI18n.t('shop.bought',{item:title}));refresh();this.updateHud?.()}else message.setText(window.BerriesI18n.t('shop.insufficient'))});
       box.add([buy,price]);
     });
     const closeHit=this.add.zone(1260,218,90,90).setInteractive({useHandCursor:true});closeHit.on('pointerdown',close);box.add(closeHit);refresh();
@@ -686,10 +686,10 @@ function install(){
     const infoText=this.add.text(X(win?.675:.692),Y(win?.525:.52),'',{
       fontFamily:FONT,fontSize:'29px',fontStyle:'bold',color:'#59331d',align:'center',wordWrap:{width:art.displayWidth*.39}
     }).setOrigin(.5);box.add(infoText);
-    const names={strawberry:'Клубника',raspberry:'Малина',blueberry:'Черника',gooseberry:'Крыжовник',blackberry:'Ежевика',cloudberry:'Морошка',ice:'Лёд',roots:'Корни',acorn:'Жёлуди',score:'Очки'};
+    const names={strawberry:window.BerriesI18n.t('berry.strawberry'),raspberry:window.BerriesI18n.t('berry.raspberry'),blueberry:window.BerriesI18n.t('berry.blueberry'),gooseberry:window.BerriesI18n.t('berry.gooseberry'),blackberry:window.BerriesI18n.t('berry.blackberry'),cloudberry:window.BerriesI18n.t('berry.cloudberry'),ice:window.BerriesI18n.t('obstacle.ice'),roots:window.BerriesI18n.t('obstacle.roots'),acorn:window.BerriesI18n.t('obstacle.acorn'),score:window.BerriesI18n.t('goal.score')};
     const refreshInfo=()=>{
-      if(win){const reward=Campaign.read().lastWin;infoText.setText('Награда\n'+(reward?.id===this.attemptId?reward.reward*(reward.doubled?2:1):0)+' монет')}
-      else infoText.setText('Осталось собрать\n'+this.goals.map(g=>({g,left:Math.max(0,g.need-(g.type==='score'?Math.round(this.score):g.done))})).filter(q=>q.left>0).map(q=>(names[q.g.id||q.g.type]||'Цель')+': '+q.left).join('\n'));
+      if(win){const reward=Campaign.read().lastWin;infoText.setText(window.BerriesI18n.t('result.reward',{count:reward?.id===this.attemptId?reward.reward*(reward.doubled?2:1):0}))}
+      else infoText.setText(window.BerriesI18n.t('result.remaining',{goals:this.goals.map(g=>({g,left:Math.max(0,g.need-(g.type==='score'?Math.round(this.score):g.done))})).filter(q=>q.left>0).map(q=>(names[q.g.id||q.g.type]||window.BerriesI18n.t('goal.generic'))+': '+q.left).join('\n')}));
       infoText.setFontSize(29);
       if(infoText.height>art.displayHeight*(win?.19:.155))infoText.setFontSize(23);
     };refreshInfo();
@@ -708,17 +708,17 @@ function install(){
         if(!this.scene.isActive()||this.attemptId!==attempt)return;
         if(ok&&Campaign.doubleReward(attempt)){
           this.updateHud();
-          this.winRewardDoubled=true;this.fx.reward();refreshInfo();adStatus.setText("Монеты удвоены");
-        }else{area.setInteractive({useHandCursor:true});adStatus.setText('Реклама недоступна. Попробуй позже.')}
+          this.winRewardDoubled=true;this.fx.reward();refreshInfo();adStatus.setText(window.BerriesI18n.t('result.doubled'));
+        }else{area.setInteractive({useHandCursor:true});adStatus.setText(window.BerriesI18n.t('ads.unavailable'))}
       });
-      if(!window.BerriesPlatform.capabilities.rewarded){doubleAd.disableInteractive();adStatus.setText('Удвоение награды недоступно')}
+      if(!window.BerriesPlatform.capabilities.rewarded){doubleAd.disableInteractive();adStatus.setText(window.BerriesI18n.t('result.noDouble'))}
       hit(.5,.899,.55,.13,()=>{
         const next=this.no<30?this.no+1:null;
         if(next)this.scene.start('Play',{n:next});else this.scene.start('Map');
       });
     }else{
       const continueAd=hit(.5,.697,.74,.16,async area=>{
-        if(this.continueUsed){adStatus.setText('Продолжение уже использовано');return}
+        if(this.continueUsed){adStatus.setText(window.BerriesI18n.t('result.continueUsed'));return}
         const attempt=this.attemptId;
         area.disableInteractive();
         const ok=await window.BerriesPlatform?.showRewardedVideo?.();
@@ -727,9 +727,9 @@ function install(){
           this.continueUsed=true;this.moves+=5;this.fx.reward();shade.destroy();box.destroy();this.busy=false;
           window.__berriesGameplayShouldRun=true;window.BerriesPlatform?.gameplayStart?.();
           this.kingAnim('idle');this.updateHud();this.scheduleHint();
-        }else{area.setInteractive({useHandCursor:true});adStatus.setText('Реклама недоступна. Попробуй позже.')}
+        }else{area.setInteractive({useHandCursor:true});adStatus.setText(window.BerriesI18n.t('ads.unavailable'))}
       });
-      if(!window.BerriesPlatform.capabilities.rewarded){continueAd.disableInteractive();adStatus.setText('Продолжение за рекламу недоступно')}
+      if(!window.BerriesPlatform.capabilities.rewarded){continueAd.disableInteractive();adStatus.setText(window.BerriesI18n.t('result.noContinue'))}
       hit(.294,.873,.40,.105,()=>this.scene.restart({n:this.no}));
       hit(.714,.873,.40,.105,()=>this.scene.start('Map'));
     }
@@ -742,7 +742,7 @@ function install(){
     if(!this.busy&&this.inventory[id]<=0){this.openShop();return}
     basePickBooster.call(this,id);
     if(!this.boosterMode)return;
-    const label=this.boosterMode==='hammer'?'МОЛОТОК — выбери одну клетку':this.boosterMode==='fan'?'ВЕЕР — выбери ряд':'';
+    const label=this.boosterMode==='hammer'?window.BerriesI18n.t('booster.hammerPrompt'):this.boosterMode==='fan'?window.BerriesI18n.t('booster.fanPrompt'):'';
     if(label)this.boosterHint.setText(label);
   };
 
@@ -793,12 +793,12 @@ function install(){
   p.comboCelebration=function(chain){
     const rainbow=[0xff5e8a,0xffd84f,0x75eaff,0x7dff9d,0xb88cff,0xff84d7,0xffffff];
     const satellites=[
-      {text:'СОЧНО!',x:W*.25,y:H*.31,size:150,angle:-12,alpha:.55},
-      {text:'ВАУ!',x:W*.78,y:H*.27,size:128,angle:10,alpha:.52},
-      {text:'БУМ!',x:W*.23,y:H*.72,size:120,angle:8,alpha:.50},
-      {text:'ЕЩЁ!',x:W*.78,y:H*.70,size:142,angle:-9,alpha:.54}
+      {text:window.BerriesI18n.t('combo.juicy'),x:W*.25,y:H*.31,size:150,angle:-12,alpha:.55},
+      {text:window.BerriesI18n.t('combo.wow'),x:W*.78,y:H*.27,size:128,angle:10,alpha:.52},
+      {text:window.BerriesI18n.t('combo.boom'),x:W*.23,y:H*.72,size:120,angle:8,alpha:.50},
+      {text:window.BerriesI18n.t('combo.more'),x:W*.78,y:H*.70,size:142,angle:-9,alpha:.54}
     ];
-    this.comboArcWord(chain>=4?'КОМБО!':'СОЧНО!',W*.51,H*.49,chain>=4?285:255,chain>=4?.78:.70);
+    this.comboArcWord(chain>=4?window.BerriesI18n.t('combo.combo'):window.BerriesI18n.t('combo.juicy'),W*.51,H*.49,chain>=4?285:255,chain>=4?.78:.70);
     const count=chain>=3?4:3;
     satellites.slice(0,count).forEach((spec,i)=>{
       const label=this.add.text(spec.x,spec.y,spec.text,{
@@ -945,7 +945,7 @@ function install(){
       const q=this.pos(r,c);
       container.add(this.add.text(q.x,q.y,`${r},${c}`,{fontFamily:FONT,fontSize:'15px',color:'#ffffff',stroke:'#000000',strokeThickness:4}).setOrigin(.5));
     }
-    container.add(this.add.text(W-18,H-18,'G — скрыть сетку',{fontFamily:FONT,fontSize:'20px',color:'#fff3a6',backgroundColor:'#142016dd',padding:{x:10,y:6}}).setOrigin(1));
+    container.add(this.add.text(W-18,H-18,window.BerriesI18n.t('debug.hideGrid'),{fontFamily:FONT,fontSize:'20px',color:'#fff3a6',backgroundColor:'#142016dd',padding:{x:10,y:6}}).setOrigin(1));
     this.__debugGrid=container;
   };
 
@@ -1009,7 +1009,7 @@ function install(){
           fontFamily:FONT,fontSize:'26px',fontStyle:'bold',color:'#fff4cf',
           backgroundColor:'#542f20',padding:{x:22,y:14},align:'center'
         }).setOrigin(.5).setDepth(60);
-        this._mapNotice.setText('Жизни закончились. До +1 жизни: '+Campaign.lifeLabel().split(' • ')[1]+'\nВнизу карты можно получить жизнь за рекламу.').setVisible(true);
+        this._mapNotice.setText(window.BerriesI18n.t('lives.none',{time:Campaign.lifeLabel().split(' • ')[1]})+'\n'+window.BerriesI18n.t('lives.adHint')).setVisible(true);
         return;
       }
       this._mapNotice?.setVisible(false);
@@ -1037,17 +1037,17 @@ function install(){
         const bg=this.add.graphics();bg.fillStyle(0xfff7e9,.97);bg.fillRoundedRect(-235,-145,470,290,24);bg.lineStyle(4,0xcda36a,1);bg.strokeRoundedRect(-235,-145,470,290,24);box.add(bg);
         box.add(this.add.zone(0,0,470,290).setInteractive());
         const text=(x,y,value,size=26)=>this.add.text(x,y,value,{fontFamily:FONT,fontSize:size+'px',fontStyle:'bold',color:'#543922',align:'center'}).setOrigin(.5);
-        box.add(text(0,-102,'НАСТРОЙКИ',30));
+        box.add(text(0,-102,window.BerriesI18n.t('settings.title'),30));
         const close=text(202,-108,'×',36).setInteractive({useHandCursor:true});close.on('pointerdown',()=>{box.destroy();this._mapSettings=null});box.add(close);
         const buttonRow=(y,title,isMuted,toggle)=>{
           box.add(text(-110,y,title));
           const button=fit(this.add.image(108,y,'btn'),170,65).setInteractive({useHandCursor:true});
           const state=text(108,y,'',22);state.setColor('#fff5da').setStroke('#59331c',3);
-          const refresh=()=>state.setText(isMuted()?'ВЫКЛ':'ВКЛ');
+          const refresh=()=>state.setText(isMuted()?window.BerriesI18n.t('common.off'):window.BerriesI18n.t('common.on'));
           button.on('pointerdown',()=>{toggle();refresh()});refresh();box.add([button,state]);
         };
-        buttonRow(-20,'ЗВУК',()=>localStorage.getItem('berries_sfx_muted')==='1',()=>{const muted=localStorage.getItem('berries_sfx_muted')==='1';localStorage.setItem('berries_sfx_muted',muted?'0':'1')});
-        buttonRow(72,'МУЗЫКА',()=>!!this.music?.muted,()=>{if(!this.music)return;this.music.muted=!this.music.muted;if(this.music.muted)this.music.stop();else this.music.play('music_menu')});
+        buttonRow(-20,window.BerriesI18n.t('settings.sound'),()=>localStorage.getItem('berries_sfx_muted')==='1',()=>{const muted=localStorage.getItem('berries_sfx_muted')==='1';localStorage.setItem('berries_sfx_muted',muted?'0':'1')});
+        buttonRow(72,window.BerriesI18n.t('settings.music'),()=>!!this.music?.muted,()=>{if(!this.music)return;this.music.muted=!this.music.muted;if(this.music.muted)this.music.stop();else this.music.play('music_menu')});
       });
 
       let save=Campaign.read();
@@ -1074,7 +1074,7 @@ function install(){
         const topLevelPanel=fit(this.add.image(1560,76,'map_level_panel'),470,150).setDepth(40);
         const footerStyle={fontFamily:FONT,fontStyle:'bold',color:'#fff4cf',align:'center',stroke:'#67371d',strokeThickness:4};
         const levelNumber=this.add.text(topLevelPanel.x-.32*topLevelPanel.displayWidth,topLevelPanel.y,'',{fontFamily:FONT,fontStyle:'bold',color:'#6b3218',align:'center',fontSize:'34px',stroke:'#fff1b8',strokeThickness:3}).setOrigin(.5).setDepth(41);
-        const extra=this.add.text(topLevelPanel.x+.13*topLevelPanel.displayWidth,topLevelPanel.y,'УРОВЕНЬ',{...footerStyle,fontSize:'28px'}).setOrigin(.5).setDepth(41);
+        const extra=this.add.text(topLevelPanel.x+.13*topLevelPanel.displayWidth,topLevelPanel.y,window.BerriesI18n.t('hud.levelLabel'),{...footerStyle,fontSize:'28px'}).setOrigin(.5).setDepth(41);
         levelNumber.y+=levelNumber.height*.4;
         extra.y+=extra.height*.4;
         const royalShop=fit(this.add.image(250,1006,'panel_king_shop'),520,140).setDepth(40).setInteractive({useHandCursor:true});
@@ -1090,15 +1090,15 @@ function install(){
         const refreshTimer=lifeTimer(this,timerPanel,timer);
         let pending=false;
         const lifeAd=this.add.zone(1100,1006,390,140).setDepth(42).setInteractive({useHandCursor:true}).on('pointerdown',async()=>{
-          if(pending||Campaign.read().lives!==0)return;pending=true;timer.setText('ЗАГРУЗКА…');
-          try{const ok=await window.BerriesPlatform?.showRewardedVideo?.();if(ok)Campaign.addLife();else timer.setText('РЕКЛАМА\nНЕДОСТУПНА')}
+          if(pending||Campaign.read().lives!==0)return;pending=true;timer.setText(window.BerriesI18n.t('common.loading'));
+          try{const ok=await window.BerriesPlatform?.showRewardedVideo?.();if(ok)Campaign.addLife();else timer.setText(window.BerriesI18n.t('ads.shortUnavailable'))}
           finally{pending=false}
         });
         if(!window.BerriesPlatform.capabilities.rewarded)lifeAd.disableInteractive();
         const update=()=>{const state=Campaign.read(),lifeParts=Campaign.lifeLabel().split(' • ');
           lives.setText(String(state.lives));
           if(!pending)refreshTimer();
-          shop.setText('МАГАЗИН');
+          shop.setText(window.BerriesI18n.t('shop.title'));
           levelNumber.setText(String(highest));
         };
         update();this.time.addEvent({delay:1000,loop:true,callback:update});
@@ -1107,13 +1107,13 @@ function install(){
 
       const saveLayout=()=>{
         localStorage.setItem(LAYOUT_KEY,JSON.stringify(layout.map(q=>({x:Math.round(q.x),y:Math.round(q.y),scale:+q.scale.toFixed(2)}))));
-        status?.setText('Сохранено');
+        status?.setText(window.BerriesI18n.t('common.saved'));
       };
       const select=node=>{
         selected=node;
         selection?.destroy();
         selection=this.add.rectangle(node.x,node.y,node.getData('size')*node.scaleX+14,node.getData('size')*node.scaleY+14,0xffffff,.02).setStrokeStyle(4,0x66ffb0,.95).setDepth(49);
-        status?.setText(`Уровень ${node.getData('level')}  x:${Math.round(node.x)}  y:${Math.round(node.y)}  ×${node.scaleX.toFixed(2)}`);
+        status?.setText(window.BerriesI18n.t('editor.position',{level:node.getData('level'),x:Math.round(node.x),y:Math.round(node.y),scale:node.scaleX.toFixed(2)}));
       };
       const resize=delta=>{
         if(!selected)return;
@@ -1144,7 +1144,7 @@ function install(){
             node.x=Phaser.Math.Clamp(x,35,W-35);node.y=Phaser.Math.Clamp(y,175,H-35);
             layout[index].x=node.x;layout[index].y=node.y;
             if(selection){selection.x=node.x;selection.y=node.y}
-            status?.setText(`Уровень ${n}  x:${Math.round(node.x)}  y:${Math.round(node.y)}  ×${node.scaleX.toFixed(2)}`);
+            status?.setText(window.BerriesI18n.t('editor.position',{level:n,x:Math.round(node.x),y:Math.round(node.y),scale:node.scaleX.toFixed(2)}));
           });
           node.on('dragend',saveLayout);
         }else if(unlocked){
@@ -1163,15 +1163,15 @@ function install(){
           bg.on('pointerdown',cb);
         };
         makeButton(420,'−',62,()=>resize(-.08));makeButton(500,'+',62,()=>resize(.08));
-        makeButton(720,'КОПИРОВАТЬ JSON',300,async()=>{
+        makeButton(720,window.BerriesI18n.t('debug.copy'),300,async()=>{
           saveLayout();const json=JSON.stringify(layout.map(q=>({x:Math.round(q.x),y:Math.round(q.y),scale:+q.scale.toFixed(2)})),null,2);
-          try{await navigator.clipboard.writeText(json);status.setText('JSON скопирован')}catch{status.setText('JSON сохранён в localStorage')}
+          try{await navigator.clipboard.writeText(json);status.setText(window.BerriesI18n.t('debug.copied'))}catch{status.setText(window.BerriesI18n.t('debug.savedLocal'))}
         });
-        makeButton(1000,'СБРОСИТЬ',180,()=>{
+        makeButton(1000,window.BerriesI18n.t('debug.reset'),180,()=>{
           localStorage.removeItem(LAYOUT_KEY);this.scene.restart();
         });
-        this.add.text(1180,1025,'Перетащите точку • колёсико меняет размер',{fontFamily:FONT,fontSize:'18px',color:'#fff0bd'}).setOrigin(.5).setDepth(47);
-        status=this.add.text(28,160,'Выберите уровень',{fontFamily:FONT,fontSize:'20px',fontStyle:'bold',color:'#caffd9',backgroundColor:'#10281bdd',padding:{x:12,y:7}}).setDepth(50);
+        this.add.text(1180,1025,window.BerriesI18n.t('debug.drag'),{fontFamily:FONT,fontSize:'18px',color:'#fff0bd'}).setOrigin(.5).setDepth(47);
+        status=this.add.text(28,160,window.BerriesI18n.t('debug.chooseLevel'),{fontFamily:FONT,fontSize:'20px',fontStyle:'bold',color:'#caffd9',backgroundColor:'#10281bdd',padding:{x:12,y:7}}).setDepth(50);
         this.input.on('wheel',(pointer,objects,dx,dy)=>resize(dy>0?-.05:.05));
       }
     };

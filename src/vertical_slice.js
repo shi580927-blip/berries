@@ -389,7 +389,7 @@ class Title extends Phaser.Scene{
 
     this.music=new MusicBus(this);
     let entering=false;
-    this.makeButton(W/2,805,'ИГРАТЬ',async()=>{
+    this.makeButton(W/2,805,window.BerriesI18n.t('common.play'),async()=>{
       if(entering)return;
       entering=true;
 
@@ -412,7 +412,7 @@ class Title extends Phaser.Scene{
     window.BerriesPlatform.loadingReady();
 
     this.add.rectangle(W/2,974,1110,128,0x3a2417,.68).setStrokeStyle(3,0xe8c77d,.75);
-    this.add.text(W/2,974,'Меняй соседние ягоды местами и собирай от трёх в ряд.\nВыполняй цели слева, пока не закончатся ходы.',{
+    this.add.text(W/2,974,window.BerriesI18n.t('help.basics'),{
       fontFamily:FONT,fontSize:'31px',fontStyle:'bold',lineSpacing:8,align:'center',
       color:'#fff8d9',stroke:'#3b2012',strokeThickness:6
     }).setOrigin(.5);
@@ -444,11 +444,11 @@ class Title extends Phaser.Scene{
       });
     }
 
-    const title=this.add.text(W/2,H/2-8,'ОТКРЫВАЕМ ВОРОТА В СКАЗКУ…',{
+    const title=this.add.text(W/2,H/2-8,window.BerriesI18n.t('transition.title'),{
       fontFamily:FONT,fontSize:'38px',fontStyle:'bold',color:'#fff0b1',
       stroke:'#4f2918',strokeThickness:7,align:'center'
     }).setOrigin(.5).setAlpha(0).setDepth(4);
-    const sub=this.add.text(W/2,H/2+55,'Лесное королевство уже рядом',{
+    const sub=this.add.text(W/2,H/2+55,window.BerriesI18n.t('transition.subtitle'),{
       fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#fff6d8',
       stroke:'#2d2015',strokeThickness:4,align:'center'
     }).setOrigin(.5).setAlpha(0).setDepth(4);
@@ -497,18 +497,18 @@ class Title extends Phaser.Scene{
     const panel=fit(this.add.image(W/2,H/2,'daily_popup'),1660,930).setInteractive();box.add(panel);
     const at=(u,v)=>[panel.x+(u-.5)*panel.displayWidth,panel.y+(v-.5)*panel.displayHeight];
 
-    const title=this.add.text(...at(.5,.225),'ЕЖЕДНЕВНАЯ НАГРАДА',{
+    const title=this.add.text(...at(.5,.225),window.BerriesI18n.t('daily.title'),{
       fontFamily:FONT,fontSize:'38px',fontStyle:'bold',color:'#ffe69a',
       stroke:'#6b2e17',strokeThickness:7,align:'center'
     }).setOrigin(.5).setDepth(83);box.add(title);
     if(title.width>panel.displayWidth*.47)title.setFontSize(Math.max(27,Math.floor(38*panel.displayWidth*.47/title.width)));
 
-    const hint=this.add.text(...at(.5,.425),'Выберите один из трёх сундуков',{
+    const hint=this.add.text(...at(.5,.425),window.BerriesI18n.t('daily.hint'),{
       fontFamily:FONT,fontSize:'27px',fontStyle:'bold',color:'#6a3b20',
       align:'center'
     }).setOrigin(.5).setDepth(83);box.add(hint);
 
-    const continueLabel=this.add.text(...at(.5,.855),'ВЫБЕРИТЕ СУНДУК',{
+    const continueLabel=this.add.text(...at(.5,.855),window.BerriesI18n.t('daily.choose'),{
       fontFamily:FONT,fontSize:'29px',fontStyle:'bold',color:'#fff2c2',
       stroke:'#7b251f',strokeThickness:6,align:'center'
     }).setOrigin(.5).setDepth(84);box.add(continueLabel);
@@ -520,7 +520,7 @@ class Title extends Phaser.Scene{
 
     const goNext=async()=>{
       continueHit.disableInteractive();
-      if(!window.__berriesStartupReady)continueLabel.setText('ОТКРЫВАЕМ КАРТУ…');
+      if(!window.__berriesStartupReady)continueLabel.setText(window.BerriesI18n.t('daily.openingMap'));
       await mapReady;
       this.scene.start('Map');
     };
@@ -562,7 +562,7 @@ class Title extends Phaser.Scene{
 
         const result=Campaign.claimDailyReward?.(rewards[index]);
         if(!result?.ok){
-          continueLabel.setText('ДАЛЬШЕ');
+          continueLabel.setText(window.BerriesI18n.t('common.next'));
           continueHit.setInteractive({useHandCursor:true}).once('pointerdown',goNext);
           return;
         }
@@ -578,7 +578,7 @@ class Title extends Phaser.Scene{
           });
         });
 
-        hint.setText('ВАШ ПОДАРОК').setFontSize(27);
+        hint.setText(window.BerriesI18n.t('daily.gift')).setFontSize(27);
         const [resultTitleX,resultTitleY]=at(.69,.455);
         this.tweens.add({targets:hint,x:resultTitleX,y:resultTitleY,duration:230,ease:'Sine.out'});
 
@@ -613,7 +613,7 @@ class Title extends Phaser.Scene{
           addRewardRow(cardX,cardY,result.booster||'hammer','+'+result.boosterCount);
         }
 
-        continueLabel.setText('ДАЛЬШЕ');
+        continueLabel.setText(window.BerriesI18n.t('common.next'));
         continueHit.setInteractive({useHandCursor:true}).once('pointerdown',()=>{this.fx.click();goNext()});
       });
     });
@@ -630,7 +630,7 @@ class Title extends Phaser.Scene{
 }
 class Map extends Phaser.Scene{
   constructor(){super('Map')}
-  create(){window.__berriesGameplayShouldRun=false;window.BerriesPlatform?.gameplayStop?.();this.fx=new Sfx(this);this.add.image(W/2,H/2,'mapbg').setDisplaySize(W,H);this.add.text(W/2,75,'ЛЕСНОЕ КОРОЛЕВСТВО',{fontSize:'44px',fontStyle:'bold',color:'#fff1b0',stroke:'#542b15',strokeThickness:8}).setOrigin(.5);const sv=loadSave(),done=new Set(sv.done||[]),a=[{n:1,x:360,y:760},{n:6,x:610,y:610},{n:11,x:860,y:735},{n:16,x:1110,y:545},{n:21,x:1370,y:670},{n:30,x:1580,y:410}];a.forEach(({n,x,y},i)=>{const unlocked=i===0||done.has(a[i-1]?.n),k=done.has(n)?'lvl_completed':(unlocked?'lvl_current':'lvl_locked'),im=fit(this.add.image(x,y,k),150,150);if(unlocked)im.setInteractive({useHandCursor:true}).on('pointerdown',()=>{this.fx.click();this.scene.start('Play',{n})});this.add.text(x,y,String(n),{fontSize:'42px',fontStyle:'bold',color:unlocked?'#fff4ca':'#b9a98d',stroke:'#5b2c14',strokeThickness:7}).setOrigin(.5);this.tweens.add({targets:im,y:y-8,duration:1400+i*90,yoyo:true,repeat:-1,ease:'Sine.inOut'})});const k=fit(this.add.image(1660,815,'king_point'),330,330);this.tweens.add({targets:k,y:800,angle:{from:-2,to:2},duration:1250,yoyo:true,repeat:-1,ease:'Sine.inOut'})}
+  create(){window.__berriesGameplayShouldRun=false;window.BerriesPlatform?.gameplayStop?.();this.fx=new Sfx(this);this.add.image(W/2,H/2,'mapbg').setDisplaySize(W,H);this.add.text(W/2,75,window.BerriesI18n.t('map.kingdom'),{fontSize:'44px',fontStyle:'bold',color:'#fff1b0',stroke:'#542b15',strokeThickness:8}).setOrigin(.5);const sv=loadSave(),done=new Set(sv.done||[]),a=[{n:1,x:360,y:760},{n:6,x:610,y:610},{n:11,x:860,y:735},{n:16,x:1110,y:545},{n:21,x:1370,y:670},{n:30,x:1580,y:410}];a.forEach(({n,x,y},i)=>{const unlocked=i===0||done.has(a[i-1]?.n),k=done.has(n)?'lvl_completed':(unlocked?'lvl_current':'lvl_locked'),im=fit(this.add.image(x,y,k),150,150);if(unlocked)im.setInteractive({useHandCursor:true}).on('pointerdown',()=>{this.fx.click();this.scene.start('Play',{n})});this.add.text(x,y,String(n),{fontSize:'42px',fontStyle:'bold',color:unlocked?'#fff4ca':'#b9a98d',stroke:'#5b2c14',strokeThickness:7}).setOrigin(.5);this.tweens.add({targets:im,y:y-8,duration:1400+i*90,yoyo:true,repeat:-1,ease:'Sine.inOut'})});const k=fit(this.add.image(1660,815,'king_point'),330,330);this.tweens.add({targets:k,y:800,angle:{from:-2,to:2},duration:1250,yoyo:true,repeat:-1,ease:'Sine.inOut'})}
 }
 
 class Play extends Phaser.Scene{
@@ -647,9 +647,9 @@ class Play extends Phaser.Scene{
     this.add.image(W/2,H/2,'gamebg').setDisplaySize(W,H);this.add.rectangle(W/2,H/2,W,H,0x06140a,.08);this.hud();this.cfg.ice.forEach(([r,c,h])=>this.cell[r][c].ice=h);this.cfg.ac.forEach(([r,c])=>this.cell[r][c].block='acorn');this.cfg.root.forEach(([r,c])=>this.cell[r][c].block='roots');this.seed();this.drawAll(true);this.updateHud();this.kingAnim('idle');this.scheduleHint();
   }
   hud(){
-    fit(this.add.image(W/2,64,'plevel'),560,125);this.add.text(W/2,64,`УРОВЕНЬ ${this.no}`,{fontSize:'44px',fontStyle:'bold',color:'#ffeeb0',stroke:'#622f17',strokeThickness:8}).setOrigin(.5);this.add.text(115,64,'←',{fontSize:'58px',fontStyle:'bold',color:'#fff5c7',stroke:'#4f2a15',strokeThickness:7}).setOrigin(.5).setInteractive({useHandCursor:true}).on('pointerdown',()=>{this.fx.click();window.BerriesPlatform?.gameplayStop?.();this.scene.start('Map')});this.mt=this.add.text(1510,64,'',{fontSize:'34px',fontStyle:'bold',color:'#fff5cb',stroke:'#4e2b16',strokeThickness:6}).setOrigin(.5);this.st=this.add.text(1720,64,'',{fontSize:'26px',color:'#fff5cb',stroke:'#4e2b16',strokeThickness:5}).setOrigin(.5);
-    fit(this.add.image(285,410,'pgoals'),430,570);this.add.text(285,205,'ЦЕЛИ',{fontSize:'38px',fontStyle:'bold',color:'#ffeaae',stroke:'#613117',strokeThickness:7}).setOrigin(.5);this.gt=this.goals.map((g,i)=>this.add.text(285,300+i*105,'',{fontSize:'27px',fontStyle:'bold',align:'center',color:'#4a3826',stroke:'#fff2cf',strokeThickness:2,wordWrap:{width:320}}).setOrigin(.5));
-    fit(this.add.image(1640,365,'pboost'),375,445);this.add.text(1640,205,'БУСТЕРЫ',{fontSize:'30px',fontStyle:'bold',color:'#ffeaae',stroke:'#613117',strokeThickness:6}).setOrigin(.5);this.boosterButtons={};[['hammer',1540,320],['shuffle',1640,320],['fan',1740,320]].forEach(([id,x,y])=>{const im=fit(this.add.image(x,y,id),88,88).setInteractive({useHandCursor:true}),tx=this.add.text(x,y+68,'',{fontSize:'22px',fontStyle:'bold',color:'#fff6d0',stroke:'#4b2915',strokeThickness:4}).setOrigin(.5);im.on('pointerdown',()=>this.pickBooster(id));this.boosterButtons[id]={im,tx}});this.boosterHint=this.add.text(1640,455,'',{fontSize:'20px',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:300}}).setOrigin(.5);
+    fit(this.add.image(W/2,64,'plevel'),560,125);this.add.text(W/2,64,window.BerriesI18n.t('hud.level',{level:this.no}),{fontSize:'44px',fontStyle:'bold',color:'#ffeeb0',stroke:'#622f17',strokeThickness:8}).setOrigin(.5);this.add.text(115,64,'←',{fontSize:'58px',fontStyle:'bold',color:'#fff5c7',stroke:'#4f2a15',strokeThickness:7}).setOrigin(.5).setInteractive({useHandCursor:true}).on('pointerdown',()=>{this.fx.click();window.BerriesPlatform?.gameplayStop?.();this.scene.start('Map')});this.mt=this.add.text(1510,64,'',{fontSize:'34px',fontStyle:'bold',color:'#fff5cb',stroke:'#4e2b16',strokeThickness:6}).setOrigin(.5);this.st=this.add.text(1720,64,'',{fontSize:'26px',color:'#fff5cb',stroke:'#4e2b16',strokeThickness:5}).setOrigin(.5);
+    fit(this.add.image(285,410,'pgoals'),430,570);this.add.text(285,205,window.BerriesI18n.t('hud.goals'),{fontSize:'38px',fontStyle:'bold',color:'#ffeaae',stroke:'#613117',strokeThickness:7}).setOrigin(.5);this.gt=this.goals.map((g,i)=>this.add.text(285,300+i*105,'',{fontSize:'27px',fontStyle:'bold',align:'center',color:'#4a3826',stroke:'#fff2cf',strokeThickness:2,wordWrap:{width:320}}).setOrigin(.5));
+    fit(this.add.image(1640,365,'pboost'),375,445);this.add.text(1640,205,window.BerriesI18n.t('hud.boosters'),{fontSize:'30px',fontStyle:'bold',color:'#ffeaae',stroke:'#613117',strokeThickness:6}).setOrigin(.5);this.boosterButtons={};[['hammer',1540,320],['shuffle',1640,320],['fan',1740,320]].forEach(([id,x,y])=>{const im=fit(this.add.image(x,y,id),88,88).setInteractive({useHandCursor:true}),tx=this.add.text(x,y+68,'',{fontSize:'22px',fontStyle:'bold',color:'#fff6d0',stroke:'#4b2915',strokeThickness:4}).setOrigin(.5);im.on('pointerdown',()=>this.pickBooster(id));this.boosterButtons[id]={im,tx}});this.boosterHint=this.add.text(1640,455,'',{fontSize:'20px',align:'center',color:'#fff1c9',stroke:'#4b2915',strokeThickness:4,wordWrap:{width:300}}).setOrigin(.5);
     this.king=fit(this.add.image(1650,750,'king_idle'),330,330);this.kingBaseY=750;this.kingBaseScale=this.king.scaleX;
     const q=this.add.graphics();q.fillStyle(0x302014,.72);q.fillRoundedRect(BX-25,BY-25,C*CELL+50,R*CELL+50,32);q.lineStyle(6,0xd2a45c,.85);q.strokeRoundedRect(BX-25,BY-25,C*CELL+50,R*CELL+50,32);for(let r=0;r<R;r++)for(let c=0;c<C;c++){q.fillStyle((r+c)%2?0x4a6d3c:0x557b43,.68);q.fillRoundedRect(BX+c*CELL+4,BY+r*CELL+4,CELL-8,CELL-8,16)}
   }
@@ -687,12 +687,12 @@ class Play extends Phaser.Scene{
   hasMove(){for(let r=0;r<R;r++)for(let c=0;c<C;c++){if(!this.board[r][c]||this.cell[r][c].block||this.cell[r][c].ice)continue;for(const [dr,dc] of [[1,0],[0,1]]){const rr=r+dr,cc=c+dc;if(!inBounds(rr,cc)||!this.board[rr][cc]||this.cell[rr][cc].block||this.cell[rr][cc].ice)continue;this.swapData({r,c},{r:rr,c:cc});const ok=this.groups().length>0;this.swapData({r,c},{r:rr,c:cc});if(ok)return true}}return false}
   shuffleBoard(){const movable=[];for(let r=0;r<R;r++)for(let c=0;c<C;c++)if(this.board[r][c]&&!this.cell[r][c].block&&!this.cell[r][c].ice)movable.push(this.board[r][c]);Phaser.Utils.Array.Shuffle(movable);let i=0;for(let r=0;r<R;r++)for(let c=0;c<C;c++)if(this.board[r][c]&&!this.cell[r][c].block&&!this.cell[r][c].ice)this.board[r][c]=movable[i++]}
   async autoShuffle(){this.busy=true;for(let k=0;k<25;k++){this.shuffleBoard();if(this.groups().length===0&&this.hasMove())break}this.fx.whoosh();this.drawAll(false,true);await pause(600);this.busy=false}
-  pickBooster(id){if(this.busy||this.inventory[id]<=0)return;this.resetHint();this.fx.click();if(id==='shuffle'){this.useShuffle();return}this.boosterMode=this.boosterMode===id?null:id;this.boosterHint.setText(this.boosterMode==='hammer'?'Молоток: выбери клетку':this.boosterMode==='fan'?'Веер: выбери ряд':'');this.refreshBoosters()}
+  pickBooster(id){if(this.busy||this.inventory[id]<=0)return;this.resetHint();this.fx.click();if(id==='shuffle'){this.useShuffle();return}this.boosterMode=this.boosterMode===id?null:id;this.boosterHint.setText(this.boosterMode==='hammer'?window.BerriesI18n.t('booster.hammerHint'):this.boosterMode==='fan'?window.BerriesI18n.t('booster.fanHint'):'');this.refreshBoosters()}
   async useBoosterAt(r,c){const id=this.boosterMode;if(!id||this.inventory[id]<=0||!Campaign.consume(id))return;this.busy=true;this.boosterMode=null;this.boosterHint.setText('');if(id==='hammer'){this.inventory.hammer--;const ce=this.cell[r][c],p=this.pos(r,c);if(ce.ice>0){ce.ice--;if(ce.ice===0)this.bumpGoal('ice',null,1);this.fx.iceBreak();this.iceShards(p.x,p.y)}else if(ce.block==='roots'){ce.block=null;this.bumpGoal('roots',null,1);this.fx.vinesBreak();this.burst(p.x,p.y,0x9c6b3c,12)}else if(ce.block==='acorn'){ce.block=null;this.bumpGoal('acorn',null,1);(this.fx.acornCrunch?this.fx.acornCrunch():this.fx.spark?.());this.burst(p.x,p.y,0xffe48d,12)}else if(this.board[r][c]){const it=this.board[r][c];this.bumpGoal('berry',it.id,1);this.board[r][c]=null;this.fx.pop(1);this.burst(p.x,p.y,0xffd66f,10)}this.render(r,c);await this.fallRefill();await this.resolve()}else if(id==='fan'){this.inventory.fan--;const set=new Set();for(let cc=0;cc<C;cc++)set.add(`${r},${cc}`);this.fx.whoosh();this.lineFx(r,c,'h');await this.clearCells(set,2);await this.fallRefill();await this.resolve()}this.busy=false;this.refreshBoosters();this.updateHud();this.endCheck();this.scheduleHint()}
   async useShuffle(){if(this.busy||this.inventory.shuffle<=0||!Campaign.consume('shuffle'))return;this.busy=true;this.inventory.shuffle--;for(let k=0;k<30;k++){this.shuffleBoard();if(this.groups().length===0&&this.hasMove())break}this.fx.whoosh();this.drawAll(false,true);await pause(600);this.busy=false;this.refreshBoosters();this.scheduleHint()}
   refreshBoosters(){for(const id of Object.keys(this.boosterButtons)){const b=this.boosterButtons[id];b.tx.setText(`×${this.inventory[id]}`);b.im.clearTint();if(this.boosterMode===id)b.im.setTint(0xffe29a);b.im.setAlpha(this.inventory[id]<=0?.4:1)}}
   bumpGoal(type,id,n){for(const g of this.goals)if(g.type===type&&(id==null||g.id===id))g.done=Math.min(g.need,g.done+n)}
-  updateHud(){this.mt.setText(`ХОДЫ  ${this.moves}`);this.st?.setText(`СЧЁТ ${Math.round(this.score)}`);this.goals.forEach((g,i)=>{const name=g.type==='berry'?({'strawberry':'Клубника','raspberry':'Малина','blueberry':'Черника','gooseberry':'Крыжовник','blackberry':'Ежевика','cloudberry':'Морошка'}[g.id]||g.id):g.type==='ice'?'Лёд':g.type==='acorn'?'Жёлуди':g.type==='roots'?'Корни':'Очки',done=g.type==='score'?Math.min(g.need,Math.round(this.score)):g.done;this.gt[i].setText(`${name}\n${done} / ${g.need}`)});this.refreshBoosters()}
+  updateHud(){this.mt.setText(window.BerriesI18n.t('hud.moves',{moves:this.moves}));this.st?.setText(window.BerriesI18n.t('hud.score',{score:Math.round(this.score)}));this.goals.forEach((g,i)=>{const name=g.type==='berry'?({'strawberry':window.BerriesI18n.t('berry.strawberry'),'raspberry':window.BerriesI18n.t('berry.raspberry'),'blueberry':window.BerriesI18n.t('berry.blueberry'),'gooseberry':window.BerriesI18n.t('berry.gooseberry'),'blackberry':window.BerriesI18n.t('berry.blackberry'),'cloudberry':window.BerriesI18n.t('berry.cloudberry')}[g.id]||g.id):g.type==='ice'?window.BerriesI18n.t('obstacle.ice'):g.type==='acorn'?window.BerriesI18n.t('obstacle.acorn'):g.type==='roots'?window.BerriesI18n.t('obstacle.roots'):window.BerriesI18n.t('goal.score'),done=g.type==='score'?Math.min(g.need,Math.round(this.score)):g.done;this.gt[i].setText(`${name}\n${done} / ${g.need}`)});this.refreshBoosters()}
   allDone(){return this.goals.every(g=>g.type==='score'?this.score>=g.need:g.done>=g.need)}
   endCheck(){if(this.allDone())this.win();else if(this.moves<=0)this.lose()}
   kingTexture(state){

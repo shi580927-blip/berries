@@ -25,3 +25,26 @@ assert.equal(i.t('missing'),'missing');
 window.localStorage.getItem=()=>{throw Error('blocked')};
 assert.equal(i.init('de-DE'),'ru');
 console.log('i18n checks passed: dictionaries, parameters, readiness gate, persistence, blocked storage');
+// Runtime catalog must not drift from the reviewed RU source.
+const runtimeWindow={};
+vm.runInNewContext(source,{window:runtimeWindow});
+vm.runInNewContext(fs.readFileSync('src/i18n/ru.js','utf8'),{window:runtimeWindow});
+for(const [id,value] of Object.entries(dictionaries.ru)) assert.equal(runtimeWindow.BerriesI18n.t(id),value,id);
+for(const name of ['vertical_slice.js','runtime_stable_v10.js']) {
+ const code=fs.readFileSync('src/'+name,'utf8');
+ for(const match of code.matchAll(/BerriesI18n\.t\('([^']+)'/g))
+  assert.ok(Object.hasOwn(dictionaries.ru,match[1]),`${name}: ${match[1]}`);
+}
+const audit=JSON.parse(fs.readFileSync('docs/localization_migration_audit.json','utf8'));
+for(const entry of audit) assert.equal(i.t(entry.key),entry.original,entry.file+': '+entry.key);
+for(const [id,params,expected] of [
+ ['hud.level',{level:30},'УРОВЕНЬ 30'],
+ ['hud.moves',{moves:0},'ХОДЫ  0'],
+ ['hud.score',{score:1250},'СЧЁТ 1250'],
+ ['hud.coins',{count:0},'МОНЕТЫ\n0'],
+ ['shop.inventory',{count:3},'В запасе: 3'],
+ ['shop.bought',{item:'Молоток'},'Куплено:\nМолоток'],
+ ['result.reward',{count:500},'Награда\n500 монет'],
+ ['result.remaining',{goals:'Клубника: 4\nЛёд: 1'},'Осталось собрать\nКлубника: 4\nЛёд: 1']
+]) assert.equal(i.t(id,params),expected,id);
+console.log(`PASS: ${audit.length} migrated literals preserve RU copy; dynamic UI parameters and source keys validated`);
