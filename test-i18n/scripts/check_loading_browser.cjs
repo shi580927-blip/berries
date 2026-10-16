@@ -22,6 +22,7 @@ const {chromium}=require(process.env.BERRIES_PLAYWRIGHT_MODULE||'playwright');
   await page.evaluate(()=>window.__berriesGame.scene.keys.Title.scene.start('Play',{n:1}));
   await page.waitForFunction(()=>window.__berriesGame.scene.keys.Play.cfg&&['popup_win','popup_lose'].every(k=>window.__berriesGame.textures.exists(k)));
   console.log('RESULTS PRELOADED',lang);
+  await page.evaluate(()=>{window.__resultHeadingDraws=0;const draw=window.BerriesHeadingPainter.draw;window.BerriesHeadingPainter={draw(...args){window.__resultHeadingDraws++;return draw(...args)}}});
   const popupMs=[];
   for(const win of [true,false]){
    if(!win)await page.evaluate(()=>{const scene=window.__berriesGame.scene.keys.Play;for(const n of [...scene.children.list])if(n.depth===30||n.depth===31)n.destroy()});
@@ -29,12 +30,12 @@ const {chromium}=require(process.env.BERRIES_PLAYWRIGHT_MODULE||'playwright');
     const scene=window.__berriesGame.scene.keys.Play;scene.busy=true;
     const before=performance.getEntriesByType('resource').length,t=performance.now();await scene.resultPopup(win);
     if(!scene.children.list.some(n=>n.type==='Container'&&n.depth===31))throw Error('Result missing');
-    return {win,ms:Math.round(performance.now()-t),newResources:performance.getEntriesByType('resource').length-before};
+    return {win,ms:Math.round(performance.now()-t),newResources:performance.getEntriesByType('resource').length-before,headingDraws:window.__resultHeadingDraws};
    },win));
    if(win&&process.env.BERRIES_QA_SCREENSHOT)await page.screenshot({path:process.env.BERRIES_QA_SCREENSHOT.replace('.png','-'+lang+'.png')});
   }
   console.log(JSON.stringify({lang,readyMs,popupMs}));
-  if(popupMs.some(x=>x.ms>1000||x.newResources))throw Error('Cached result delayed or requested network');
+  if(popupMs.some(x=>x.ms>1000||x.newResources||x.headingDraws))throw Error('Cached result delayed or requested network');
   audioReleased=true;releaseAudio();
   await page.waitForFunction(()=>window.__berriesGame.cache.audio.exists('sfx_berry_pop'),{},{timeout:15000});
   const audioSurvivedSceneChange=true;
