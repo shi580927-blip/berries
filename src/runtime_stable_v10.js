@@ -535,6 +535,7 @@ function install(){
     // New RU production art: title is baked into the artwork, while product labels,
     // SDK prices and status remain dynamic so the same layout can later be localized.
     const panel=fit(this.add.image(W/2,H/2,'popup_royal_shop'),780,980).setInteractive();box.add(panel);
+    window.BerriesLocalizedUI?.shop(this,box,panel);
     const at=(u,v)=>[panel.x+(u-.5)*panel.displayWidth,panel.y+(v-.5)*panel.displayHeight];
     const closeHit=this.add.zone(...at(.91,.17),panel.displayWidth*.12,panel.displayHeight*.09).setInteractive({useHandCursor:true});
     closeHit.on('pointerdown',close);box.add(closeHit);
@@ -736,6 +737,7 @@ function install(){
       hit(.294,.873,.40,.105,()=>this.scene.restart({n:this.no}));
       hit(.714,.873,.40,.105,()=>this.scene.start('Map'));
     }
+    window.BerriesLocalizedUI?.result(this,box,art,win);
     box.setScale(.84).setAlpha(0);
     this.tweens.add({targets:box,scale:1,alpha:1,duration:250,ease:'Back.out'});
   };

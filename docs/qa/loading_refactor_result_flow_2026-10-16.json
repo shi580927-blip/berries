@@ -1,0 +1,31 @@
+{
+  "note": "Simulated terminal outcomes via actual win/lose handlers; visible includes popup tween and browser wait. Not last-swap/cascade timing or full-level balance.",
+  "records": [
+    {
+      "lang": "en",
+      "fieldAndResultsReadyMs": 4848,
+      "terminalHandlerToVisible": {
+        "win": 2298,
+        "lose": 781
+      },
+      "next": true,
+      "retry": true,
+      "map": true,
+      "primarySaveUnchanged": true,
+      "errors": []
+    },
+    {
+      "lang": "tr",
+      "fieldAndResultsReadyMs": 4661,
+      "terminalHandlerToVisible": {
+        "win": 3773,
+        "lose": 942
+      },
+      "next": true,
+      "retry": true,
+      "map": true,
+      "primarySaveUnchanged": true,
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-16",
+  "environment": "Local Chromium, mobile viewport 915x412 DPR2; audio held until after both results",
+  "records": [
+    {
+      "lang": "en",
+      "readyMs": 6765,
+      "readyWithoutAudio": true,
+      "popupMs": [
+        {
+          "win": true,
+          "ms": 41,
+          "newResources": 0,
+          "headingDraws": 0
+        },
+        {
+          "win": false,
+          "ms": 26,
+          "newResources": 0,
+          "headingDraws": 0
+        }
+      ],
+      "audioSurvivedSceneChange": true,
+      "errors": [],
+      "failed": []
+    },
+    {
+      "lang": "tr",
+      "readyMs": 7838,
+      "readyWithoutAudio": true,
+      "popupMs": [
+        {
+          "win": true,
+          "ms": 91,
+          "newResources": 0,
+          "headingDraws": 0
+        },
+        {
+          "win": false,
+          "ms": 20,
+          "newResources": 0,
+          "headingDraws": 0
+        }
+      ],
+      "audioSurvivedSceneChange": true,
+      "errors": [],
+      "failed": []
+    }
+  ]
+}
