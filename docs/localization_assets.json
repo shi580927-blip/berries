@@ -1,0 +1,181 @@
+{
+  "status": "in_progress",
+  "runtimeLanguages": [
+    "ru"
+  ],
+  "russianLogoHold": true,
+  "assets": [
+    {
+      "id": "logo",
+      "source": "assets/ui/panels/logo_main.png",
+      "sourceSize": [
+        1800,
+        1105
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/drafts/shared/logo_crazy_berries.png",
+          "text": "Crazy Berries",
+          "size": [
+            1601,
+            983
+          ],
+          "sha256": "8b8fe808baa50012197b76f5cd17285282d7cb65b495403577a649dc8c246e67",
+          "status": "candidate_not_runtime",
+          "geometryChecked": false
+        },
+        "tr": {
+          "path": "assets/i18n/drafts/shared/logo_crazy_berries.png",
+          "text": "Crazy Berries",
+          "size": [
+            1601,
+            983
+          ],
+          "sha256": "8b8fe808baa50012197b76f5cd17285282d7cb65b495403577a649dc8c246e67",
+          "status": "candidate_not_runtime",
+          "geometryChecked": false
+        }
+      }
+    },
+    {
+      "id": "boosters",
+      "source": "assets/ui/panels/panel_head_boosters.png",
+      "sourceSize": [
+        1789,
+        500
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/drafts/en/panel_head_boosters.png",
+          "text": "BOOSTERS",
+          "size": [
+            2170,
+            725
+          ],
+          "sha256": "eab97248db153db007437e5265cc2409b6948e925a5c400a7288adab187cd091",
+          "status": "candidate_not_runtime",
+          "geometryChecked": false
+        },
+        "tr": {
+          "path": "assets/i18n/drafts/tr/panel_head_boosters.png",
+          "text": "GÜÇLENDİRİCİLER",
+          "size": [
+            2170,
+            725
+          ],
+          "sha256": "89a2cc64c977d7ce7f88e858c63a7e8126540d8811f81607e2734d1620cd2944",
+          "status": "candidate_not_runtime",
+          "geometryChecked": false
+        }
+      }
+    },
+    {
+      "id": "map",
+      "source": "assets/map/map_header_levels.png",
+      "sourceSize": [
+        1893,
+        500
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/drafts/en/map_header_levels.png",
+          "text": "LEVEL MAP",
+          "size": [
+            2172,
+            724
+          ],
+          "sha256": "bfeb58e517464227eec3cc54086a2b5494c610a39130ef2c1323af8104273f90",
+          "status": "candidate_not_runtime",
+          "geometryChecked": false
+        },
+        "tr": {
+          "path": "assets/i18n/drafts/tr/map_header_levels.png",
+          "text": "BÖLÜM HARİTASI",
+          "size": [
+            2172,
+            724
+          ],
+          "sha256": "6527ba50549c6976dc9b49849a0f8bd8c964c4ad34ffd9145934686d65b03f30",
+          "status": "candidate_not_runtime",
+          "geometryChecked": false
+        }
+      }
+    },
+    {
+      "id": "goals",
+      "source": "assets/ui/panels/panel22.png",
+      "sourceSize": [
+        612,
+        1149
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/drafts/en/panel_goals.png",
+          "text": "GOALS",
+          "size": [
+            915,
+            1719
+          ],
+          "sha256": "7bfecd6d70acdf6553baaf23e36c89e7d7e26efd9f63aa4567dbdeb24bd71424",
+          "status": "candidate_not_runtime",
+          "geometryChecked": false
+        },
+        "tr": {
+          "path": "assets/i18n/drafts/tr/panel_goals.png",
+          "text": "HEDEFLER",
+          "size": [
+            915,
+            1719
+          ],
+          "sha256": "688aa42015637f285a023e6f3c3699e92e78c66ecbb370ad92f0fee7709f2e77",
+          "status": "candidate_not_runtime",
+          "geometryChecked": false
+        }
+      }
+    },
+    {
+      "id": "royalShop",
+      "source": "assets/ui/panels/panel_king_shop.png",
+      "sourceSize": [
+        1400,
+        467
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/drafts/en/panel_king_shop.png",
+          "text": "ROYAL SHOP",
+          "size": [
+            2171,
+            724
+          ],
+          "sha256": "f0ab93b17d8d9517743e4ec7977ac36bbb7f942821319373873ee7565ab803e9",
+          "status": "candidate_not_runtime",
+          "geometryChecked": false
+        },
+        "tr": {
+          "path": "assets/i18n/drafts/tr/panel_king_shop.png",
+          "text": "KRALİYET MAĞAZASI",
+          "size": [
+            2170,
+            725
+          ],
+          "sha256": "336240bef0a10f74400f4cc4a5c7a62d0727843d9e0ceeb9ce6958db40d72533",
+          "status": "candidate_not_runtime",
+          "geometryChecked": false
+        }
+      }
+    }
+  ],
+  "pending": [
+    "royal_family_soon",
+    "booster_shop_popup",
+    "level_win_popup",
+    "level_lose_popup",
+    "royal_shop_popup"
+  ],
+  "notes": [
+    "Candidates are not included in the production allowlist.",
+    "Align canvas and verify button/goal anchors before integration.",
+    "One shared English title asset is reused by EN and TR."
+  ]
+}
