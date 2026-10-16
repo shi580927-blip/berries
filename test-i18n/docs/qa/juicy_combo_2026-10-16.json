@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-16",
+  "scope": "Chromium Android Pixel7 UA 915x412 DPR2, no screenshots",
+  "profiles": [
+    {
+      "lang": "en",
+      "mobile": true,
+      "errors": [],
+      "failed": [],
+      "font": true,
+      "normalized": [
+        "logo",
+        "boosters",
+        "royalShop",
+        "royalFamily",
+        "goals",
+        "map",
+        "levelWin",
+        "levelLose",
+        "boosterShop",
+        "paidRoyalShop"
+      ],
+      "productionSave": "{\"coins\":98765}"
+    },
+    {
+      "lang": "tr",
+      "mobile": true,
+      "errors": [],
+      "failed": [],
+      "font": true,
+      "normalized": [
+        "logo",
+        "boosters",
+        "royalShop",
+        "royalFamily",
+        "goals",
+        "map",
+        "levelWin",
+        "levelLose",
+        "boosterShop",
+        "paidRoyalShop"
+      ],
+      "productionSave": "{\"coins\":98765}"
+    }
+  ],
+  "checks": [
+    "Actual comboCelebration(4) generated localized words",
+    "Win, lose and shops open/close; main save unchanged",
+    "No pageerror or HTTP errors",
+    "Unit: 180 confetti/53 stars for chain5, opaque labels, late alpha fade, 220ms cadence, coin burst absent"
+  ],
+  "limits": [
+    "Not physical Android",
+    "No visual sign-off or FPS measurement"
+  ]
+}

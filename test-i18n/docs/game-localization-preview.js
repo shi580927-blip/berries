@@ -79,7 +79,7 @@
       document.body.append(script);
     });
     await loadScript('src/vertical_slice.js?v=popup-lazy-1');
-    await loadScript('src/runtime_stable_v10.js?v=popup-lazy-1');
+    await loadScript('src/runtime_stable_v10.js?v=juicy-combo-1');
     const addLabel = (scene, box, art, spec) => {
       const x = art.x + (spec.x-.5)*art.displayWidth;
       const y = art.y + (spec.y-.5)*art.displayHeight;
