@@ -85,12 +85,15 @@
       const y = art.y + (spec.y-.5)*art.displayHeight;
       if(spec.decorative) {
         const width=art.displayWidth*spec.w,height=art.displayHeight*spec.h;
-        const canvas=document.createElement('canvas');canvas.width=Math.ceil(width*2);canvas.height=Math.ceil(height*2);
-        window.BerriesHeadingPainter.draw(canvas.getContext('2d'),window.BerriesI18n.t(spec.key),{cx:canvas.width/2,cy:canvas.height/2,w:canvas.width,h:canvas.height});
+        // Victory needs extra texture headroom for the raised centre of the arc.
+        const victory=spec.key==='result.win';
+        const textureHeight=height*(victory?1.5:1);
+        const canvas=document.createElement('canvas');canvas.width=Math.ceil(width*2);canvas.height=Math.ceil(textureHeight*2);
+        window.BerriesHeadingPainter.draw(canvas.getContext('2d'),window.BerriesI18n.t(spec.key),{cx:canvas.width/2,cy:canvas.height/2,w:canvas.width,h:height*2});
         const key='preview_heading_'+language+'_'+spec.key;
         if(scene.textures.exists(key))scene.textures.remove(key);
         scene.textures.addCanvas(key,canvas);
-        const node=scene.add.image(x,y,key).setDisplaySize(width,height);box.add(node);return node;
+        const node=scene.add.image(x,y+(victory?art.displayHeight*.012:0),key).setDisplaySize(width,textureHeight);box.add(node);return node;
       }
       let size = Math.round(art.displayWidth*spec.size);
       const node = scene.add.text(x,y,window.BerriesI18n.t(spec.key),{
