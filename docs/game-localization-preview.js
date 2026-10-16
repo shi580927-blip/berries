@@ -135,7 +135,7 @@
         if(!play?.scene?.isActive()||!play.cfg){status.textContent='Сначала открой уровень через PLAY и карту.';return;}
         if(play._shopModal?.active||play._paidShopModal?.active||play.children.list.some(n=>n.type==='Container'&&n.depth===31)){status.textContent='Сначала закрой открытый попап.';return;}
         const kind=button.dataset.preview;
-        if(kind==='shop')play.openShop();else if(kind==='paid')play.openPaidShop();
+        if(kind==='shop')play.openShop();else if(kind==='paid')play.openPaidShop();else if(kind==='combo')play.comboCelebration(4);
         else {if(play.busy){status.textContent='Дождись завершения хода.';return;}play.busy=true;play.resultPopup(kind==='win');}
         if(window.matchMedia?.('(max-width:1000px)').matches){tools.classList.remove('expanded');toggle.setAttribute('aria-expanded','false');}
         status.textContent='Черновик: '+kind+' / '+language.toUpperCase()+'. Награда не начисляется кнопкой стенда.';

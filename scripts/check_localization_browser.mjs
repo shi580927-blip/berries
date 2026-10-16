@@ -38,6 +38,16 @@ for(const mobile of (process.env.BERRIES_QA_MOBILE_ONLY==='1'?[true]:[false,true
  await page.waitForTimeout(350);
  };
  await openLevel();
+ const combo=await page.evaluate(()=>{
+  const scene=window.__berriesGame.scene.keys.Play,texts=[];
+  const text=scene.add.text,arc=scene.comboArcWord;
+  scene.add.text=function(x,y,value,...args){texts.push(String(value));return text.call(this,x,y,value,...args)};
+  scene.comboArcWord=function(word,...args){texts.push(word);return arc.call(this,word,...args)};
+  try{scene.comboCelebration(4)}finally{scene.add.text=text;scene.comboArcWord=arc}
+  return {texts,expected:['combo.juicy','combo.wow','combo.boom','combo.more','combo.combo'].map(k=>window.BerriesI18n.t(k))};
+ });
+ if(combo.expected.some(word=>!combo.texts.includes(word))||combo.texts.some(word=>/[А-Яа-яЁё]/.test(word)))throw Error('Combo localization failed: '+JSON.stringify(combo));
+ await page.waitForTimeout(1600);
  const stem=(mobile?'android':'desktop')+'-'+lang;
  await page.screenshot({path:pathUtil.join(output,stem+'-level.png')});
  for(const kind of ['win','lose','shop','paid']){
