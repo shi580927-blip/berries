@@ -777,7 +777,7 @@ function install(){
   p.burst=function(x,y,color=0xffe36d,n=8){
     this.fxBits(x,y,[color,0xfff4c3,0xffbb54],Math.min(n,14),70);
   };
-  p.comboArcWord=function(word,x,y,size=250,alpha=1){
+  p.comboArcWord=function(word,x,y,size=250,alpha=.72){
     const chars=[...word],palette=['#ff5e8a','#ffd84f','#75eaff','#7dff9d','#b88cff','#ff84d7'];
     const spacing=size*.58,total=(chars.length-1)*spacing;
     chars.forEach((ch,i)=>{
@@ -797,23 +797,34 @@ function install(){
   p.comboCelebration=function(chain){
     const rainbow=[0xff5e8a,0xffd84f,0x75eaff,0x7dff9d,0xb88cff,0xff84d7,0xffffff];
     const satellites=[
-      {text:window.BerriesI18n.t('combo.juicy'),x:W*.25,y:H*.31,size:150,angle:-12,alpha:1},
-      {text:window.BerriesI18n.t('combo.wow'),x:W*.78,y:H*.27,size:128,angle:10,alpha:1},
-      {text:window.BerriesI18n.t('combo.boom'),x:W*.23,y:H*.72,size:120,angle:8,alpha:1},
-      {text:window.BerriesI18n.t('combo.more'),x:W*.78,y:H*.70,size:142,angle:-9,alpha:1}
+      {text:window.BerriesI18n.t('combo.juicy'),x:W*.25,y:H*.31,size:150,angle:-12,alpha:.55},
+      {text:window.BerriesI18n.t('combo.wow'),x:W*.78,y:H*.27,size:128,angle:10,alpha:.52},
+      {text:window.BerriesI18n.t('combo.boom'),x:W*.23,y:H*.72,size:120,angle:8,alpha:.50},
+      {text:window.BerriesI18n.t('combo.more'),x:W*.78,y:H*.70,size:142,angle:-9,alpha:.54}
     ];
-    this.comboArcWord(chain>=4?window.BerriesI18n.t('combo.combo'):window.BerriesI18n.t('combo.juicy'),W*.51,H*.49,chain>=4?285:255,1);
+    this.comboArcWord(chain>=4?window.BerriesI18n.t('combo.combo'):window.BerriesI18n.t('combo.juicy'),W*.51,H*.49,chain>=4?285:255,chain>=4?.78:.70);
     const count=chain>=3?4:3;
-    satellites.slice(0,count).forEach((spec,i)=>{
+    const slots=satellites.slice(0,count);
+    const shift=1+Math.floor(Math.random()*(count-1));
+    slots.forEach((spec,i)=>{
       const label=this.add.text(spec.x,spec.y,spec.text,{
         fontFamily:FONT,fontSize:spec.size+'px',fontStyle:'bold',color:'#ffffff',
         stroke:'#5b2940',strokeThickness:Math.round(spec.size*.07),
         shadow:{offsetX:0,offsetY:6,color:'#35182a',blur:14,fill:true}
       }).setOrigin(.5).setDepth(25).setAlpha(spec.alpha).setAngle(spec.angle).setScale(.78);
       label.setTint?.(rainbow[(i+chain)%6],rainbow[(i+chain+1)%6],rainbow[(i+chain+3)%6],rainbow[(i+chain+4)%6]);
+      // Exchange whole words between slots along curved, two-dimensional paths.
+      const target=slots[(i+shift)%count];
+      const bend=i%2?110:-110;
+      const cx=(spec.x+target.x)/2+bend,cy=(spec.y+target.y)/2-bend;
+      label.comboMixProgress=0;
       this.fxTween(label,{
-        y:spec.y-35-(i%2)*22,scale:1.08,alpha:{value:0,ease:'Expo.in'},angle:spec.angle+(i%2?5:-5),
-        duration:2980+i*80,ease:'Cubic.out'
+        comboMixProgress:1,scale:1.08,alpha:{value:0,ease:'Expo.in'},angle:target.angle,
+        duration:2980+i*80,ease:'Sine.inOut',
+        onUpdate:()=>{
+          const t=label.comboMixProgress,u=1-t;
+          label.setPosition(u*u*spec.x+2*u*t*cx+t*t*target.x,u*u*spec.y+2*u*t*cy+t*t*target.y);
+        }
       });
     });
     // Large shimmering stars.
