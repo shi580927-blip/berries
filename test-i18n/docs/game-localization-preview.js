@@ -130,7 +130,7 @@
         original.call(this);
         if(existed)return;
         const box=this._paidShopModal,art=box?.list?.find(n=>n.texture?.key==='popup_royal_shop');
-        if(art)addLabel(this,box,art,{...layers.paidRoyalShop[0],x:.5,y:.19,w:.62,h:language==='tr'?.15:.12,twoLines:language==='tr',decorative:true});
+        if(art)addLabel(this,box,art,{...layers.paidRoyalShop[0],x:.5,y:language==='tr'?.20:.19,w:.62,h:language==='tr'?.135:.12,twoLines:language==='tr',decorative:true});
       };
       proto.openPaidShop=decorateShop(proto.openPaidShop);
       const mapProto=Object.getPrototypeOf(game.scene.keys.Map);
