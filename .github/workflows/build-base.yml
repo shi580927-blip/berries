@@ -37,6 +37,7 @@ jobs:
           node tests/special-label-lifecycle.cjs
           node tests/platform.cjs
           node tests/i18n.cjs
+          node tests/localization-preview.cjs
 
       - name: Build optimized base archive
         env:
