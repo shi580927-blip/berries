@@ -21,6 +21,8 @@ RUNTIME_FILES = [
     "vendor/phaser.min.js",
     "vendor/PHASER_LICENSE.md",
     "src/lifecycle.js",
+    "src/i18n/manager.js",
+    "src/i18n/ru.js",
     "src/campaign.js",
     "src/vertical_slice.js",
     "src/runtime_stable_v10.js",

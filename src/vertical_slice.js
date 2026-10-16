@@ -339,8 +339,9 @@ class Boot extends Phaser.Scene{
   preload(){
     // Detect the platform language while the boot screen is loading.
     window.__berriesPlatformReadyPromise??=window.BerriesPlatform.languageReady();
-    const t=this.add.text(W/2,H/2,'Запускаем…',{fontSize:'32px',color:'#fff7dc'}).setOrigin(.5);
-    this.load.on('progress',v=>t.setText(`Запускаем… ${Math.round(v*100)}%`));
+    window.BerriesI18n.init();
+    const t=this.add.text(W/2,H/2,window.BerriesI18n.t('boot.starting'),{fontSize:'32px',color:'#fff7dc'}).setOrigin(.5);
+    this.load.on('progress',v=>t.setText(window.BerriesI18n.t('boot.progress',{percent:Math.round(v*100)})));
     const I=(k,p)=>this.load.image(k,p+'?v='+ASSET_REV);
     I('title','assets/backgrounds/background_title_forest.jpg');
     I('logo','assets/ui/panels/logo_main.png');

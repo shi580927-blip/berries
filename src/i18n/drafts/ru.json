@@ -1,4 +1,6 @@
 {
+  "game.title": "Безумные ягодки",
+  "world.forest": "Лесное королевство",
   "boot.starting": "Запускаем…",
   "boot.progress": "Запускаем… {percent}%",
   "common.play": "ИГРАТЬ",

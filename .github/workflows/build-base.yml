@@ -36,6 +36,7 @@ jobs:
           node tests/campaign.cjs
           node tests/special-label-lifecycle.cjs
           node tests/platform.cjs
+          node tests/i18n.cjs
 
       - name: Build optimized base archive
         env:

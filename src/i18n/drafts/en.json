@@ -1,4 +1,6 @@
 {
+  "game.title": "Crazy Berries",
+  "world.forest": "Forest Kingdom",
   "boot.starting": "Starting…",
   "boot.progress": "Starting… {percent}%",
   "common.play": "PLAY",

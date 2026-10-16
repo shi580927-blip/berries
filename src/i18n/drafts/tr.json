@@ -1,4 +1,6 @@
 {
+  "game.title": "Crazy Berries",
+  "world.forest": "Orman Krallığı",
   "boot.starting": "Başlatılıyor…",
   "boot.progress": "Başlatılıyor… %{percent}",
   "common.play": "OYNA",
