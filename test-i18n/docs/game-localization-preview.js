@@ -79,7 +79,7 @@
       document.body.append(script);
     });
     await loadScript('src/vertical_slice.js?v=transition-copy-1');
-    await loadScript('src/runtime_stable_v10.js?v=royal-layout-1');
+    await loadScript('src/runtime_stable_v10.js?v=combo-coins-1');
     const addLabel = (scene, box, art, spec) => {
       const x = art.x + (spec.x-.5)*art.displayWidth;
       const y = art.y + (spec.y-.5)*art.displayHeight;
