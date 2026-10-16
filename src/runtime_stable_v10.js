@@ -789,7 +789,7 @@ function install(){
       }).setOrigin(.5).setDepth(27).setAlpha(alpha).setAngle((t-.5)*14).setScale(.76);
       this.fxTween(letter,{
         y:letter.y-size*.14,scale:1.06,alpha:0,angle:letter.angle+(t-.5)*5,
-        duration:1150+i*22,ease:'Cubic.out'
+        duration:2150+i*22,ease:'Cubic.out'
       });
     });
   };
@@ -812,7 +812,7 @@ function install(){
       label.setTint?.(rainbow[(i+chain)%6],rainbow[(i+chain+1)%6],rainbow[(i+chain+3)%6],rainbow[(i+chain+4)%6]);
       this.fxTween(label,{
         y:spec.y-35-(i%2)*22,scale:1.08,alpha:0,angle:spec.angle+(i%2?5:-5),
-        duration:980+i*80,ease:'Cubic.out'
+        duration:1980+i*80,ease:'Cubic.out'
       });
     });
     // Large shimmering stars.
@@ -823,7 +823,7 @@ function install(){
         .setDepth(26).setAngle(Math.random()*45).setScale(.25);
       this.fxTween(star,{
         scale:1.25+Math.random()*.65,angle:star.angle+(i%2?95:-95),alpha:0,
-        duration:600+Math.random()*650,ease:'Sine.out'
+        duration:1600+Math.random()*650,ease:'Sine.out'
       });
     }
     // Melting confetti pieces: short, bright and non-interactive.
@@ -833,7 +833,7 @@ function install(){
         .setDepth(24).setAngle(Math.random()*180);
       this.fxTween(piece,{
         x:x+(Math.random()-.5)*120,y:y+80+Math.random()*170,angle:piece.angle+(Math.random()>.5?180:-180),
-        scale:.15,alpha:0,duration:850+Math.random()*700,ease:'Cubic.in'
+        scale:.15,alpha:0,duration:1850+Math.random()*700,ease:'Cubic.in'
       });
     }
     [[W*.20,H*.24],[W*.82,H*.36],[W*.19,H*.62],[W*.80,H*.62]].forEach(([x,y],i)=>{
@@ -854,7 +854,7 @@ function install(){
     if(chain>=2){
       this.music?.accent?.('combo',true);
     }
-    if(chain>=2&&this.fxAllow('combo-vfx',220)){
+    if(chain>=2&&this.fxAllow('combo-vfx',1100)){
       this.comboCelebration(chain);
       this.kingReact('celebrate',1050);
       // Old combo accent is replayed for every cascade step above.
@@ -915,11 +915,33 @@ function install(){
     });
     this.music?.accent('combo');this.fx.rainbow();this.kingReact('celebrate',900);
   };
+  // Decorative reward celebration only: never grants or spends currency.
+  p.victoryCoinBurst=function(){
+    if(!this.textures.exists('ui_coin'))return;
+    const count=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?8:28;
+    for(let i=0;i<count;i++){
+      const side=i%2?1:-1,originX=W/2+side*330,originY=H/2+130;
+      const coin=fit(this.add.image(originX,originY,'ui_coin'),28+Math.random()*24,52)
+        .setDepth(30).setAngle(Math.random()*90-45);
+      coin._burstT=0;
+      const vx=side*(180+Math.random()*220),vy=-380-Math.random()*160;
+      this.fxTween(coin,{
+        _burstT:1,angle:coin.angle+side*(300+Math.random()*240),alpha:0,
+        delay:i*18,duration:1550+Math.random()*450,ease:'Linear',
+        onUpdate:()=>{
+          const t=coin._burstT;
+          coin.setPosition(originX+vx*t,originY+vy*t+520*t*t);
+        }
+      });
+    }
+  };
+
   const baseResultPopup=p.resultPopup;
   p.resultPopup=function(win,...args){
     const result=baseResultPopup.call(this,win,...args);
     if(win){
       this.music?.accent('victory');
+      this.victoryCoinBurst();
       // Confetti stays behind popup controls; never captures input.
       [[W/2-420,H/2],[W/2+420,H/2]].forEach(([x,y])=>{
         this.fxBits(x,y,[0xffd35f,0xff79a6,0x7de4c5,0xffffff],36,280,30);
