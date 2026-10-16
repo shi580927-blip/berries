@@ -1,0 +1,42 @@
+[
+  {
+    "lang": "en",
+    "mobile": true,
+    "errors": [],
+    "failed": [],
+    "font": true,
+    "normalized": [
+      "logo",
+      "boosters",
+      "royalShop",
+      "royalFamily",
+      "goals",
+      "map",
+      "levelWin",
+      "levelLose",
+      "boosterShop",
+      "paidRoyalShop"
+    ],
+    "productionSave": "{\"coins\":98765}"
+  },
+  {
+    "lang": "tr",
+    "mobile": true,
+    "errors": [],
+    "failed": [],
+    "font": true,
+    "normalized": [
+      "logo",
+      "boosters",
+      "royalShop",
+      "royalFamily",
+      "goals",
+      "map",
+      "levelWin",
+      "levelLose",
+      "boosterShop",
+      "paidRoyalShop"
+    ],
+    "productionSave": "{\"coins\":98765}"
+  }
+]

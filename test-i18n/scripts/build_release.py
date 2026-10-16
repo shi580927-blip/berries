@@ -24,6 +24,7 @@ RUNTIME_FILES = [
     "src/i18n/manager.js",
     "src/i18n/ru.js",
     "src/campaign.js",
+    "src/optimized-images.js",
     "src/vertical_slice.js",
     "src/runtime_stable_v10.js",
     "src/platform/platform.js",
@@ -87,6 +88,9 @@ ASSET_FILES = [
     "assets/ui/popups/gift_02.png",
     "assets/ui/popups/gift_03.png",
 ]
+
+WEB_IMAGE_PATHS = json.loads((ROOT / 'src/optimized-images.js').read_text().split('window.__berriesRuntimeImages=', 1)[1].strip().rstrip(';'))
+ASSET_FILES = [WEB_IMAGE_PATHS.get(rel, rel) for rel in ASSET_FILES]
 
 AUDIO_COPY = [
     "audio/music/accents/combo.mp3",
@@ -164,6 +168,7 @@ def resize_to_fit(image, target):
 def optimize_images():
     for rel in ASSET_FILES:
         path = RELEASE / rel
+        if path.suffix.lower() == '.webp':continue
         try:
             with Image.open(path) as im:
                 # Load pixels before saving to the same path; Pillow may otherwise

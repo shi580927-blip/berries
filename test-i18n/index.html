@@ -1,1 +1,51 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Crazy Berries — тест EN/TR</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#102b1b;color:#fff4cc;font:18px system-ui}main{max-width:580px;padding:28px;text-align:center}h1{color:#ffe06b}a{display:block;padding:20px;margin:16px 0;border:2px solid #e2ba52;border-radius:18px;background:#286c35;color:white;font-size:24px;font-weight:700;text-decoration:none}p{line-height:1.5}small{color:#d0d9c9}</style></head><body><main><h1>Crazy Berries</h1><p>Тест английской и турецкой версий</p><a href="docs/game-localization-preview.html?lang=en">English — играть</a><a href="docs/game-localization-preview.html?lang=tr">Türkçe — играть</a><p>На телефоне поверни экран горизонтально.<br>PLAY / OYNA → сундук → карта → уровень.</p><p>Кнопка «Тест EN/TR» открывает проверку победы, поражения, магазинов и комбо.</p><small>Прогресс теста отдельный. Реклама и платежи отключены. Это черновая локализация для проверки.</small></main></body></html>
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#183d24" />
+  <title>Безумные ягодки: Лесное королевство</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="assets/map-digits.css" />
+  <script>window.berriesDigitsReady=document.fonts.load('700 32px BerriesDigits','0123456789').catch(()=>[]);</script>
+  <script src="vendor/phaser.min.js"></script>
+</head>
+<body>
+  <main id="game-shell" aria-label="Безумные ягодки">
+    <div id="game"></div>
+    <div id="rotate-hint" role="status">Поверните устройство горизонтально 🌿</div>
+  </main>
+  <script src="src/lifecycle.js"></script>
+  <script src="src/platform/platform.js?v=base-20261015"></script>
+  <script src="src/platform/local.js?v=base-20261015"></script>
+  <script src="src/i18n/manager.js"></script>
+  <script src="src/i18n/ru.js"></script>
+  <script src="src/campaign.js?v=mvp-20260928-daily4"></script>
+<script src="src/optimized-images.js?v=web-images-1"></script>
+<script src="src/vertical_slice.js?v=popup-prewarm-2"></script>
+<script src="src/runtime_stable_v10.js?v=popup-prewarm-2"></script>
+<script>
+const field=document.getElementById('game-shell');
+for(const event of ['contextmenu','dragstart','selectstart'])field.addEventListener(event,e=>e.preventDefault());
+
+// Keep Phaser fitted to the live host size, but never hide an already-rendered game.
+(() => {
+  const shell=document.getElementById('game-shell');
+  const refresh=()=>{try{window.__berriesGame?.scale?.refresh?.()}catch{}};
+  const burst=()=>{
+    requestAnimationFrame(refresh);
+    setTimeout(refresh,60);
+    setTimeout(refresh,180);
+    setTimeout(refresh,450);
+  };
+  if(window.ResizeObserver){
+    const observer=new ResizeObserver(burst);
+    observer.observe(shell);
+  }
+  window.addEventListener('resize',burst,{passive:true});
+  window.addEventListener('orientationchange',burst,{passive:true});
+  burst();
+})();
+</script>
+</body>
+</html>

@@ -4,17 +4,17 @@ const start=code.indexOf('const OPTIONAL_POPUP_ASSETS='),end=code.indexOf('class
 const load=new EventEmitter(),events=new EventEmitter(),textures=new Set(),queued=[];
 load.image=(key,url)=>queued.push({key,url});load.isLoading=()=>false;let starts=0;load.start=()=>starts++;
 const scene={load,events,textures:{exists:key=>textures.has(key)}},window={};
-new Function('window','setTimeout','clearTimeout',"const ASSET_REV='test';"+code.slice(start,end))(window,setTimeout,clearTimeout);
+new Function('window','setTimeout','clearTimeout',"const ASSET_REV='test',imagePath=p=>p;"+code.slice(start,end))(window,setTimeout,clearTimeout);
 (async()=>{
  const ensure=window.__berriesEnsurePopupAssets;
  const first=ensure(scene,'royalShop'),duplicate=ensure(scene,'royalShop');assert.equal(first,duplicate);assert.equal(starts,1);assert.deepEqual(queued.map(x=>x.key),['popup_royal_shop']);
- textures.add('popup_royal_shop');load.emit('complete');await first;
+ textures.add('popup_royal_shop');load.emit('filecomplete','popup_royal_shop','image');await first;
  await ensure(scene,'royalShop');assert.equal(starts,1);
  const failed=ensure(scene,'win');load.emit('complete');await assert.rejects(failed,/failed/);
  const retry=ensure(scene,'win');textures.add('popup_win');load.emit('complete');await retry;
  const canceled=ensure(scene,'lose');events.emit('shutdown');await assert.rejects(canceled,/closed/);
  const core=code.slice(code.indexOf('function ensureCoreAssets'),code.indexOf('window.__berriesEnsureCoreAssets'));
  for(const key of ['coin_shop_new','popup_royal_shop','popup_win','popup_lose'])assert.ok(!core.includes("I('"+key+"'"));
- assert.equal(load.listenerCount('complete'),0);assert.equal(events.listenerCount('shutdown'),0);
+ assert.equal(load.listenerCount('complete'),0);assert.equal(load.listenerCount('filecomplete'),0);assert.equal(events.listenerCount('shutdown'),0);
  console.log('PASS optional popup loader: no startup queue, shared promise, cache reuse, failure retry and scene cancellation');
 })().catch(e=>{console.error(e);process.exitCode=1});
