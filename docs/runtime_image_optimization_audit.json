@@ -1,0 +1,373 @@
+{
+  "method": "WebP quality90, same dimensions, alpha verified exact",
+  "files": [
+    {
+      "source": "assets/backgrounds/background_game_forest.jpg",
+      "path": "assets/web/backgrounds/background_game_forest.webp",
+      "sourceBytes": 662420,
+      "webBytes": 355264
+    },
+    {
+      "source": "assets/backgrounds/background_title_forest.jpg",
+      "path": "assets/web/backgrounds/background_title_forest.webp",
+      "sourceBytes": 923057,
+      "webBytes": 596518
+    },
+    {
+      "source": "assets/berries/berry_blackberry.png",
+      "path": "assets/web/berries/berry_blackberry.webp",
+      "sourceBytes": 231291,
+      "webBytes": 31024
+    },
+    {
+      "source": "assets/berries/berry_blueberry.png",
+      "path": "assets/web/berries/berry_blueberry.webp",
+      "sourceBytes": 210436,
+      "webBytes": 27748
+    },
+    {
+      "source": "assets/berries/berry_cloudberry.png",
+      "path": "assets/web/berries/berry_cloudberry.webp",
+      "sourceBytes": 178159,
+      "webBytes": 33086
+    },
+    {
+      "source": "assets/berries/berry_gooseberry.png",
+      "path": "assets/web/berries/berry_gooseberry.webp",
+      "sourceBytes": 211340,
+      "webBytes": 31346
+    },
+    {
+      "source": "assets/berries/berry_raspberry.png",
+      "path": "assets/web/berries/berry_raspberry.webp",
+      "sourceBytes": 217205,
+      "webBytes": 33024
+    },
+    {
+      "source": "assets/berries/berry_strawberry.png",
+      "path": "assets/web/berries/berry_strawberry.webp",
+      "sourceBytes": 205365,
+      "webBytes": 34990
+    },
+    {
+      "source": "assets/blockers/blocker_ice_1.png",
+      "path": "assets/web/blockers/blocker_ice_1.webp",
+      "sourceBytes": 414934,
+      "webBytes": 79336
+    },
+    {
+      "source": "assets/blockers/blocker_ice_2.png",
+      "path": "assets/web/blockers/blocker_ice_2.webp",
+      "sourceBytes": 504812,
+      "webBytes": 120920
+    },
+    {
+      "source": "assets/blockers/blocker_roots.png",
+      "path": "assets/web/blockers/blocker_roots.webp",
+      "sourceBytes": 339987,
+      "webBytes": 49010
+    },
+    {
+      "source": "assets/blockers/goal_acorn.png",
+      "path": "assets/web/blockers/goal_acorn.webp",
+      "sourceBytes": 202240,
+      "webBytes": 27714
+    },
+    {
+      "source": "assets/boosters/booster_fan.png",
+      "path": "assets/web/boosters/booster_fan.webp",
+      "sourceBytes": 128781,
+      "webBytes": 23960
+    },
+    {
+      "source": "assets/boosters/booster_hammer.png",
+      "path": "assets/web/boosters/booster_hammer.webp",
+      "sourceBytes": 153269,
+      "webBytes": 22196
+    },
+    {
+      "source": "assets/boosters/booster_shuffle.png",
+      "path": "assets/web/boosters/booster_shuffle.webp",
+      "sourceBytes": 53915,
+      "webBytes": 33786
+    },
+    {
+      "source": "assets/characters/king/king_celebrate.png",
+      "path": "assets/web/characters/king/king_celebrate.webp",
+      "sourceBytes": 548661,
+      "webBytes": 115350
+    },
+    {
+      "source": "assets/characters/king/king_idle.png",
+      "path": "assets/web/characters/king/king_idle.webp",
+      "sourceBytes": 515381,
+      "webBytes": 109484
+    },
+    {
+      "source": "assets/characters/king/king_point.png",
+      "path": "assets/web/characters/king/king_point.webp",
+      "sourceBytes": 548284,
+      "webBytes": 121108
+    },
+    {
+      "source": "assets/characters/king/king_sad.png",
+      "path": "assets/web/characters/king/king_sad.webp",
+      "sourceBytes": 557269,
+      "webBytes": 120722
+    },
+    {
+      "source": "assets/map/map_forest_background.jpg",
+      "path": "assets/web/map/map_forest_background.webp",
+      "sourceBytes": 953809,
+      "webBytes": 540780
+    },
+    {
+      "source": "assets/specials/special_bomb.png",
+      "path": "assets/web/specials/special_bomb.webp",
+      "sourceBytes": 80460,
+      "webBytes": 32166
+    },
+    {
+      "source": "assets/specials/special_line_h.png",
+      "path": "assets/web/specials/special_line_h.webp",
+      "sourceBytes": 68673,
+      "webBytes": 39434
+    },
+    {
+      "source": "assets/specials/special_line_v.png",
+      "path": "assets/web/specials/special_line_v.webp",
+      "sourceBytes": 73766,
+      "webBytes": 28980
+    },
+    {
+      "source": "assets/specials/special_rainbow.png",
+      "path": "assets/web/specials/special_rainbow.webp",
+      "sourceBytes": 64062,
+      "webBytes": 47924
+    },
+    {
+      "source": "assets/ui/buttons/button_wood.png",
+      "path": "assets/web/ui/buttons/button_wood.webp",
+      "sourceBytes": 619878,
+      "webBytes": 80644
+    },
+    {
+      "source": "assets/ui/buttons/level_completed5.png",
+      "path": "assets/web/ui/buttons/level_completed5.webp",
+      "sourceBytes": 106856,
+      "webBytes": 70094
+    },
+    {
+      "source": "assets/ui/buttons/level_completed7.png",
+      "path": "assets/web/ui/buttons/level_completed7.webp",
+      "sourceBytes": 126518,
+      "webBytes": 72218
+    },
+    {
+      "source": "assets/ui/buttons/level_current7.png",
+      "path": "assets/web/ui/buttons/level_current7.webp",
+      "sourceBytes": 108301,
+      "webBytes": 81486
+    },
+    {
+      "source": "assets/ui/decor/hero_stump_forest.png",
+      "path": "assets/web/ui/decor/hero_stump_forest.webp",
+      "sourceBytes": 45486,
+      "webBytes": 56770
+    },
+    {
+      "source": "assets/ui/icons/ui_back.png",
+      "path": "assets/web/ui/icons/ui_back.webp",
+      "sourceBytes": 60879,
+      "webBytes": 17194
+    },
+    {
+      "source": "assets/ui/icons/ui_coin.png",
+      "path": "assets/web/ui/icons/ui_coin.webp",
+      "sourceBytes": 86223,
+      "webBytes": 35128
+    },
+    {
+      "source": "assets/ui/icons/ui_settings.png",
+      "path": "assets/web/ui/icons/ui_settings.webp",
+      "sourceBytes": 92010,
+      "webBytes": 24428
+    },
+    {
+      "source": "assets/ui/panels/panel23.png",
+      "path": "assets/web/ui/panels/panel23.webp",
+      "sourceBytes": 78949,
+      "webBytes": 50464
+    },
+    {
+      "source": "assets/ui/panels/panel_3.png",
+      "path": "assets/web/ui/panels/panel_3.webp",
+      "sourceBytes": 470949,
+      "webBytes": 26052
+    },
+    {
+      "source": "assets/ui/panels/panel_boosters.png",
+      "path": "assets/web/ui/panels/panel_boosters.webp",
+      "sourceBytes": 732382,
+      "webBytes": 116662
+    },
+    {
+      "source": "assets/ui/panels/panel_coins.png",
+      "path": "assets/web/ui/panels/panel_coins.webp",
+      "sourceBytes": 601575,
+      "webBytes": 95764
+    },
+    {
+      "source": "assets/ui/panels/panel_goals.png",
+      "path": "assets/web/ui/panels/panel_goals.webp",
+      "sourceBytes": 497128,
+      "webBytes": 87582
+    },
+    {
+      "source": "assets/ui/panels/panel_level.png",
+      "path": "assets/web/ui/panels/panel_level.webp",
+      "sourceBytes": 221377,
+      "webBytes": 129730
+    },
+    {
+      "source": "assets/ui/panels/panel_level_title.png",
+      "path": "assets/web/ui/panels/panel_level_title.webp",
+      "sourceBytes": 672725,
+      "webBytes": 68378
+    },
+    {
+      "source": "assets/ui/panels/panel_lives.png",
+      "path": "assets/web/ui/panels/panel_lives.webp",
+      "sourceBytes": 145296,
+      "webBytes": 102100
+    },
+    {
+      "source": "assets/ui/panels/panel_time.png",
+      "path": "assets/web/ui/panels/panel_time.webp",
+      "sourceBytes": 204862,
+      "webBytes": 102232
+    },
+    {
+      "source": "assets/ui/popups/gift_01.png",
+      "path": "assets/web/ui/popups/gift_01.webp",
+      "sourceBytes": 137755,
+      "webBytes": 90022
+    },
+    {
+      "source": "assets/ui/popups/gift_02.png",
+      "path": "assets/web/ui/popups/gift_02.webp",
+      "sourceBytes": 87604,
+      "webBytes": 56734
+    },
+    {
+      "source": "assets/ui/popups/gift_03.png",
+      "path": "assets/web/ui/popups/gift_03.webp",
+      "sourceBytes": 91772,
+      "webBytes": 58946
+    },
+    {
+      "source": "assets/ui/popups/popup_everyday.png",
+      "path": "assets/web/ui/popups/popup_everyday.webp",
+      "sourceBytes": 590516,
+      "webBytes": 318976
+    },
+    {
+      "source": "assets/i18n/optimized/shared/logo_crazy_berries.webp",
+      "path": "assets/i18n/web/shared/logo_crazy_berries.webp",
+      "sourceBytes": 705500,
+      "webBytes": 198958
+    },
+    {
+      "source": "assets/i18n/optimized/en/panel_head_boosters.webp",
+      "path": "assets/i18n/web/en/panel_head_boosters.webp",
+      "sourceBytes": 92760,
+      "webBytes": 30412
+    },
+    {
+      "source": "assets/i18n/optimized/tr/panel_head_boosters.webp",
+      "path": "assets/i18n/web/tr/panel_head_boosters.webp",
+      "sourceBytes": 92678,
+      "webBytes": 29556
+    },
+    {
+      "source": "assets/i18n/optimized/en/map_header_levels.webp",
+      "path": "assets/i18n/web/en/map_header_levels.webp",
+      "sourceBytes": 152532,
+      "webBytes": 46706
+    },
+    {
+      "source": "assets/i18n/optimized/tr/map_header_levels.webp",
+      "path": "assets/i18n/web/tr/map_header_levels.webp",
+      "sourceBytes": 155890,
+      "webBytes": 46738
+    },
+    {
+      "source": "assets/i18n/optimized/en/panel_goals.webp",
+      "path": "assets/i18n/web/en/panel_goals.webp",
+      "sourceBytes": 353486,
+      "webBytes": 80084
+    },
+    {
+      "source": "assets/i18n/optimized/tr/panel_goals.webp",
+      "path": "assets/i18n/web/tr/panel_goals.webp",
+      "sourceBytes": 350078,
+      "webBytes": 81318
+    },
+    {
+      "source": "assets/i18n/optimized/en/panel_king_shop.webp",
+      "path": "assets/i18n/web/en/panel_king_shop.webp",
+      "sourceBytes": 167668,
+      "webBytes": 53108
+    },
+    {
+      "source": "assets/i18n/optimized/tr/panel_king_shop.webp",
+      "path": "assets/i18n/web/tr/panel_king_shop.webp",
+      "sourceBytes": 173974,
+      "webBytes": 54972
+    },
+    {
+      "source": "assets/i18n/optimized/en/button_royal_family_soon.webp",
+      "path": "assets/i18n/web/en/button_royal_family_soon.webp",
+      "sourceBytes": 199712,
+      "webBytes": 60836
+    },
+    {
+      "source": "assets/i18n/optimized/tr/button_royal_family_soon.webp",
+      "path": "assets/i18n/web/tr/button_royal_family_soon.webp",
+      "sourceBytes": 200342,
+      "webBytes": 59534
+    },
+    {
+      "source": "assets/i18n/optimized/en/popup_booster_shop.webp",
+      "path": "assets/i18n/web/en/popup_booster_shop.webp",
+      "sourceBytes": 865986,
+      "webBytes": 187116
+    },
+    {
+      "source": "assets/i18n/optimized/tr/popup_booster_shop.webp",
+      "path": "assets/i18n/web/tr/popup_booster_shop.webp",
+      "sourceBytes": 868030,
+      "webBytes": 186972
+    },
+    {
+      "source": "assets/i18n/optimized/shared/popup_level_win_clean.webp",
+      "path": "assets/i18n/web/shared/popup_level_win_clean.webp",
+      "sourceBytes": 1069086,
+      "webBytes": 249302
+    },
+    {
+      "source": "assets/i18n/optimized/shared/popup_level_lose_clean.webp",
+      "path": "assets/i18n/web/shared/popup_level_lose_clean.webp",
+      "sourceBytes": 987746,
+      "webBytes": 228820
+    },
+    {
+      "source": "assets/i18n/optimized/shared/popup_king_shop_all_min.webp",
+      "path": "assets/i18n/web/shared/popup_king_shop_all_min.webp",
+      "sourceBytes": 1078186,
+      "webBytes": 220222
+    }
+  ],
+  "sourceBytes": 21340271,
+  "webBytes": 6212128
+}

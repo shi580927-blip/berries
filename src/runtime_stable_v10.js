@@ -964,6 +964,8 @@ function install(){
     this.specialInfoText=null;
     this._fxObjects=new Set();this._fxTimes={};
     if(baseCreate.call(this)===false)return;
+    // Load both outcomes while the player plays, never after the final move.
+    for(const group of ['win','lose'])window.__berriesEnsurePopupAssets(this,group).catch(error=>console.warn('[Result preload]',error.message));
     this.events.once('shutdown',()=>{clearTimeout(this.hintTimer);clearTimeout(this.hintCleanupTimer);clearTimeout(this.specialInfoTimer);this.specialInfoText=null});
     // Production: debug keyboard shortcut disabled.
     if(false)this.time.delayedCall(50,()=>this.toggleDebugGrid(true));

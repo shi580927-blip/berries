@@ -20,7 +20,7 @@
     };
     const [dictionary, manifest, layers] = await Promise.all([
       read('src/i18n/drafts/' + language + '.json'),
-      read(new URLSearchParams(location.search).get('assets')==='original'?'docs/localization_assets.json':'docs/localization_assets_optimized.json'), read('docs/localization_popup_layers.json')
+      read(new URLSearchParams(location.search).get('assets')==='original'?'docs/localization_assets.json':'docs/localization_assets_web.json'), read('docs/localization_popup_layers.json')
     ]);
     const loadedFonts = await document.fonts.load('800 64px BerriesHeading', dictionary['result.win']+' '+dictionary['result.lose']);
     if (!loadedFonts.length) throw Error('BerriesHeading font failed to load');
@@ -78,8 +78,9 @@
       script.onload = resolve; script.onerror = () => reject(Error('Script load failed: ' + src));
       document.body.append(script);
     });
-    await loadScript('src/vertical_slice.js?v=popup-lazy-1');
-    await loadScript('src/runtime_stable_v10.js?v=combo-cap-2550');
+    await loadScript('src/optimized-images.js?v=web-images-1');
+    await loadScript('src/vertical_slice.js?v=popup-prewarm-2');
+    await loadScript('src/runtime_stable_v10.js?v=popup-prewarm-2');
     const addLabel = (scene, box, art, spec) => {
       const x = art.x + (spec.x-.5)*art.displayWidth;
       const y = art.y + (spec.y-.5)*art.displayHeight;

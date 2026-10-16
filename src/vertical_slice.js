@@ -20,12 +20,43 @@ function fit(img,maxW,maxH){const s=Math.min(maxW/img.width,maxH/img.height);img
 // Fast boot: only the title artwork is blocking. Everything needed after the title
 // is fetched in the background while the player already sees the game.
 const ASSET_REV='ui-20260928-daily4';
+const imagePath=path=>window.__berriesRuntimeImages?.[path]||path;
+// Sound downloads survive scene changes and never hold the image loader open.
+const pendingAudio=new Set();
+function queueAudio(scene,key,path){
+ const background=scene.scene.get('AssetCache');
+ if(background.cache.audio.exists(key)||pendingAudio.has(key))return;
+ pendingAudio.add(key);
+ const done=()=>{pendingAudio.delete(key);background.load.off('loaderror',failed)};
+ const failed=file=>{if(file.key===key){background.load.off('filecomplete-audio-'+key,done);done()}};
+ background.load.once('filecomplete-audio-'+key,done);background.load.on('loaderror',failed);
+ background.load.audio(key,path);if(!background.load.isLoading())background.load.start();
+}
+function waitForTextureKeys(scene,keys){
+ return new Promise((resolve,reject)=>{
+  const pending=new Set(keys.filter(key=>!scene.textures.exists(key)));
+  if(!pending.size){resolve(true);return}
+  let timer,settled=false;
+  const finish=error=>{
+   if(settled)return;settled=true;
+   clearTimeout(timer);scene.load.off('filecomplete',check);scene.load.off('complete',check);
+   scene.load.off('loaderror',failed);scene.events.off('shutdown',cancel);
+   if(error)reject(error);else resolve(true);
+  };
+  const check=()=>{for(const key of pending)if(scene.textures.exists(key))pending.delete(key);if(!pending.size)finish()};
+  const failed=file=>{if(pending.has(file.key))finish(Error('Image failed: '+file.key))};
+  const cancel=()=>finish(Error('Image scene closed'));
+  scene.load.on('filecomplete',check);scene.load.on('complete',check);scene.load.on('loaderror',failed);
+  scene.events.once('shutdown',cancel);timer=setTimeout(()=>finish(Error('Image loading timed out')),45000);
+ });
+}
+
 function ensureDailyAssets(scene){
   if(window.__berriesDailyAssetsPromise)return window.__berriesDailyAssetsPromise;
-  window.__berriesDailyAssetsPromise=new Promise(resolve=>{
-    let queued=0;
-    const I=(k,p)=>{if(scene.textures.exists(k))return;scene.load.image(k,p+'?v='+ASSET_REV);queued++};
-    const A=(k,p)=>{if(scene.cache.audio.exists(k))return;scene.load.audio(k,p);queued++};
+  window.__berriesDailyAssetsPromise=new Promise((resolve,reject)=>{
+    let queued=0;const imageKeys=[];
+    const I=(k,p)=>{imageKeys.push(k);if(scene.textures.exists(k))return;scene.load.image(k,imagePath(p)+'?v='+ASSET_REV);queued++};
+    const A=(k,p)=>queueAudio(scene,k,p);
     A('sfx_combo_glitter','audio/sfx/combo_glitter_chime.mp3');
     I('daily_popup','assets/ui/popups/popup_everyday.png');
     I('daily_chest_closed','assets/ui/popups/gift_01.png');
@@ -36,7 +67,7 @@ function ensureDailyAssets(scene){
     I('shuffle','assets/boosters/booster_shuffle.png');
     I('fan','assets/boosters/booster_fan.png');
     if(!queued){window.__berriesDailyAssetsReady=true;resolve(true);return}
-    scene.load.once('complete',()=>{window.__berriesDailyAssetsReady=true;resolve(true)});
+    waitForTextureKeys(scene,imageKeys).then(()=>{window.__berriesDailyAssetsReady=true;resolve(true)},reject);
     if(!scene.load.isLoading())scene.load.start();
   });
   return window.__berriesDailyAssetsPromise;
@@ -45,16 +76,13 @@ window.__berriesEnsureDailyAssets=ensureDailyAssets;
 
 function ensureCoreAssets(scene){
   if(window.__berriesCoreAssetsPromise)return window.__berriesCoreAssetsPromise;
-  window.__berriesCoreAssetsPromise=new Promise(resolve=>{
-    let queued=0;
+  window.__berriesCoreAssetsPromise=new Promise((resolve,reject)=>{
+    let queued=0;const imageKeys=[];
     const I=(k,p)=>{
-      if(scene.textures.exists(k))return;
-      scene.load.image(k,p+'?v='+ASSET_REV);queued++;
+      imageKeys.push(k);if(scene.textures.exists(k))return;
+      scene.load.image(k,imagePath(p)+'?v='+ASSET_REV);queued++;
     };
-    const A=(k,p)=>{
-      if(scene.cache.audio.exists(k))return;
-      scene.load.audio(k,p);queued++;
-    };
+    const A=(k,p)=>queueAudio(scene,k,p);
 
     A('sfx_berry_pop','audio/sfx/berry_pop_soft.mp3');
     A('sfx_ice_break','audio/sfx/ice_break.mp3');
@@ -108,10 +136,7 @@ function ensureCoreAssets(scene){
       resolve(true);
       return;
     }
-    scene.load.once('complete',()=>{
-      window.__berriesCoreAssetsReady=true;
-      resolve(true);
-    });
+    waitForTextureKeys(scene,imageKeys).then(()=>{window.__berriesCoreAssetsReady=true;resolve(true)},reject);
     if(!scene.load.isLoading())scene.load.start();
   });
   return window.__berriesCoreAssetsPromise;
@@ -130,14 +155,15 @@ function ensurePopupAssets(scene,group){
   let timer,settled=false;
   const finish=error=>{
    if(settled)return;settled=true;
-   clearTimeout(timer);scene.load.off('complete',complete);scene.events.off('shutdown',cancel);
+   clearTimeout(timer);scene.load.off('complete',complete);scene.load.off('filecomplete',fileReady);scene.events.off('shutdown',cancel);
    if(error)reject(error);else resolve(true);
   };
   const complete=()=>finish(files.every(([key])=>scene.textures.exists(key))?null:Error('Popup image failed to load'));
+  const fileReady=()=>{if(files.every(([key])=>scene.textures.exists(key)))finish()};
   const cancel=()=>finish(Error('Popup scene closed'));
-  scene.load.once('complete',complete);scene.events.once('shutdown',cancel);
+  scene.load.once('complete',complete);scene.load.on('filecomplete',fileReady);scene.events.once('shutdown',cancel);
   timer=setTimeout(()=>finish(Error('Popup image loading timed out')),20000);
-  for(const [key,path] of files)if(!scene.textures.exists(key))scene.load.image(key,path+'?v='+ASSET_REV);
+  for(const [key,path] of files)if(!scene.textures.exists(key))scene.load.image(key,imagePath(path)+'?v='+ASSET_REV);
   if(!scene.load.isLoading())scene.load.start();
  });
  optionalPopupLoads.set(group,promise);
@@ -292,9 +318,8 @@ this.stop();
 if(!this.s.cache.audio.exists(key)){
 if(!MUSIC_TRACKS[key]||this.loading===key)return;
 this.loading=key;
-this.s.load.once('filecomplete-audio-'+key,()=>{this.loading=null;if(!this.closed&&!this.muted&&this.wanted===key)this.play(key)});
-this.s.load.audio(key,MUSIC_TRACKS[key]);
-if(!this.s.load.isLoading())this.s.load.start();
+this.s.scene.get('AssetCache').load.once('filecomplete-audio-'+key,()=>{this.loading=null;if(!this.closed&&!this.muted&&this.wanted===key)this.play(key)});
+queueAudio(this.s,key,MUSIC_TRACKS[key]);
 return;
 }
 this.current=key;this.sound=this.s.sound.add(key,{loop:true,volume:this.volume});this.sound.play();this.applyPause();
@@ -358,6 +383,9 @@ pause(v){this.paused=!!v;this.applyPause()}
 }
 window.BerriesMusicBus=MusicBus;
 
+class AssetCache extends Phaser.Scene{
+ constructor(){super({key:'AssetCache',active:true})}
+}
 class Boot extends Phaser.Scene{
   constructor(){super('Boot')}
   preload(){
@@ -366,7 +394,7 @@ class Boot extends Phaser.Scene{
     window.BerriesI18n.init();
     const t=this.add.text(W/2,H/2,window.BerriesI18n.t('boot.starting'),{fontSize:'32px',color:'#fff7dc'}).setOrigin(.5);
     this.load.on('progress',v=>t.setText(window.BerriesI18n.t('boot.progress',{percent:Math.round(v*100)})));
-    const I=(k,p)=>this.load.image(k,p+'?v='+ASSET_REV);
+    const I=(k,p)=>this.load.image(k,imagePath(p)+'?v='+ASSET_REV);
     I('title','assets/backgrounds/background_title_forest.jpg');
     I('logo','assets/ui/panels/logo_main.png');
     I('btn','assets/ui/buttons/button_wood.png');
@@ -790,7 +818,7 @@ class Play extends Phaser.Scene{
 
 }
 
-const game=new Phaser.Game({type:Phaser.AUTO,parent:'game',width:W,height:H,backgroundColor:'#183d24',scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH,width:W,height:H},render:{antialias:true,pixelArt:false,roundPixels:false},scene:[Boot,Title,Map,Play]});
+const game=new Phaser.Game({type:Phaser.AUTO,parent:'game',width:W,height:H,backgroundColor:'#183d24',scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH,width:W,height:H},render:{antialias:true,pixelArt:false,roundPixels:false},scene:[Boot,AssetCache,Title,Map,Play]});
 game.sound.pauseOnBlur=false;
 window.__berriesGame=game;
 })();
