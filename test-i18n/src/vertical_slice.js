@@ -435,7 +435,7 @@ class Title extends Phaser.Scene{
     const rays=[];
     for(let i=0;i<7;i++){
       const width=280+i*105,height=i%2===0?5:3;
-      const ray=this.add.rectangle(W/2,H/2+18+(i-3)*16,width,height,0xffe7a2,.055).setDepth(2);
+      const ray=this.add.rectangle(W/2,H/2+136+(i-3)*16,width,height,0xffe7a2,.055).setDepth(2);
       ray.setAngle((i-3)*2.2);
       rays.push(ray);box.add(ray);
       this.tweens.add({
@@ -444,11 +444,11 @@ class Title extends Phaser.Scene{
       });
     }
 
-    const title=this.add.text(W/2,H/2-8,window.BerriesI18n.t('transition.title'),{
+    const title=this.add.text(W/2,H/2+110,window.BerriesI18n.t('transition.title'),{
       fontFamily:FONT,fontSize:'38px',fontStyle:'bold',color:'#fff0b1',
       stroke:'#4f2918',strokeThickness:7,align:'center'
     }).setOrigin(.5).setAlpha(0).setDepth(4);
-    const sub=this.add.text(W/2,H/2+55,window.BerriesI18n.t('transition.subtitle'),{
+    const sub=this.add.text(W/2,H/2+173,window.BerriesI18n.t('transition.subtitle'),{
       fontFamily:FONT,fontSize:'23px',fontStyle:'bold',color:'#fff6d8',
       stroke:'#2d2015',strokeThickness:4,align:'center'
     }).setOrigin(.5).setAlpha(0).setDepth(4);
