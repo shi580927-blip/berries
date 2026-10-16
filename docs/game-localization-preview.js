@@ -79,26 +79,31 @@
       document.body.append(script);
     });
     await loadScript('src/optimized-images.js?v=web-images-1');
-    await loadScript('src/vertical_slice.js?v=popup-prewarm-2');
-    await loadScript('src/runtime_stable_v10.js?v=popup-prewarm-2');
-    const addLabel = (scene, box, art, spec) => {
-      const x = art.x + (spec.x-.5)*art.displayWidth;
-      const y = art.y + (spec.y-.5)*art.displayHeight;
-      if(spec.decorative) {
-        const width=art.displayWidth*spec.w,height=art.displayHeight*spec.h;
+    await loadScript('src/vertical_slice.js?v=popup-prewarm-3');
+    await loadScript('src/runtime_stable_v10.js?v=popup-prewarm-3');
+    const headingTexture = (textures,artWidth,artHeight,spec) => {
+        const width=artWidth*spec.w,height=artHeight*spec.h;
         // Victory needs extra texture headroom for the raised centre of the arc.
         const victory=spec.key==='result.win';
         const textureHeight=height*((victory||spec.twoLines)?1.5:1);
-        const canvas=document.createElement('canvas');canvas.width=Math.ceil(width*2);canvas.height=Math.ceil(textureHeight*2);
+        const canvasWidth=Math.ceil(width*2),canvasHeight=Math.ceil(textureHeight*2);
+        const key='preview_heading_'+language+'_'+spec.key+'_'+canvasWidth+'_'+canvasHeight;
+        if(textures.exists(key))return {key,width,textureHeight,victory};
+        const canvas=document.createElement('canvas');canvas.width=canvasWidth;canvas.height=canvasHeight;
         const headingText=window.BerriesI18n.t(spec.key);
         const headingLines=spec.twoLines?headingText.split(' '):[headingText];
         headingLines.forEach((line,i)=>window.BerriesHeadingPainter.draw(canvas.getContext('2d'),line,{
           cx:canvas.width/2,cy:canvas.height/2+(i-(headingLines.length-1)/2)*height*2*.42,
           w:canvas.width,h:height*2*(spec.twoLines?.50:1)
         }));
-        const key='preview_heading_'+language+'_'+spec.key;
-        if(scene.textures.exists(key))scene.textures.remove(key);
-        scene.textures.addCanvas(key,canvas);
+        textures.addCanvas(key,canvas);
+        return {key,width,textureHeight,victory};
+    };
+    const addLabel = (scene, box, art, spec) => {
+      const x = art.x + (spec.x-.5)*art.displayWidth;
+      const y = art.y + (spec.y-.5)*art.displayHeight;
+      if(spec.decorative) {
+        const {key,width,textureHeight,victory}=headingTexture(scene.textures,art.displayWidth,art.displayHeight,spec);
         const node=scene.add.image(x,y+(victory?art.displayHeight*.012:0),key).setDisplaySize(width,textureHeight);box.add(node);return node;
       }
       let size = Math.round(art.displayWidth*spec.size);
@@ -138,6 +143,13 @@
       proto.openPaidShop=decorateShop(proto.openPaidShop);
       const mapProto=Object.getPrototypeOf(game.scene.keys.Map);
       mapProto.openPaidShop=decorateShop(mapProto.openPaidShop);
+      // Draw the two curved result headings once while title artwork is loading.
+      // Opening a result must only reuse textures, never rasterize gold lettering.
+      for(const group of ['levelWin','levelLose']){
+        const asset=manifest.assets.find(a=>a.id===group);
+        const [width,height]=asset.sourceSize,scale=Math.min(860/width,820/height);
+        for(const spec of layers[group])if(spec.decorative)headingTexture(game.textures,width*scale,height*scale,spec);
+      }
       status.textContent='Стенд готов. PLAY → карта → уровень. Попапы — кнопками сверху.';
       return true;
     };
