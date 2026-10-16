@@ -1,0 +1,1182 @@
+{
+  "status": "inventory, not runtime coverage",
+  "source_commit": "5f2be2cad105f6955ac2a615bc44113e789ab89d",
+  "records": [
+    {
+      "file": "src/vertical_slice.js",
+      "line": 342,
+      "kind": "literal",
+      "source": "Запускаем…",
+      "draft_keys": [
+        "boot.starting"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 343,
+      "kind": "template",
+      "source": "Запускаем… ${Math.round(v*100)}%",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 391,
+      "kind": "literal",
+      "source": "ИГРАТЬ",
+      "draft_keys": [
+        "common.play"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 414,
+      "kind": "literal",
+      "source": "Меняй соседние ягоды местами и собирай от трёх в ряд.\nВыполняй цели слева, пока не закончатся ходы.",
+      "draft_keys": [
+        "help.basics"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 446,
+      "kind": "literal",
+      "source": "ОТКРЫВАЕМ ВОРОТА В СКАЗКУ…",
+      "draft_keys": [
+        "transition.title"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 450,
+      "kind": "literal",
+      "source": "Лесное королевство уже рядом",
+      "draft_keys": [
+        "transition.subtitle"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 499,
+      "kind": "literal",
+      "source": "ЕЖЕДНЕВНАЯ НАГРАДА",
+      "draft_keys": [
+        "daily.title"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 505,
+      "kind": "literal",
+      "source": "Выберите один из трёх сундуков",
+      "draft_keys": [
+        "daily.hint"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 510,
+      "kind": "literal",
+      "source": "ВЫБЕРИТЕ СУНДУК",
+      "draft_keys": [
+        "daily.choose"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 522,
+      "kind": "literal",
+      "source": "ОТКРЫВАЕМ КАРТУ…",
+      "draft_keys": [
+        "daily.openingMap"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 564,
+      "kind": "literal",
+      "source": "ДАЛЬШЕ",
+      "draft_keys": [
+        "common.next"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 580,
+      "kind": "literal",
+      "source": "ВАШ ПОДАРОК",
+      "draft_keys": [
+        "daily.gift"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 615,
+      "kind": "literal",
+      "source": "ДАЛЬШЕ",
+      "draft_keys": [
+        "common.next"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 632,
+      "kind": "literal",
+      "source": "ЛЕСНОЕ КОРОЛЕВСТВО",
+      "draft_keys": [
+        "map.kingdom"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 649,
+      "kind": "template",
+      "source": "УРОВЕНЬ ${this.no}",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 650,
+      "kind": "literal",
+      "source": "ЦЕЛИ",
+      "draft_keys": [
+        "hud.goals"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 651,
+      "kind": "literal",
+      "source": "БУСТЕРЫ",
+      "draft_keys": [
+        "hud.boosters"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 689,
+      "kind": "literal",
+      "source": "Молоток: выбери клетку",
+      "draft_keys": [
+        "booster.hammerHint"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 689,
+      "kind": "literal",
+      "source": "Веер: выбери ряд",
+      "draft_keys": [
+        "booster.fanHint"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 694,
+      "kind": "template",
+      "source": "ХОДЫ  ${this.moves}",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 694,
+      "kind": "template",
+      "source": "СЧЁТ ${Math.round(this.score)}",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 694,
+      "kind": "literal",
+      "source": "Клубника",
+      "draft_keys": [
+        "berry.strawberry"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 694,
+      "kind": "literal",
+      "source": "Малина",
+      "draft_keys": [
+        "berry.raspberry"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 694,
+      "kind": "literal",
+      "source": "Черника",
+      "draft_keys": [
+        "berry.blueberry"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 694,
+      "kind": "literal",
+      "source": "Крыжовник",
+      "draft_keys": [
+        "berry.gooseberry"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 694,
+      "kind": "literal",
+      "source": "Ежевика",
+      "draft_keys": [
+        "berry.blackberry"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 694,
+      "kind": "literal",
+      "source": "Морошка",
+      "draft_keys": [
+        "berry.cloudberry"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 694,
+      "kind": "literal",
+      "source": "Лёд",
+      "draft_keys": [
+        "obstacle.ice"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 694,
+      "kind": "literal",
+      "source": "Жёлуди",
+      "draft_keys": [
+        "obstacle.acorn"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 694,
+      "kind": "literal",
+      "source": "Корни",
+      "draft_keys": [
+        "obstacle.roots"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/vertical_slice.js",
+      "line": 694,
+      "kind": "literal",
+      "source": "Очки",
+      "draft_keys": [
+        "goal.score"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 24,
+      "kind": "literal",
+      "source": "+1 жизнь",
+      "draft_keys": [
+        "lives.next"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 26,
+      "kind": "literal",
+      "source": "МАКСИМУМ",
+      "draft_keys": [
+        "lives.max"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 352,
+      "kind": "literal",
+      "source": "ПОЛОСАТАЯ • поменяй с соседней ягодой → очистит РЯД",
+      "draft_keys": [
+        "special.lineH"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 353,
+      "kind": "literal",
+      "source": "ПОЛОСАТАЯ • поменяй с соседней ягодой → очистит КОЛОНКУ",
+      "draft_keys": [
+        "special.lineV"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 354,
+      "kind": "literal",
+      "source": "БОМБА • поменяй с соседней ягодой → взрыв 3×3",
+      "draft_keys": [
+        "special.bomb"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 355,
+      "kind": "literal",
+      "source": "РАДУГА • поменяй с ягодой → уберёт весь её цвет",
+      "draft_keys": [
+        "special.rainbow"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 392,
+      "kind": "template",
+      "source": "УРОВЕНЬ ${this.no}",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 413,
+      "kind": "literal",
+      "source": "МАГАЗИН",
+      "draft_keys": [
+        "shop.title"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 428,
+      "kind": "literal",
+      "source": "НАСТРОЙКИ",
+      "draft_keys": [
+        "settings.title"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 435,
+      "kind": "literal",
+      "source": "ВЫКЛ",
+      "draft_keys": [
+        "common.off"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 435,
+      "kind": "literal",
+      "source": "ВКЛ",
+      "draft_keys": [
+        "common.on"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 446,
+      "kind": "literal",
+      "source": "ЗВУК",
+      "draft_keys": [
+        "settings.sound"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 446,
+      "kind": "literal",
+      "source": "МУЗЫКА",
+      "draft_keys": [
+        "settings.music"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 447,
+      "kind": "literal",
+      "source": "О музыке",
+      "draft_keys": [
+        "settings.credits"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 452,
+      "kind": "literal",
+      "source": "Музыка: Kevin MacLeod (incompetech.com)\nMorning • Devonshire Waltz Moderato\nMagic Escape Room • Adventures in Adventureland\nАкценты: фрагменты с плавным началом и окончанием\nLicensed under Creative Commons: By Attribution 4.0\nhttps://creativecommons.org/licenses/by/4.0/",
+      "draft_keys": [
+        "settings.creditsBody"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 454,
+      "kind": "literal",
+      "source": "ЗАКРЫТЬ",
+      "draft_keys": [
+        "common.close"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 542,
+      "kind": "literal",
+      "source": "Выберите",
+      "draft_keys": [
+        "common.choose"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 558,
+      "kind": "literal",
+      "source": "1000 монет",
+      "draft_keys": [
+        "product.coins1000"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 558,
+      "kind": "literal",
+      "source": "Начислено 1000 монет",
+      "draft_keys": [
+        "purchase.coinsGranted"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 559,
+      "kind": "literal",
+      "source": "Восстановить\nдо 5 жизней",
+      "draft_keys": [
+        "product.lives5"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 559,
+      "kind": "literal",
+      "source": "Жизни восстановлены",
+      "draft_keys": [
+        "purchase.livesGranted"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 560,
+      "kind": "literal",
+      "source": "По 3 бустера\nкаждого вида",
+      "draft_keys": [
+        "product.boosters3"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 560,
+      "kind": "literal",
+      "source": "Начислено по 3 бустера",
+      "draft_keys": [
+        "purchase.boostersGranted"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 610,
+      "kind": "literal",
+      "source": "Открываем оплату…",
+      "draft_keys": [
+        "purchase.opening"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 617,
+      "kind": "literal",
+      "source": "Покупка сохранена. Начисление завершится после восстановления сети",
+      "draft_keys": [
+        "purchase.savePending"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 619,
+      "kind": "literal",
+      "source": "Награда начислена. Подтверждение завершится при следующем запуске",
+      "draft_keys": [
+        "purchase.confirmPending"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 621,
+      "kind": "literal",
+      "source": "Покупки временно недоступны",
+      "draft_keys": [
+        "purchase.unavailable"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 623,
+      "kind": "literal",
+      "source": "Покупка отменена",
+      "draft_keys": [
+        "purchase.cancelled"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 632,
+      "kind": "literal",
+      "source": "Покупки недоступны в этой версии",
+      "draft_keys": [
+        "purchase.unsupported"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 649,
+      "kind": "literal",
+      "source": "Покупки временно недоступны",
+      "draft_keys": [
+        "purchase.unavailable"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 650,
+      "kind": "literal",
+      "source": "Покупки временно недоступны",
+      "draft_keys": [
+        "purchase.unavailable"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 662,
+      "kind": "literal",
+      "source": "Бустеры сохраняются\nмежду уровнями",
+      "draft_keys": [
+        "shop.persistent"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 664,
+      "kind": "literal",
+      "source": "МОНЕТЫ\n",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 664,
+      "kind": "literal",
+      "source": "\nВ запасе: ",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 665,
+      "kind": "literal",
+      "source": "Молоток",
+      "draft_keys": [
+        "booster.hammer"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 665,
+      "kind": "literal",
+      "source": "Перемешивание",
+      "draft_keys": [
+        "booster.shuffle"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 665,
+      "kind": "literal",
+      "source": "Вентилятор",
+      "draft_keys": [
+        "booster.fan"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 669,
+      "kind": "literal",
+      "source": " монет",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 670,
+      "kind": "literal",
+      "source": "Куплено:\n",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 670,
+      "kind": "literal",
+      "source": "Не хватает монет\nЗаработайте их на уровнях",
+      "draft_keys": [
+        "shop.insufficient"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 689,
+      "kind": "literal",
+      "source": "Клубника",
+      "draft_keys": [
+        "berry.strawberry"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 689,
+      "kind": "literal",
+      "source": "Малина",
+      "draft_keys": [
+        "berry.raspberry"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 689,
+      "kind": "literal",
+      "source": "Черника",
+      "draft_keys": [
+        "berry.blueberry"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 689,
+      "kind": "literal",
+      "source": "Крыжовник",
+      "draft_keys": [
+        "berry.gooseberry"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 689,
+      "kind": "literal",
+      "source": "Ежевика",
+      "draft_keys": [
+        "berry.blackberry"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 689,
+      "kind": "literal",
+      "source": "Морошка",
+      "draft_keys": [
+        "berry.cloudberry"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 689,
+      "kind": "literal",
+      "source": "Лёд",
+      "draft_keys": [
+        "obstacle.ice"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 689,
+      "kind": "literal",
+      "source": "Корни",
+      "draft_keys": [
+        "obstacle.roots"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 689,
+      "kind": "literal",
+      "source": "Жёлуди",
+      "draft_keys": [
+        "obstacle.acorn"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 689,
+      "kind": "literal",
+      "source": "Очки",
+      "draft_keys": [
+        "goal.score"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 691,
+      "kind": "literal",
+      "source": "Награда\n",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 691,
+      "kind": "literal",
+      "source": " монет",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 692,
+      "kind": "literal",
+      "source": "Осталось собрать\n",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 692,
+      "kind": "literal",
+      "source": "Цель",
+      "draft_keys": [
+        "goal.generic"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 711,
+      "kind": "literal",
+      "source": "Монеты удвоены",
+      "draft_keys": [
+        "result.doubled"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 712,
+      "kind": "literal",
+      "source": "Реклама недоступна. Попробуй позже.",
+      "draft_keys": [
+        "ads.unavailable"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 714,
+      "kind": "literal",
+      "source": "Удвоение награды недоступно",
+      "draft_keys": [
+        "result.noDouble"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 721,
+      "kind": "literal",
+      "source": "Продолжение уже использовано",
+      "draft_keys": [
+        "result.continueUsed"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 730,
+      "kind": "literal",
+      "source": "Реклама недоступна. Попробуй позже.",
+      "draft_keys": [
+        "ads.unavailable"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 732,
+      "kind": "literal",
+      "source": "Продолжение за рекламу недоступно",
+      "draft_keys": [
+        "result.noContinue"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 745,
+      "kind": "literal",
+      "source": "МОЛОТОК — выбери одну клетку",
+      "draft_keys": [
+        "booster.hammerPrompt"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 745,
+      "kind": "literal",
+      "source": "ВЕЕР — выбери ряд",
+      "draft_keys": [
+        "booster.fanPrompt"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 796,
+      "kind": "literal",
+      "source": "СОЧНО!",
+      "draft_keys": [
+        "combo.juicy"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 797,
+      "kind": "literal",
+      "source": "ВАУ!",
+      "draft_keys": [
+        "combo.wow"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 798,
+      "kind": "literal",
+      "source": "БУМ!",
+      "draft_keys": [
+        "combo.boom"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 799,
+      "kind": "literal",
+      "source": "ЕЩЁ!",
+      "draft_keys": [
+        "combo.more"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 801,
+      "kind": "literal",
+      "source": "КОМБО!",
+      "draft_keys": [
+        "combo.combo"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 801,
+      "kind": "literal",
+      "source": "СОЧНО!",
+      "draft_keys": [
+        "combo.juicy"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 948,
+      "kind": "literal",
+      "source": "G — скрыть сетку",
+      "draft_keys": [
+        "debug.hideGrid"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1012,
+      "kind": "literal",
+      "source": "Жизни закончились. До +1 жизни: ",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1012,
+      "kind": "literal",
+      "source": "\nВнизу карты можно получить жизнь за рекламу.",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1040,
+      "kind": "literal",
+      "source": "НАСТРОЙКИ",
+      "draft_keys": [
+        "settings.title"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1046,
+      "kind": "literal",
+      "source": "ВЫКЛ",
+      "draft_keys": [
+        "common.off"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1046,
+      "kind": "literal",
+      "source": "ВКЛ",
+      "draft_keys": [
+        "common.on"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1049,
+      "kind": "literal",
+      "source": "ЗВУК",
+      "draft_keys": [
+        "settings.sound"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1050,
+      "kind": "literal",
+      "source": "МУЗЫКА",
+      "draft_keys": [
+        "settings.music"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1077,
+      "kind": "literal",
+      "source": "УРОВЕНЬ",
+      "draft_keys": [
+        "hud.levelLabel"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1093,
+      "kind": "literal",
+      "source": "ЗАГРУЗКА…",
+      "draft_keys": [
+        "common.loading"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1094,
+      "kind": "literal",
+      "source": "РЕКЛАМА\nНЕДОСТУПНА",
+      "draft_keys": [
+        "ads.shortUnavailable"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1101,
+      "kind": "literal",
+      "source": "МАГАЗИН",
+      "draft_keys": [
+        "shop.title"
+      ],
+      "scope": "player_or_legacy"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1110,
+      "kind": "literal",
+      "source": "Сохранено",
+      "draft_keys": [
+        "common.saved"
+      ],
+      "scope": "developer"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1116,
+      "kind": "template",
+      "source": "Уровень ${node.getData('level')}  x:${Math.round(node.x)}  y:${Math.round(node.y)}  ×${node.scaleX.toFixed(2)}",
+      "draft_keys": [],
+      "scope": "developer"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1147,
+      "kind": "template",
+      "source": "Уровень ${n}  x:${Math.round(node.x)}  y:${Math.round(node.y)}  ×${node.scaleX.toFixed(2)}",
+      "draft_keys": [],
+      "scope": "developer"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1166,
+      "kind": "literal",
+      "source": "КОПИРОВАТЬ JSON",
+      "draft_keys": [
+        "debug.copy"
+      ],
+      "scope": "developer"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1168,
+      "kind": "literal",
+      "source": "JSON скопирован",
+      "draft_keys": [
+        "debug.copied"
+      ],
+      "scope": "developer"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1168,
+      "kind": "literal",
+      "source": "JSON сохранён в localStorage",
+      "draft_keys": [
+        "debug.savedLocal"
+      ],
+      "scope": "developer"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1170,
+      "kind": "literal",
+      "source": "СБРОСИТЬ",
+      "draft_keys": [
+        "debug.reset"
+      ],
+      "scope": "developer"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1173,
+      "kind": "literal",
+      "source": "Перетащите точку • колёсико меняет размер",
+      "draft_keys": [
+        "debug.drag"
+      ],
+      "scope": "developer"
+    },
+    {
+      "file": "src/runtime_stable_v10.js",
+      "line": 1174,
+      "kind": "literal",
+      "source": "Выберите уровень",
+      "draft_keys": [
+        "debug.chooseLevel"
+      ],
+      "scope": "developer"
+    },
+    {
+      "file": "index.html",
+      "line": 14,
+      "kind": "literal",
+      "source": "Безумные ягодки",
+      "draft_keys": [],
+      "scope": "player_or_legacy"
+    }
+  ]
+}
