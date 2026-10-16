@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-16",
+  "published": true,
+  "automationProxyTlsOverride": true,
+  "device": "Chromium Android Pixel 7 emulation 915x412 DPR2",
+  "results": [
+    {
+      "lang": "en",
+      "url": "https://shi580927-blip.github.io/berries/test-i18n/docs/game-localization-preview.html?lang=en",
+      "words": [
+        "JUICY!",
+        "WOW!",
+        "BOOM!",
+        "MORE!",
+        "COMBO!"
+      ],
+      "font": true,
+      "normalizedCount": 10,
+      "comboButton": true
+    },
+    {
+      "lang": "tr",
+      "url": "https://shi580927-blip.github.io/berries/test-i18n/docs/game-localization-preview.html?lang=tr",
+      "words": [
+        "NEFİS!",
+        "VAY CANINA!",
+        "BOM!",
+        "DAHA FAZLA!",
+        "KOMBO!"
+      ],
+      "font": true,
+      "normalizedCount": 10,
+      "comboButton": true
+    }
+  ],
+  "errors": [],
+  "failed": [],
+  "sourceBaseCommit": "03241aa686d8125838a11d3783681ff2e100d074",
+  "pagesCommit": "b019516d93af43e20619c0a3d0ae53dc9a6a3be2",
+  "pagesBuildRun": 38888547928,
+  "originalRootEntriesChanged": 0,
+  "realAndroidDeviceTested": false,
+  "localReplayNote": "An additional local screenshot replay passed EN but stopped on a TR screenshot timeout; it is not counted as a complete pass. The focused public EN/TR test recorded here passed without screenshots."
+}
