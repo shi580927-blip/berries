@@ -539,14 +539,16 @@ function install(){
     const closeHit=this.add.zone(...at(.91,.17),panel.displayWidth*.12,panel.displayHeight*.09).setInteractive({useHandCursor:true});
     closeHit.on('pointerdown',close);box.add(closeHit);
 
-    const header=this.add.text(...at(.595,.327),window.BerriesI18n.t('common.choose'),{
+    const localizedShop=window.BerriesI18n.language!=='ru';
+    const header=this.add.text(...at(localizedShop?.5:.595,.327),window.BerriesI18n.t('common.choose'),{
       fontFamily:FONT,fontSize:'27px',fontStyle:'bold',color:'#6b3b20',
       stroke:'#fff0c7',strokeThickness:2,align:'center'
     }).setOrigin(.5).setDepth(94);box.add(header);
 
-    const status=this.add.text(...at(.5,.9),'',{
-      fontFamily:FONT,fontSize:'18px',fontStyle:'bold',color:'#6b3b20',
-      align:'center',wordWrap:{width:panel.displayWidth*.55}
+    const status=this.add.text(...at(.5,localizedShop?1.005:.9),'',{
+      fontFamily:FONT,fontSize:'18px',fontStyle:'bold',color:localizedShop?'#fff4cf':'#6b3b20',
+      stroke:localizedShop?'#3b2012':undefined,strokeThickness:localizedShop?3:0,
+      align:'center',wordWrap:{width:panel.displayWidth*.85}
     }).setOrigin(.5).setDepth(95);box.add(status);
     const setStatus=message=>{
       status.setFontSize(18).setText(message);
@@ -590,11 +592,12 @@ function install(){
     };
 
     for(const [id,v,title,successText] of products){
-      const [x,y]=at(.77,v),w=panel.displayWidth*.25,h=panel.displayHeight*.09;
-      const [tx,ty]=at(.475,v);
+      const row=localizedShop?v-.028:v;
+      const [x,y]=at(.77,row),w=panel.displayWidth*.25,h=panel.displayHeight*.09;
+      const [tx,ty]=at(localizedShop?.54:.475,row);
       const productText=this.add.text(tx,ty,title,{
         fontFamily:FONT,fontSize:'24px',fontStyle:'bold',color:'#674028',
-        align:'center',wordWrap:{width:panel.displayWidth*.285}
+        align:'center',wordWrap:{width:panel.displayWidth*(localizedShop?.24:.285)}
       }).setOrigin(.5).setLineSpacing(-2).setDepth(94);box.add(productText);
       if(productText.width>panel.displayWidth*.285||productText.height>panel.displayHeight*.09)
         productText.setFontSize(21);
