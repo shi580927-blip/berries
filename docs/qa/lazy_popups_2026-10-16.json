@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-16",
+  "scope": "Local Chromium with Android Pixel 7 user agent, 915x412 DPR2",
+  "screenshots": false,
+  "startup": {
+    "localizedTextures": 6,
+    "deferredKeys": [
+      "popup_win",
+      "popup_lose",
+      "coin_shop_new",
+      "popup_royal_shop"
+    ],
+    "deferredBytesApprox": 4000000
+  },
+  "profiles": [
+    {
+      "lang": "en",
+      "mobile": true,
+      "errors": [],
+      "failed": [],
+      "font": true,
+      "normalized": [
+        "logo",
+        "boosters",
+        "royalShop",
+        "royalFamily",
+        "goals",
+        "map",
+        "levelWin",
+        "levelLose",
+        "boosterShop",
+        "paidRoyalShop"
+      ],
+      "productionSave": "{\"coins\":98765}"
+    },
+    {
+      "lang": "tr",
+      "mobile": true,
+      "errors": [],
+      "failed": [],
+      "font": true,
+      "normalized": [
+        "logo",
+        "boosters",
+        "royalShop",
+        "royalFamily",
+        "goals",
+        "map",
+        "levelWin",
+        "levelLose",
+        "boosterShop",
+        "paidRoyalShop"
+      ],
+      "productionSave": "{\"coins\":98765}"
+    }
+  ],
+  "checks": [
+    "PLAY, daily chest, continue, map, level1",
+    "Actual combo function translated",
+    "Win/lose/booster/royal popup open and close",
+    "No popup images at startup; all 10 localized textures present after opening",
+    "No pageerror or HTTP 4xx/5xx; production save unchanged"
+  ],
+  "limitations": [
+    "Not a physical Android test",
+    "No end-user network timing measurement",
+    "Public browser network probe blocked by this environment; separate curl TTFB approximately 4-5 seconds",
+    "Audio and game-only graphics remain in core load"
+  ]
+}
