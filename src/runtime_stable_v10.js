@@ -716,7 +716,7 @@ function install(){
       });
       if(!window.BerriesPlatform.capabilities.rewarded){doubleAd.disableInteractive();adStatus.setText(window.BerriesI18n.t('result.noDouble'))}
       hit(.5,.899,.55,.13,()=>{
-        const next=this.no<30?this.no+1:null;
+        const next=Campaign.LEVELS[this.no+1]?this.no+1:null;
         if(next)this.scene.start('Play',{n:next});else this.scene.start('Map');
       });
     }else{

@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "levelsPerLocation": 20,
+  "loadingPolicy": {
+    "language": "selected_only",
+    "locations": "current_then_next",
+    "heroes": "selected_or_previewed_only",
+    "shared": "reuse_across_languages_and_locations"
+  },
+  "locations": [
+    {
+      "id": "location_001",
+      "firstLevel": 1,
+      "lastLevel": 20,
+      "status": "current_art",
+      "map": "assets/map/map_forest_background.jpg",
+      "background": "assets/backgrounds/background_game_forest.jpg"
+    },
+    {
+      "id": "location_002",
+      "firstLevel": 21,
+      "lastLevel": 40,
+      "status": "awaiting_art",
+      "map": null,
+      "background": null
+    },
+    {
+      "id": "location_003",
+      "firstLevel": 41,
+      "lastLevel": 60,
+      "status": "planned",
+      "map": null,
+      "background": null
+    }
+  ],
+  "heroPacks": [],
+  "heroPackContract": {
+    "required": [
+      "id",
+      "productId",
+      "specialBerryId",
+      "animationSetId",
+      "assetManifest"
+    ],
+    "purchaseType": "non_consumable_unlock",
+    "ownership": "verified_by_platform_adapter",
+    "availability": "owned_or_explicit_preview",
+    "notes": "Hero abilities, charge rules and balance must be specified per hero before implementation. Empty heroPacks means no new products are offered or granted."
+  }
+}
