@@ -5,9 +5,11 @@
 <main><h1>Графика RU / EN / TR</h1><p>Черновики. Русская графика показана для сравнения и остаётся без изменений. По умолчанию показан полный холст, как при загрузке текстуры в игре. Обрезка по alpha — отдельный режим сравнения; её нельзя считать проверкой игровых якорей.</p><label><input id="bounds" type="checkbox" checked> Показывать границу видимой области</label><label><input id="crop" type="checkbox"> Вписывать по видимым alpha-границам (не runtime)</label><p><a href="booster-shop-preview.html">Магазин: горизонтальная сцена с текстами и зонами нажатия</a></p><div id="status">Загрузка…</div><div id="panels"></div></main>
 <script>
 const root='../';
-let entries=[];
+let entries=[],dictionaries={},popupLayers={};
 async function render(){
  const status=document.querySelector('#status');status.textContent='';
+ for(const lang of ['en','tr']) dictionaries[lang]=await fetch('../src/i18n/drafts/'+lang+'.json').then(r=>r.json());
+ popupLayers=await fetch('localization_popup_layers.json').then(r=>r.json());
  const m=await fetch('localization_assets.json').then(r=>{if(!r.ok)throw Error(r.status);return r.json()});
  for(const a of m.assets){
  const section=document.createElement('section');const h=document.createElement('h2');h.textContent=a.id;section.append(h);
@@ -20,12 +22,26 @@ async function render(){
  for(let y=0;y<img.height;y++)for(let x=0;x<img.width;x++)if(p[(y*img.width+x)*4+3]>16){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x+1);y1=Math.max(y1,y+1)}
  if(x1<=x0)throw Error('Пустой alpha');
  const scale=Math.min(c.width/(x1-x0),c.height/(y1-y0));const w=(x1-x0)*scale,h=(y1-y0)*scale;
- entries.push({c,img,x0,y0,x1,y1,w,h});note.textContent=img.width+' × '+img.height+' → '+c.width+' × '+c.height+'; видимая область '+(x1-x0)+' × '+(y1-y0);
+ entries.push({c,img,x0,y0,x1,y1,w,h,lang:lang.toLowerCase(),id:a.id});note.textContent=img.width+' × '+img.height+' → '+c.width+' × '+c.height+'; видимая область '+(x1-x0)+' × '+(y1-y0);
  }catch(e){note.textContent='Ошибка: '+e.message;status.textContent='Есть ошибки загрузки.'}
  }
  }
  redraw();if(!status.textContent)status.textContent='Загружены все '+entries.length+' сравнений. Это проверка графики, не тест игровых зон нажатия.';
 }
-function redraw(){for(const e of entries){const {c,img}=e;const crop=document.querySelector('#crop').checked;const x0=crop?e.x0:0,y0=crop?e.y0:0,x1=crop?e.x1:img.width,y1=crop?e.y1:img.height;const scale=Math.min(c.width/(x1-x0),c.height/(y1-y0)),w=(x1-x0)*scale,h=(y1-y0)*scale;const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);const x=(c.width-w)/2,y=(c.height-h)/2;ctx.drawImage(img,x0,y0,x1-x0,y1-y0,x,y,w,h);if(document.querySelector('#bounds').checked){ctx.strokeStyle='#ff70ff';ctx.lineWidth=3;ctx.strokeRect(x,y,w,h)}}}
+function redraw(){for(const e of entries){const {c,img}=e;const crop=document.querySelector('#crop').checked;const x0=crop?e.x0:0,y0=crop?e.y0:0,x1=crop?e.x1:img.width,y1=crop?e.y1:img.height;const scale=Math.min(c.width/(x1-x0),c.height/(y1-y0)),w=(x1-x0)*scale,h=(y1-y0)*scale;const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);const x=(c.width-w)/2,y=(c.height-h)/2;ctx.drawImage(img,x0,y0,x1-x0,y1-y0,x,y,w,h);drawLabels(e,ctx,x,y,x0,y0,scale);if(document.querySelector('#bounds').checked){ctx.strokeStyle='#ff70ff';ctx.lineWidth=3;ctx.strokeRect(x,y,w,h)}}}
+function drawLabels(e,ctx,x,y,x0,y0,scale){
+ if(e.lang==='ru'||!Array.isArray(popupLayers[e.id]))return;
+ ctx.textAlign='center';ctx.textBaseline='middle';
+ for(const l of popupLayers[e.id]){
+  const template=dictionaries[e.lang][l.key];if(!template)throw Error('Нет ключа '+l.key);
+  const value=(template.replace(/\{(\w+)\}/g,(s,k)=>Object.hasOwn(l.params||{},k)?String(l.params[k]):s)+(l.suffix||'')).trim();
+  const lines=value.split('\n');let size=e.img.width*l.size*scale;
+  const maxW=e.img.width*l.w*scale,maxH=e.img.height*l.h*scale;
+  ctx.font=`bold ${size}px Arial`;const measured=Math.max(...lines.map(t=>ctx.measureText(t).width));
+  size*=Math.min(1,maxW/Math.max(measured,1),maxH/(size*1.15*lines.length));ctx.font=`bold ${size}px Arial`;
+  const cx=x+(e.img.width*l.x-x0)*scale,cy=y+(e.img.height*l.y-y0)*scale;
+  lines.forEach((t,i)=>{const yy=cy+(i-(lines.length-1)/2)*size*1.15;if(l.stroke){ctx.strokeStyle=l.stroke;ctx.lineWidth=size*.12;ctx.strokeText(t,cx,yy)}ctx.fillStyle=l.color||'#59331d';ctx.fillText(t,cx,yy)});
+ }
+}
 document.querySelector('#bounds').onchange=redraw;document.querySelector('#crop').onchange=redraw;render().catch(e=>document.querySelector('#status').textContent='Ошибка: '+e.message);
 </script></html>

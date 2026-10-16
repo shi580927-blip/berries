@@ -1,7 +1,7 @@
 {
   "date": "2026-10-16",
-  "uniqueCandidates": 13,
-  "comparisonCount": 21,
+  "uniqueCandidates": 16,
+  "comparisonCount": 30,
   "checks": "decode, size, sha256, alpha, manifest coverage",
   "browserChecked": false,
   "runtimeIntegrated": false,
@@ -187,6 +187,48 @@
         1442
       ],
       "sha256": "24b05a437ff7baa2bf8fda9baac8d8a13e8308f5cdc4687306655ccbf1064b2c"
+    },
+    {
+      "path": "assets/i18n/drafts/shared/popup_level_win_clean.png",
+      "size": [
+        1137,
+        1383
+      ],
+      "alphaBounds": [
+        1,
+        1,
+        1137,
+        1383
+      ],
+      "sha256": "7729fca0cf0245578bfa5d042f5294bb67468d686d8991fe28455b7605cf33a6"
+    },
+    {
+      "path": "assets/i18n/drafts/shared/popup_level_lose_clean.png",
+      "size": [
+        1134,
+        1387
+      ],
+      "alphaBounds": [
+        3,
+        2,
+        1132,
+        1387
+      ],
+      "sha256": "d555a4c88eb5eb68a47f27e1f7e1d05e1c0d7ff453a6068fae3ea3df8617aeeb"
+    },
+    {
+      "path": "assets/ui/popups/popup_king_shop_all_min.png",
+      "size": [
+        1122,
+        1402
+      ],
+      "alphaBounds": [
+        1,
+        3,
+        1120,
+        1399
+      ],
+      "sha256": "2504808a662d02d6c72adc05255ddf0d62af9718769593765611ac0e6e785270"
     }
   ]
 }

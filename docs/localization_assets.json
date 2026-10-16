@@ -228,16 +228,114 @@
           "geometryChecked": false
         }
       }
+    },
+    {
+      "id": "levelWin",
+      "source": "assets/ui/popups/popup_level_win.png",
+      "sourceSize": [
+        1479,
+        1800
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/drafts/shared/popup_level_win_clean.png",
+          "text": "separate dictionary layers: docs/localization_popup_layers.json",
+          "size": [
+            1137,
+            1383
+          ],
+          "sha256": "7729fca0cf0245578bfa5d042f5294bb67468d686d8991fe28455b7605cf33a6",
+          "status": "clean_art_and_preview_layers_not_runtime",
+          "geometryChecked": false
+        },
+        "tr": {
+          "path": "assets/i18n/drafts/shared/popup_level_win_clean.png",
+          "text": "separate dictionary layers: docs/localization_popup_layers.json",
+          "size": [
+            1137,
+            1383
+          ],
+          "sha256": "7729fca0cf0245578bfa5d042f5294bb67468d686d8991fe28455b7605cf33a6",
+          "status": "clean_art_and_preview_layers_not_runtime",
+          "geometryChecked": false
+        }
+      }
+    },
+    {
+      "id": "levelLose",
+      "source": "assets/ui/popups/popup_level_lose.png",
+      "sourceSize": [
+        1472,
+        1800
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/drafts/shared/popup_level_lose_clean.png",
+          "text": "separate dictionary layers: docs/localization_popup_layers.json",
+          "size": [
+            1134,
+            1387
+          ],
+          "sha256": "d555a4c88eb5eb68a47f27e1f7e1d05e1c0d7ff453a6068fae3ea3df8617aeeb",
+          "status": "clean_art_and_preview_layers_not_runtime",
+          "geometryChecked": false
+        },
+        "tr": {
+          "path": "assets/i18n/drafts/shared/popup_level_lose_clean.png",
+          "text": "separate dictionary layers: docs/localization_popup_layers.json",
+          "size": [
+            1134,
+            1387
+          ],
+          "sha256": "d555a4c88eb5eb68a47f27e1f7e1d05e1c0d7ff453a6068fae3ea3df8617aeeb",
+          "status": "clean_art_and_preview_layers_not_runtime",
+          "geometryChecked": false
+        }
+      }
+    },
+    {
+      "id": "paidRoyalShop",
+      "source": "assets/ui/popups/popup_king_shop_ru.png",
+      "sourceSize": [
+        1280,
+        1600
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/ui/popups/popup_king_shop_all_min.png",
+          "text": "separate dictionary layers: docs/localization_popup_layers.json",
+          "size": [
+            1122,
+            1402
+          ],
+          "sha256": "2504808a662d02d6c72adc05255ddf0d62af9718769593765611ac0e6e785270",
+          "status": "clean_art_and_preview_layers_not_runtime",
+          "geometryChecked": false
+        },
+        "tr": {
+          "path": "assets/ui/popups/popup_king_shop_all_min.png",
+          "text": "separate dictionary layers: docs/localization_popup_layers.json",
+          "size": [
+            1122,
+            1402
+          ],
+          "sha256": "2504808a662d02d6c72adc05255ddf0d62af9718769593765611ac0e6e785270",
+          "status": "clean_art_and_preview_layers_not_runtime",
+          "geometryChecked": false
+        }
+      }
     }
   ],
-  "pending": [
-    "level_win_popup",
-    "level_lose_popup",
-    "royal_shop_popup"
-  ],
+  "pending": [],
   "notes": [
     "Candidates are not included in the production allowlist.",
     "Align canvas and verify button/goal anchors before integration.",
-    "One shared English title asset is reused by EN and TR."
+    "One shared English title asset is reused by EN and TR.",
+    "Empty pending means source artwork is prepared, not that languages are release-ready. Shared clean popups use separate dictionary layers in preview only."
+  ],
+  "integrationPending": [
+    "browser_and_phaser_geometry",
+    "selected_language_loading",
+    "complete_flow_qa"
   ]
 }
