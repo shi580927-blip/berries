@@ -87,7 +87,7 @@
         const width=art.displayWidth*spec.w,height=art.displayHeight*spec.h;
         // Victory needs extra texture headroom for the raised centre of the arc.
         const victory=spec.key==='result.win';
-        const textureHeight=height*(victory?1.5:1);
+        const textureHeight=height*((victory||spec.twoLines)?1.5:1);
         const canvas=document.createElement('canvas');canvas.width=Math.ceil(width*2);canvas.height=Math.ceil(textureHeight*2);
         const headingText=window.BerriesI18n.t(spec.key);
         const headingLines=spec.twoLines?headingText.split(' '):[headingText];
@@ -130,7 +130,7 @@
         original.call(this);
         if(existed)return;
         const box=this._paidShopModal,art=box?.list?.find(n=>n.texture?.key==='popup_royal_shop');
-        if(art)addLabel(this,box,art,{...layers.paidRoyalShop[0],x:.5,y:language==='tr'?.20:.19,w:.62,h:language==='tr'?.135:.12,twoLines:language==='tr',decorative:true});
+        if(art)addLabel(this,box,art,{...layers.paidRoyalShop[0],x:.5,y:language==='tr'?.208:.19,w:.62,h:language==='tr'?.135:.12,twoLines:language==='tr',decorative:true});
       };
       proto.openPaidShop=decorateShop(proto.openPaidShop);
       const mapProto=Object.getPrototypeOf(game.scene.keys.Map);
