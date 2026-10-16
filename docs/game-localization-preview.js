@@ -8,6 +8,8 @@
     node.style.display = 'block'; node.textContent = String(error.stack || error);
   };
   try {
+    const tools=document.querySelector('#preview-tools'),toggle=document.querySelector('#preview-toggle');
+    toggle.onclick=()=>toggle.setAttribute('aria-expanded',String(tools.classList.toggle('expanded')));
     const language = new URLSearchParams(location.search).get('lang') === 'tr' ? 'tr' : 'en';
     document.querySelector('#preview-language').value = language;
     document.querySelector('#preview-language').onchange = e => { location.search = '?lang=' + e.target.value; };
@@ -22,6 +24,7 @@
     ]);
     const loadedFonts = await document.fonts.load('800 64px BerriesHeading', dictionary['result.win']+' '+dictionary['result.lose']);
     if (!loadedFonts.length) throw Error('BerriesHeading font failed to load');
+    window.berriesDigitsReady = document.fonts.load('700 32px BerriesDigits','0123456789');
     const originalI18n = window.BerriesI18n;
     window.BerriesI18n = Object.freeze({
       language, availableLanguages: [language], init: () => language,
@@ -45,26 +48,30 @@
     };
     window.BerriesCampaign = { ...campaign, ...campaign.create(storage), KEY: prefix + campaign.KEY };
     const bySource = new Map(manifest.assets.map(a => [a.source, a]));
-    const image = Phaser.Loader.LoaderPlugin.prototype.image;
+    const addFile = Phaser.Loader.LoaderPlugin.prototype.addFile;
     const normalized = new Set();
-    Phaser.Loader.LoaderPlugin.prototype.image = function(key, url, ...args) {
-      const asset = typeof url === 'string' ? bySource.get(url.split('?')[0]) : null;
-      if (!asset) return image.call(this, key, url, ...args);
-      const candidate = asset.candidates[language];
-      this.once('filecomplete-image-' + key, () => {
-        const textures = this.scene.sys.textures;
-        const source = textures.get(key).getSourceImage();
-        const canvas = document.createElement('canvas');
-        [canvas.width, canvas.height] = asset.sourceSize;
-        const context = canvas.getContext('2d');
-        // Preserve full source-canvas coordinates; never stretch one axis.
-        const scale = Math.min(canvas.width / source.width, canvas.height / source.height);
-        const width = source.width * scale, height = source.height * scale;
-        context.drawImage(source, (canvas.width-width)/2, (canvas.height-height)/2, width, height);
-        textures.remove(key); textures.addCanvas(key, canvas);
-        normalized.add(asset.id);
-      });
-      return image.call(this, key, candidate.path, ...args);
+    // Image factories are installed as own methods by Phaser, so intercept the
+    // underlying queue instead of shadowing LoaderPlugin.prototype.image.
+    Phaser.Loader.LoaderPlugin.prototype.addFile = function(files) {
+      for(const file of (Array.isArray(files)?files:[files])) {
+        const asset=file.type==='image'&&typeof file.url==='string'?bySource.get(file.url.split('?')[0]):null;
+        if(!asset)continue;
+        const candidate=asset.candidates[language];
+        file.url=candidate.path;
+        const key=file.key;
+        this.once('filecomplete-image-'+key,()=>{
+          const textures=this.scene.sys.textures;
+          const source=textures.get(key).getSourceImage();
+          const canvas=document.createElement('canvas');
+          [canvas.width,canvas.height]=asset.sourceSize;
+          const context=canvas.getContext('2d');
+          const scale=Math.min(canvas.width/source.width,canvas.height/source.height);
+          const width=source.width*scale,height=source.height*scale;
+          context.drawImage(source,(canvas.width-width)/2,(canvas.height-height)/2,width,height);
+          textures.remove(key);textures.addCanvas(key,canvas);normalized.add(asset.id);
+        });
+      }
+      return addFile.call(this,files);
     };
     const loadScript = src => new Promise((resolve, reject) => {
       const script = document.createElement('script'); script.src = src;
@@ -130,6 +137,7 @@
         const kind=button.dataset.preview;
         if(kind==='shop')play.openShop();else if(kind==='paid')play.openPaidShop();
         else {if(play.busy){status.textContent='Дождись завершения хода.';return;}play.busy=true;play.resultPopup(kind==='win');}
+        if(window.matchMedia?.('(max-width:1000px)').matches){tools.classList.remove('expanded');toggle.setAttribute('aria-expanded','false');}
         status.textContent='Черновик: '+kind+' / '+language.toUpperCase()+'. Награда не начисляется кнопкой стенда.';
       } catch(e) {fail(e);}
     };

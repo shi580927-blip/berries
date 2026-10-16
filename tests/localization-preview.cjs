@@ -10,7 +10,7 @@ async function check(language){
  const document={fonts:{load:async()=>[{}]},querySelector:node,querySelectorAll:()=>[],documentElement:{},createElement:tag=>({tag})};
  document.body={append(script){queueMicrotask(()=>script.onload())}};
  const loaded=[];
- class Loader{image(...args){loaded.push(args);return this}once(name,fn){this.event=name;this.complete=fn}}
+ class Loader{addFile(files){loaded.push(...(Array.isArray(files)?files:[files]));return this}once(name,fn){this.event=name;this.complete=fn}}
  const window={BerriesI18n:{t:id=>id},BerriesCampaign:{...campaign,...campaign.create(storage)},addEventListener(){}};
  const timers=[];
  vm.runInNewContext(code,{window,document,localStorage:storage,location:{search:'?lang='+language},URLSearchParams,
@@ -28,10 +28,10 @@ async function check(language){
  assert.ok(reads.every(k=>k.startsWith('berries_localization_preview_'+language+':')));
  assert.equal(JSON.parse(values.get(campaign.KEY)).coins,98765);
  assert.ok(window.BerriesCampaign.KEY.startsWith('berries_localization_preview_'+language+':'));
- const loader=new Loader();loader.image('coin_shop_new','assets/ui/panels/popup33.png?v=old');
- assert.equal(loaded.at(-1)[1],'assets/i18n/drafts/'+language+'/popup_booster_shop.png');
+ const loader=new Loader();loader.addFile({type:'image',key:'coin_shop_new',url:'assets/ui/panels/popup33.png?v=old'});
+ assert.equal(loaded.at(-1).url,'assets/i18n/drafts/'+language+'/popup_booster_shop.png');
  assert.equal(loader.event,'filecomplete-image-coin_shop_new');
- loader.image('gamebg','assets/backgrounds/background_game_forest.jpg');assert.equal(loaded.at(-1)[1],'assets/backgrounds/background_game_forest.jpg');
+ loader.addFile({type:'image',key:'gamebg',url:'assets/backgrounds/background_game_forest.jpg'});assert.equal(loaded.at(-1).url,'assets/backgrounds/background_game_forest.jpg');
 }
 (async()=>{await check('en');await check('tr');
  const index=fs.readFileSync('index.html','utf8');assert.ok(!index.includes('game-localization-preview'));

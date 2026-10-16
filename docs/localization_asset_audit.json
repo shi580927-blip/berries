@@ -3,7 +3,7 @@
   "uniqueCandidates": 16,
   "comparisonCount": 30,
   "checks": "decode, size, sha256, alpha, manifest coverage",
-  "browserChecked": false,
+  "browserChecked": true,
   "runtimeIntegrated": false,
   "assets": [
     {
@@ -230,5 +230,8 @@
       ],
       "sha256": "2504808a662d02d6c72adc05255ddf0d62af9718769593765611ac0e6e785270"
     }
-  ]
+  ],
+  "browserScope": "docs/qa/localization_browser_2026-10-16.json",
+  "realAndroidDeviceChecked": false,
+  "gamePreviewIntegrated": true
 }
