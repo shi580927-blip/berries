@@ -790,7 +790,7 @@ function install(){
       }).setOrigin(.5).setDepth(27).setAlpha(alpha).setAngle((t-.5)*14).setScale(.76);
       this.fxTween(letter,{
         y:letter.y-size*.14,scale:1.02,alpha:{value:0,ease:'Linear'},angle:letter.angle+(t-.5)*5,
-        duration:2100+i*12,ease:'Cubic.out'
+        duration:Math.min(2550,2100+i*12),ease:'Cubic.out'
       });
     });
   };
@@ -830,7 +830,7 @@ function install(){
         .setDepth(26).setAngle(Math.random()*45).setScale(.25);
       this.fxTween(star,{
         scale:1.25+Math.random()*.65,angle:star.angle+(i%2?95:-95),alpha:{value:0,ease:'Expo.in'},
-        duration:2600+Math.random()*650,ease:'Sine.out'
+        duration:1900+Math.random()*650,ease:'Sine.out'
       });
     }
     // Melting confetti pieces: short, bright and non-interactive.
@@ -840,7 +840,7 @@ function install(){
         .setDepth(24).setAngle(Math.random()*180);
       this.fxTween(piece,{
         x:x+(Math.random()-.5)*340,y:y+160+Math.random()*330,angle:piece.angle+(Math.random()>.5?180:-180),
-        scale:.75,alpha:{value:0,ease:'Expo.in'},duration:2850+Math.random()*700,ease:'Cubic.in'
+        scale:.75,alpha:{value:0,ease:'Expo.in'},duration:1850+Math.random()*700,ease:'Cubic.in'
       });
     }
     [[W*.20,H*.24],[W*.82,H*.36],[W*.19,H*.62],[W*.80,H*.62]].forEach(([x,y],i)=>{

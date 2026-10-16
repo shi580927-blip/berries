@@ -13,7 +13,7 @@ const labels=nodes.filter(n=>n.kind==='text');
 assert.ok(labels.every(n=>n.alpha>=.42&&n.alpha<=.55));
 const words=tweens.filter(({n})=>n.kind==='text');
 assert.ok(words.every(({c})=>c.duration<=2320&&c.alpha.ease==='Linear'&&!('x' in c)&&!c.onUpdate));
-assert.ok(tweens.filter(({n})=>n.kind!=='text').every(({c})=>c.duration>=2600&&c.alpha.ease==='Expo.in'));
+assert.ok(tweens.filter(({n})=>n.kind!=='text').every(({c})=>c.duration<=2550&&c.alpha.ease==='Expo.in'));
 const first=labels.filter(n=>n.text.startsWith('combo.')).map(n=>({text:n.text,x:n.x,y:n.y}));
 const before=nodes.length;
 compile('comboCelebration','\n  const baseClearCells').call(scene,5);
@@ -24,3 +24,7 @@ assert.equal(new Set(second.map(n=>n.x+','+n.y)).size,4);
 assert.match(code,/fxAllow\('combo-vfx',220\)/);
 assert.ok(!code.includes('comboMixProgress'));
 console.log('PASS: new combo changes word spawn slots; no flights; soft fading text; 180 confetti and 53 stars unchanged');
+
+for(let run=0;run<30;run++)compile('comboCelebration','\n  const baseClearCells').call(scene,5);
+assert.ok(tweens.every(({c})=>(c.delay||0)+c.duration<=2550));
+console.log('PASS: all combo words and particles end within 2550ms');
