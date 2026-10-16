@@ -20,7 +20,7 @@
     };
     const [dictionary, manifest, layers] = await Promise.all([
       read('src/i18n/drafts/' + language + '.json'),
-      read('docs/localization_assets.json'), read('docs/localization_popup_layers.json')
+      read(new URLSearchParams(location.search).get('assets')==='original'?'docs/localization_assets.json':'docs/localization_assets_optimized.json'), read('docs/localization_popup_layers.json')
     ]);
     const loadedFonts = await document.fonts.load('800 64px BerriesHeading', dictionary['result.win']+' '+dictionary['result.lose']);
     if (!loadedFonts.length) throw Error('BerriesHeading font failed to load');

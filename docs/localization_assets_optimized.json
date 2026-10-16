@@ -1,0 +1,361 @@
+{
+  "status": "optimized_preview_only",
+  "runtimeLanguages": [
+    "ru"
+  ],
+  "russianLogoHold": true,
+  "assets": [
+    {
+      "id": "logo",
+      "source": "assets/ui/panels/logo_main.png",
+      "sourceSize": [
+        1800,
+        1105
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/optimized/shared/logo_crazy_berries.webp",
+          "text": "Crazy Berries",
+          "size": [
+            1000,
+            614
+          ],
+          "sha256": "ce7e67066e2bc8143e952a2ed0e37abcdb3f144fd3dac05b6c62e523d6c113a4",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/shared/logo_crazy_berries.png"
+        },
+        "tr": {
+          "path": "assets/i18n/optimized/shared/logo_crazy_berries.webp",
+          "text": "Crazy Berries",
+          "size": [
+            1000,
+            614
+          ],
+          "sha256": "ce7e67066e2bc8143e952a2ed0e37abcdb3f144fd3dac05b6c62e523d6c113a4",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/shared/logo_crazy_berries.png"
+        }
+      }
+    },
+    {
+      "id": "boosters",
+      "source": "assets/ui/panels/panel_head_boosters.png",
+      "sourceSize": [
+        1789,
+        500
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/optimized/en/panel_head_boosters.webp",
+          "text": "BOOSTERS",
+          "size": [
+            520,
+            174
+          ],
+          "sha256": "a03b372b3c62fb0872691b87c7898f62025f834fc037b238bcfaeed65b0a624c",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/en/panel_head_boosters.png"
+        },
+        "tr": {
+          "path": "assets/i18n/optimized/tr/panel_head_boosters.webp",
+          "text": "GÜÇLENDİRİCİLER",
+          "size": [
+            520,
+            174
+          ],
+          "sha256": "9220716b4ab5128743d44f7a9c364c9423421cc898e579346bfb6f79df8827bb",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/tr/panel_head_boosters.png"
+        }
+      }
+    },
+    {
+      "id": "map",
+      "source": "assets/map/map_header_levels.png",
+      "sourceSize": [
+        1893,
+        500
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/optimized/en/map_header_levels.webp",
+          "text": "LEVEL MAP",
+          "size": [
+            700,
+            233
+          ],
+          "sha256": "72631a1371dec1c605245daf37a7dc4c9f3a7f36bf0ca8e0f08e28f89cee5634",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/en/map_header_levels.png"
+        },
+        "tr": {
+          "path": "assets/i18n/optimized/tr/map_header_levels.webp",
+          "text": "BÖLÜM HARİTASI",
+          "size": [
+            700,
+            233
+          ],
+          "sha256": "c25335732a7aca832f03edfd9bc19e6a73eb1fd10a980dbbd2ab934d670b2abb",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/tr/map_header_levels.png"
+        }
+      }
+    },
+    {
+      "id": "goals",
+      "source": "assets/ui/panels/panel22.png",
+      "sourceSize": [
+        612,
+        1149
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/optimized/en/panel_goals.webp",
+          "text": "GOALS",
+          "size": [
+            426,
+            800
+          ],
+          "sha256": "62bc34e24cda7c2577aa795fcca02c88e82271e42e29180364a03ad69fc57a11",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/en/panel_goals.png"
+        },
+        "tr": {
+          "path": "assets/i18n/optimized/tr/panel_goals.webp",
+          "text": "HEDEFLER",
+          "size": [
+            426,
+            800
+          ],
+          "sha256": "50814ffd12ea1e8e33275b584e9f89c84fd65d96191984f5318779d01361d41a",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/tr/panel_goals.png"
+        }
+      }
+    },
+    {
+      "id": "royalShop",
+      "source": "assets/ui/panels/panel_king_shop.png",
+      "sourceSize": [
+        1400,
+        467
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/optimized/en/panel_king_shop.webp",
+          "text": "ROYAL SHOP",
+          "size": [
+            650,
+            217
+          ],
+          "sha256": "5d480099a027f960d5320904f167d2fb8777ba38f530952105837827a86507d3",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/en/panel_king_shop.png"
+        },
+        "tr": {
+          "path": "assets/i18n/optimized/tr/panel_king_shop.webp",
+          "text": "KRALİYET MAĞAZASI",
+          "size": [
+            650,
+            217
+          ],
+          "sha256": "e8788ea2a50ed6013bb95d42137605cef95ef9495e7a956e5ac1075e09698408",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/tr/panel_king_shop.png"
+        }
+      }
+    },
+    {
+      "id": "royalFamily",
+      "source": "assets/ui/buttons/button_royal_family_soon.png",
+      "sourceSize": [
+        520,
+        364
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/optimized/en/button_royal_family_soon.webp",
+          "text": "ROYAL FAMILY / SOON",
+          "size": [
+            500,
+            350
+          ],
+          "sha256": "2399009d4907e1ea8af9d51032585d10a1e76a762b1a3394e7248fd43e72ccec",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/en/button_royal_family_soon.png"
+        },
+        "tr": {
+          "path": "assets/i18n/optimized/tr/button_royal_family_soon.webp",
+          "text": "KRALİYET AİLESİ / YAKINDA",
+          "size": [
+            500,
+            350
+          ],
+          "sha256": "4014fb786d0a73fef03c8a2b39f5c5a5b37c16ece0e79629127693ed9b0c4b2e",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/tr/button_royal_family_soon.png"
+        }
+      }
+    },
+    {
+      "id": "boosterShop",
+      "source": "assets/ui/panels/popup33.png",
+      "sourceSize": [
+        1086,
+        1448
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/optimized/en/popup_booster_shop.webp",
+          "text": "SHOP",
+          "size": [
+            787,
+            1050
+          ],
+          "sha256": "300e493944f6d55700aa141461c146a5b030918b045b1721cf726b7ff36c6e42",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/en/popup_booster_shop.png"
+        },
+        "tr": {
+          "path": "assets/i18n/optimized/tr/popup_booster_shop.webp",
+          "text": "MAĞAZA",
+          "size": [
+            787,
+            1050
+          ],
+          "sha256": "61ba903e1c90858d7c2ae20be9db3deef6bbbac1af0cb2f595863c6c85a550dc",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/tr/popup_booster_shop.png"
+        }
+      }
+    },
+    {
+      "id": "levelWin",
+      "source": "assets/ui/popups/popup_level_win.png",
+      "sourceSize": [
+        1479,
+        1800
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/optimized/shared/popup_level_win_clean.webp",
+          "text": "separate dictionary layers: docs/localization_popup_layers.json",
+          "size": [
+            904,
+            1100
+          ],
+          "sha256": "82ad925734a670ec6d06e24c0779064b090b324029be726714a7e993e554317a",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/shared/popup_level_win_clean.png"
+        },
+        "tr": {
+          "path": "assets/i18n/optimized/shared/popup_level_win_clean.webp",
+          "text": "separate dictionary layers: docs/localization_popup_layers.json",
+          "size": [
+            904,
+            1100
+          ],
+          "sha256": "82ad925734a670ec6d06e24c0779064b090b324029be726714a7e993e554317a",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/shared/popup_level_win_clean.png"
+        }
+      }
+    },
+    {
+      "id": "levelLose",
+      "source": "assets/ui/popups/popup_level_lose.png",
+      "sourceSize": [
+        1472,
+        1800
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/optimized/shared/popup_level_lose_clean.webp",
+          "text": "separate dictionary layers: docs/localization_popup_layers.json",
+          "size": [
+            899,
+            1100
+          ],
+          "sha256": "d221d7d18d8662fce5bcd7ae2e562f114dbf4460fc2a7a61445756877fd1d575",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/shared/popup_level_lose_clean.png"
+        },
+        "tr": {
+          "path": "assets/i18n/optimized/shared/popup_level_lose_clean.webp",
+          "text": "separate dictionary layers: docs/localization_popup_layers.json",
+          "size": [
+            899,
+            1100
+          ],
+          "sha256": "d221d7d18d8662fce5bcd7ae2e562f114dbf4460fc2a7a61445756877fd1d575",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/i18n/drafts/shared/popup_level_lose_clean.png"
+        }
+      }
+    },
+    {
+      "id": "paidRoyalShop",
+      "source": "assets/ui/popups/popup_king_shop_ru.png",
+      "sourceSize": [
+        1280,
+        1600
+      ],
+      "candidates": {
+        "en": {
+          "path": "assets/i18n/optimized/shared/popup_king_shop_all_min.webp",
+          "text": "separate dictionary layers: docs/localization_popup_layers.json",
+          "size": [
+            880,
+            1100
+          ],
+          "sha256": "10da3e0dda9b841dc2b1e0cc27d151632b8dbb4d475107ece4ce8b307a0d4940",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/ui/popups/popup_king_shop_all_min.png"
+        },
+        "tr": {
+          "path": "assets/i18n/optimized/shared/popup_king_shop_all_min.webp",
+          "text": "separate dictionary layers: docs/localization_popup_layers.json",
+          "size": [
+            880,
+            1100
+          ],
+          "sha256": "10da3e0dda9b841dc2b1e0cc27d151632b8dbb4d475107ece4ce8b307a0d4940",
+          "status": "optimized_preview_only",
+          "geometryChecked": false,
+          "optimizedFrom": "assets/ui/popups/popup_king_shop_all_min.png"
+        }
+      }
+    }
+  ],
+  "pending": [],
+  "notes": [
+    "Candidates are not included in the production allowlist.",
+    "Align canvas and verify button/goal anchors before integration.",
+    "One shared English title asset is reused by EN and TR.",
+    "Empty pending means source artwork is prepared, not that languages are release-ready. Shared clean popups use separate dictionary layers in preview only."
+  ],
+  "integrationPending": [
+    "browser_and_phaser_geometry",
+    "selected_language_loading",
+    "complete_flow_qa"
+  ]
+}
