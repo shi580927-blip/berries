@@ -757,8 +757,9 @@ function install(){
   };
   p.fxTween=function(object,config){
     this._fxObjects??=new Set();
-    if(this._fxObjects.size>=160){object.destroy();return}
+    if(this._fxObjects.size>=700){object.destroy();return}
     this._fxObjects.add(object);
+    object.once?.('destroy',()=>this._fxObjects?.delete(object));
     this.tweens.add({targets:object,...config,onComplete:()=>{this._fxObjects.delete(object);object.destroy()}});
   };
   p.fxBits=function(x,y,colors,count=14,radius=110,depth=14){
@@ -776,7 +777,7 @@ function install(){
   p.burst=function(x,y,color=0xffe36d,n=8){
     this.fxBits(x,y,[color,0xfff4c3,0xffbb54],Math.min(n,14),70);
   };
-  p.comboArcWord=function(word,x,y,size=250,alpha=.72){
+  p.comboArcWord=function(word,x,y,size=250,alpha=1){
     const chars=[...word],palette=['#ff5e8a','#ffd84f','#75eaff','#7dff9d','#b88cff','#ff84d7'];
     const spacing=size*.58,total=(chars.length-1)*spacing;
     chars.forEach((ch,i)=>{
@@ -788,20 +789,20 @@ function install(){
         shadow:{offsetX:0,offsetY:8,color:'#32152a',blur:18,fill:true}
       }).setOrigin(.5).setDepth(27).setAlpha(alpha).setAngle((t-.5)*14).setScale(.76);
       this.fxTween(letter,{
-        y:letter.y-size*.14,scale:1.06,alpha:0,angle:letter.angle+(t-.5)*5,
-        duration:2150+i*22,ease:'Cubic.out'
+        y:letter.y-size*.14,scale:1.06,alpha:{value:0,ease:'Expo.in'},angle:letter.angle+(t-.5)*5,
+        duration:3150+i*22,ease:'Cubic.out'
       });
     });
   };
   p.comboCelebration=function(chain){
     const rainbow=[0xff5e8a,0xffd84f,0x75eaff,0x7dff9d,0xb88cff,0xff84d7,0xffffff];
     const satellites=[
-      {text:window.BerriesI18n.t('combo.juicy'),x:W*.25,y:H*.31,size:150,angle:-12,alpha:.55},
-      {text:window.BerriesI18n.t('combo.wow'),x:W*.78,y:H*.27,size:128,angle:10,alpha:.52},
-      {text:window.BerriesI18n.t('combo.boom'),x:W*.23,y:H*.72,size:120,angle:8,alpha:.50},
-      {text:window.BerriesI18n.t('combo.more'),x:W*.78,y:H*.70,size:142,angle:-9,alpha:.54}
+      {text:window.BerriesI18n.t('combo.juicy'),x:W*.25,y:H*.31,size:150,angle:-12,alpha:1},
+      {text:window.BerriesI18n.t('combo.wow'),x:W*.78,y:H*.27,size:128,angle:10,alpha:1},
+      {text:window.BerriesI18n.t('combo.boom'),x:W*.23,y:H*.72,size:120,angle:8,alpha:1},
+      {text:window.BerriesI18n.t('combo.more'),x:W*.78,y:H*.70,size:142,angle:-9,alpha:1}
     ];
-    this.comboArcWord(chain>=4?window.BerriesI18n.t('combo.combo'):window.BerriesI18n.t('combo.juicy'),W*.51,H*.49,chain>=4?285:255,chain>=4?.78:.70);
+    this.comboArcWord(chain>=4?window.BerriesI18n.t('combo.combo'):window.BerriesI18n.t('combo.juicy'),W*.51,H*.49,chain>=4?285:255,1);
     const count=chain>=3?4:3;
     satellites.slice(0,count).forEach((spec,i)=>{
       const label=this.add.text(spec.x,spec.y,spec.text,{
@@ -811,29 +812,29 @@ function install(){
       }).setOrigin(.5).setDepth(25).setAlpha(spec.alpha).setAngle(spec.angle).setScale(.78);
       label.setTint?.(rainbow[(i+chain)%6],rainbow[(i+chain+1)%6],rainbow[(i+chain+3)%6],rainbow[(i+chain+4)%6]);
       this.fxTween(label,{
-        y:spec.y-35-(i%2)*22,scale:1.08,alpha:0,angle:spec.angle+(i%2?5:-5),
-        duration:1980+i*80,ease:'Cubic.out'
+        y:spec.y-35-(i%2)*22,scale:1.08,alpha:{value:0,ease:'Expo.in'},angle:spec.angle+(i%2?5:-5),
+        duration:2980+i*80,ease:'Cubic.out'
       });
     });
     // Large shimmering stars.
-    for(let i=0;i<16+Math.min(chain,5)*3;i++){
+    for(let i=0;i<28+Math.min(chain,5)*5;i++){
       const x=W*(.16+Math.random()*.70),y=H*(.18+Math.random()*.67);
       const outer=10+Math.random()*18;
-      const star=this.add.star(x,y,4,outer*.34,outer,rainbow[i%rainbow.length],.82)
+      const star=this.add.star(x,y,4,outer*.34,outer,rainbow[i%rainbow.length],1)
         .setDepth(26).setAngle(Math.random()*45).setScale(.25);
       this.fxTween(star,{
-        scale:1.25+Math.random()*.65,angle:star.angle+(i%2?95:-95),alpha:0,
-        duration:1600+Math.random()*650,ease:'Sine.out'
+        scale:1.25+Math.random()*.65,angle:star.angle+(i%2?95:-95),alpha:{value:0,ease:'Expo.in'},
+        duration:2600+Math.random()*650,ease:'Sine.out'
       });
     }
     // Melting confetti pieces: short, bright and non-interactive.
-    for(let i=0;i<30+Math.min(chain,5)*6;i++){
-      const x=W*(.12+Math.random()*.78),y=H*(.12+Math.random()*.56);
-      const piece=this.add.rectangle(x,y,5+Math.random()*10,12+Math.random()*20,rainbow[i%rainbow.length],.72)
+    for(let i=0;i<100+Math.min(chain,5)*16;i++){
+      const x=W*(.04+Math.random()*.92),y=H*(.03+Math.random()*.75);
+      const piece=this.add.rectangle(x,y,8+Math.random()*12,18+Math.random()*24,rainbow[i%rainbow.length],1)
         .setDepth(24).setAngle(Math.random()*180);
       this.fxTween(piece,{
-        x:x+(Math.random()-.5)*120,y:y+80+Math.random()*170,angle:piece.angle+(Math.random()>.5?180:-180),
-        scale:.15,alpha:0,duration:1850+Math.random()*700,ease:'Cubic.in'
+        x:x+(Math.random()-.5)*340,y:y+160+Math.random()*330,angle:piece.angle+(Math.random()>.5?180:-180),
+        scale:.75,alpha:{value:0,ease:'Expo.in'},duration:2850+Math.random()*700,ease:'Cubic.in'
       });
     }
     [[W*.20,H*.24],[W*.82,H*.36],[W*.19,H*.62],[W*.80,H*.62]].forEach(([x,y],i)=>{
@@ -854,7 +855,7 @@ function install(){
     if(chain>=2){
       this.music?.accent?.('combo',true);
     }
-    if(chain>=2&&this.fxAllow('combo-vfx',1100)){
+    if(chain>=2&&this.fxAllow('combo-vfx',220)){
       this.comboCelebration(chain);
       this.kingReact('celebrate',1050);
       // Old combo accent is replayed for every cascade step above.
@@ -915,33 +916,11 @@ function install(){
     });
     this.music?.accent('combo');this.fx.rainbow();this.kingReact('celebrate',900);
   };
-  // Decorative reward celebration only: never grants or spends currency.
-  p.victoryCoinBurst=function(){
-    if(!this.textures.exists('ui_coin'))return;
-    const count=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?8:28;
-    for(let i=0;i<count;i++){
-      const side=i%2?1:-1,originX=W/2+side*330,originY=H/2+130;
-      const coin=fit(this.add.image(originX,originY,'ui_coin'),28+Math.random()*24,52)
-        .setDepth(30).setAngle(Math.random()*90-45);
-      coin._burstT=0;
-      const vx=side*(180+Math.random()*220),vy=-380-Math.random()*160;
-      this.fxTween(coin,{
-        _burstT:1,angle:coin.angle+side*(300+Math.random()*240),alpha:0,
-        delay:i*18,duration:1550+Math.random()*450,ease:'Linear',
-        onUpdate:()=>{
-          const t=coin._burstT;
-          coin.setPosition(originX+vx*t,originY+vy*t+520*t*t);
-        }
-      });
-    }
-  };
-
   const baseResultPopup=p.resultPopup;
   p.resultPopup=function(win,...args){
     const result=baseResultPopup.call(this,win,...args);
     if(win){
       this.music?.accent('victory');
-      this.victoryCoinBurst();
       // Confetti stays behind popup controls; never captures input.
       [[W/2-420,H/2],[W/2+420,H/2]].forEach(([x,y])=>{
         this.fxBits(x,y,[0xffd35f,0xff79a6,0x7de4c5,0xffffff],36,280,30);

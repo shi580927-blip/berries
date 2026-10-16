@@ -1,16 +1,15 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const code=fs.readFileSync('src/runtime_stable_v10.js','utf8');
-const start=code.indexOf('p.victoryCoinBurst=function');
-const end=code.indexOf('\n  const baseResultPopup',start);
-const fit=(image,w,h)=>{image.width=w;return image};
-function scenario(reduced=false,exists=true){
- const nodes=[],tweens=[];
- const coin=()=>{const n={angle:0,setDepth(d){this.depth=d;return this},setAngle(a){this.angle=a;return this},setPosition(x,y){this.x=x;this.y=y;return this}};nodes.push(n);return n};
- const burst=new Function('window','W','H','fit','return '+code.slice(start+'p.victoryCoinBurst='.length,end).trim().replace(/;$/,''))({matchMedia:()=>({matches:reduced})},1920,1080,fit);
- burst.call({textures:{exists:()=>exists},add:{image:(x,y,key)=>{assert.equal(key,'ui_coin');return coin()}},fxTween:(node,config)=>tweens.push({node,config})});
- for(const {node,config} of tweens){assert.equal(node.depth,30);assert.equal(node.input,undefined);node._burstT=.5;config.onUpdate();assert.ok(Number.isFinite(node.x)&&Number.isFinite(node.y));assert.ok(node.x>=0&&node.x<=1920);assert.equal(config.alpha,0)}
- return nodes.length;
-}
-assert.equal(scenario(),28);assert.equal(scenario(true),8);assert.equal(scenario(false,false),0);
-assert.match(code,/duration:2150\+i\*22/);assert.match(code,/duration:1980\+i\*80/);
-console.log('PASS cosmetic coins: existing texture, bounded counts/trajectory, no currency API or input; combo +1000ms');
+assert.ok(!code.includes('victoryCoinBurst'));
+function compile(name,endMarker){const a=code.indexOf('p.'+name+'='),b=code.indexOf(endMarker,a);return new Function('window','W','H','FONT','return '+code.slice(a+('p.'+name+'=').length,b).trim().replace(/;$/,''))({BerriesI18n:{t:k=>k}},1920,1080,'Arial')}
+const nodes=[],tweens=[];
+const node=kind=>{const n={kind,angle:0,y:540,setOrigin(){return this},setDepth(){return this},setAlpha(a){this.alpha=a;return this},setAngle(a){this.angle=a;return this},setScale(){return this},setTint(){return this}};nodes.push(n);return n};
+const scene={add:{text:()=>node('text'),star:()=>node('star'),rectangle:()=>node('confetti')},fxTween:(n,c)=>tweens.push({n,c}),fxBits(){}};
+scene.comboArcWord=compile('comboArcWord','\n  p.comboCelebration');
+compile('comboCelebration','\n  const baseClearCells').call(scene,5);
+assert.equal(nodes.filter(n=>n.kind==='confetti').length,180);
+assert.equal(nodes.filter(n=>n.kind==='star').length,53);
+assert.ok(nodes.filter(n=>n.kind==='text').every(n=>n.alpha===1));
+assert.ok(tweens.every(({c})=>c.duration>=2600&&c.alpha.ease==='Expo.in'));
+assert.match(code,/fxAllow\('combo-vfx',220\)/);
+console.log('PASS juicy combo: 180 confetti, 53 stars, opaque text, late fade, 220ms cadence; coin effect removed');
