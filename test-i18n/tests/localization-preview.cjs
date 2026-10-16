@@ -29,7 +29,7 @@ async function check(language){
  assert.equal(JSON.parse(values.get(campaign.KEY)).coins,98765);
  assert.ok(window.BerriesCampaign.KEY.startsWith('berries_localization_preview_'+language+':'));
  const loader=new Loader();loader.addFile({type:'image',key:'coin_shop_new',url:'assets/ui/panels/popup33.png?v=old'});
- assert.equal(loaded.at(-1).url,'assets/i18n/drafts/'+language+'/popup_booster_shop.png');
+ assert.equal(loaded.at(-1).url,'assets/i18n/optimized/'+language+'/popup_booster_shop.webp');
  assert.equal(loader.event,'filecomplete-image-coin_shop_new');
  loader.addFile({type:'image',key:'gamebg',url:'assets/backgrounds/background_game_forest.jpg'});assert.equal(loaded.at(-1).url,'assets/backgrounds/background_game_forest.jpg');
 }
