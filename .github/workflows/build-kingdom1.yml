@@ -1,0 +1,70 @@
+name: Build kingdom1 PLAY (SDK-free)
+
+on:
+  push:
+    branches: [ web/kingdom1 ]
+    paths:
+      - 'index.html'
+      - 'styles.css'
+      - 'manifest.webmanifest'
+      - 'src/**'
+      - 'assets/**'
+      - 'audio/**'
+      - 'scripts/build_release.py'
+      - 'tests/**'
+      - '.github/workflows/build-kingdom1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  play:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout web branch
+        uses: actions/checkout@v4
+
+      - name: Prepare media tools
+        run: |
+          python -m pip install --disable-pip-version-check pillow
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+
+      - name: Regression checks
+        run: |
+          node --check src/site/fullscreen.js
+          node tests/campaign.cjs
+          node tests/special-label-lifecycle.cjs
+          node tests/platform.cjs
+          node tests/i18n.cjs
+          node tests/localization-preview.cjs
+          node tests/prepared-localization.cjs
+
+      - name: Build optimized site archive
+        env:
+          BERRIES_RELEASE_NAME: berries_kingdom1_play.zip
+        run: python scripts/build_release.py
+
+      - name: Validate standalone SDK-free package
+        run: |
+          set -euo pipefail
+          test -s berries_kingdom1_play.zip
+          test "$(unzip -Z1 berries_kingdom1_play.zip | grep -cx 'index.html')" -eq 1
+          unzip -Z1 berries_kingdom1_play.zip | grep -qx 'manifest.webmanifest'
+          unzip -Z1 berries_kingdom1_play.zip | grep -qx 'src/site/fullscreen.js'
+          ! unzip -Z1 berries_kingdom1_play.zip | grep -Ei '^archive_unused/|^docs/|^tests/|^screenshots.html$'
+          ! unzip -Z1 berries_kingdom1_play.zip | grep -Ei '^src/sdk/|gamepush|yandex-sdk'
+          unzip -p berries_kingdom1_play.zip index.html | grep -q 'web-fullscreen-toggle'
+          python -m json.tool manifest.webmanifest > /dev/null
+          cat berries_build_manifest.json
+
+      - name: Upload SprintHost-ready files
+        uses: actions/upload-artifact@v4
+        with:
+          name: berries-kingdom1-play
+          path: |
+            berries_kingdom1_play.zip
+            berries_build_manifest.json
+          if-no-files-found: error
+          retention-days: 30
