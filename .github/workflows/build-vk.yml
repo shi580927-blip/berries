@@ -16,7 +16,8 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg
           curl -fL --retry 3 "https://unpkg.com/@vkontakte/vk-bridge@2.14.2/dist/browser.min.js" -o vendor/vk-bridge.min.js
-          test "$(stat -c%s vendor/vk-bridge.min.js)" -gt 10000
+          test "$(stat -c%s vendor/vk-bridge.min.js)" -gt 3000
+          grep -q "VKWebAppInit" vendor/vk-bridge.min.js
       - name: Tests
         run: |
           node --check src/platform/vk.js
