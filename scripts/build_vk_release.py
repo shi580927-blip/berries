@@ -6,10 +6,13 @@ subprocess.run(["python","scripts/build_release.py"],cwd=ROOT,env=env,check=True
 p=ROOT/"release_vk"
 page=p/"index.html"
 s=page.read_text(encoding="utf-8")
-old='<script src="src/platform/local.js?v=base-20261015"></script>'
-new='<script>window.BerriesPlatformConfig={platform:"vk",appId:"54798320"};</script>\n  <script src="vendor/vk-bridge.min.js"></script>\n  <script src="src/platform/vk.js?v=vk-20261017"></script>'
+old='<script src="src/platform/platform.js?v=base-20261015"></script>\n  <script src="src/platform/local.js?v=base-20261015"></script>'
+new='<script>window.BerriesPlatformConfig={platform:"vk",appId:"54798320"};</script>\n  <script src="src/platform/platform.js?v=base-20261015"></script>\n  <script src="vendor/vk-bridge.min.js"></script>\n  <script src="src/platform/vk.js?v=vk-20261017"></script>'
 assert old in s,"Unexpected base index: refuse unsafe packaging"
-page.write_text(s.replace(old,new),encoding="utf-8")
+rendered=s.replace(old,new)
+assert rendered.index('window.BerriesPlatformConfig={platform:"vk"') < rendered.index('src/platform/platform.js'), "VK config before facade"
+assert rendered.index('src/platform/platform.js') < rendered.index('src/platform/vk.js'), "VK facade before adapter"
+page.write_text(rendered,encoding="utf-8")
 (p/"src/platform/local.js").unlink()
 assert (ROOT/"vendor/vk-bridge.min.js").stat().st_size>3000
 shutil.copy2(ROOT/"vendor/vk-bridge.min.js",p/"vendor/vk-bridge.min.js")

@@ -12,6 +12,7 @@ async function trial({embedded=true,ad={result:true},cloudValue='',failStorage=f
   if(m==='VKWebAppGetUserInfo')return {id:1,language:'ru'};
   if(m==='VKWebAppStorageGet'){if(failStorage)throw Error('cloud');return {keys:[{key:'berries_vk_progress_1',value:cloudValue}]}}
   if(m==='VKWebAppStorageSet'){written[args.key]=args.value;return {result:true}}
+  if(m==='VKWebAppCheckNativeAds')return {result:true};
   if(m==='VKWebAppShowNativeAds')return ad;
   throw Error(m);
  }};
@@ -27,6 +28,7 @@ async function trial({embedded=true,ad={result:true},cloudValue='',failStorage=f
  let x=await trial({embedded:false});assert.equal(x.calls.length,0);assert.equal(x.adapter.capabilities.rewarded,false);
  x=await trial();assert.equal(x.adapter.capabilities.cloud,true);assert.equal(x.adapter.capabilities.purchases,false);
  assert.equal(await x.adapter.showRewardedVideo(),true);
+ assert(x.calls.findIndex(x=>x.m==='VKWebAppCheckNativeAds')<x.calls.findIndex(x=>x.m==='VKWebAppShowNativeAds'));
  x.adapter.saveProgress(x.state);await new Promise(r=>setImmediate(r));await x.adapter.flushProgress();
  assert.equal(JSON.parse(x.written.berries_vk_progress_1).coins,100);
  x.sendEvent('VKWebAppViewHide');assert(x.paused.has('vkView'));

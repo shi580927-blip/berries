@@ -68,6 +68,8 @@ window.BerriesPlatform.register('vk',()=>{
     async showRewardedVideo(){
       if(!embedded)return false;
       try{
+        const available=await send('VKWebAppCheckNativeAds',{ad_format:'reward'});
+        if(available?.result!==true)return false;
         const response=await send('VKWebAppShowNativeAds',{ad_format:'reward'});
         return response?.result===true;
       }catch(e){warn('Rewarded unavailable/cancelled',e);return false}

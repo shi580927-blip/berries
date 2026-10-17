@@ -15,3 +15,10 @@
 - Manual acceptance: live VK iOS/Android/desktop, rotation, WebView/iframe, landscape, shop views, life+daily, cloud save/reload, ad completed/canceled, music pause/restore, payment truly unavailable, app IDs and cabinet settings, response headers & HTTPS. Test OK separately.
 - No SprintHost deployment or VK console publication is performed by GitHub workflow.
 STATUS: engineering candidate, not published or approved by moderation.
+
+## 17.10.2026 — critical SDK ordering correction
+- Original VK ZIP unsafe: BerriesPlatformConfig was inserted AFTER platform.js; platform ID defaulted to local, without local adapter. Never deploy first ZIP.
+- Fixed VK config BEFORE platform facade, and added archive regression test.
+- Rewarded ad now checks VKWebAppCheckNativeAds before VKWebAppShowNativeAds, grants only on explicit result=true.
+- Official games overview https://dev.vk.ru/ru/games/overview inaccessible via automated browser; cross-check official VK Bridge library and available monetization docs, but games cabinet still unverified.
+- Payments remain disabled until real platform catalog + signed notifications and idempotent server ledger are configured.
