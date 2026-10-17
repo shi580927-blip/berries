@@ -17,6 +17,8 @@ MANIFEST = ROOT / "berries_build_manifest.json"
 RUNTIME_FILES = [
     "index.html",
     "styles.css",
+    "manifest.webmanifest",
+    "src/site/fullscreen.js",
     "assets/map-digits.css",
     "vendor/phaser.min.js",
     "vendor/PHASER_LICENSE.md",
