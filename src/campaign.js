@@ -131,6 +131,14 @@ function lifeLabel(){const s=read();if(s.lives===5)return '5 / 5';const sec=Math
 return {read,restore,unlocked,begin,abandon,lose,resume,win,doubleReward,consume,buy,addLife,dailyRewardAvailable,claimDailyReward,grantPurchase,lifeLabel};
 }
 const api={KEY,LEVELS,LEVELS_PER_LOCATION,MAX_LEVEL,locationForLevel,PRICES,ROYAL_PRODUCTS,DAILY_REWARDS,create,REGEN_MS,DAY_MS};
+// Separate VK local progress from /play/ on the same origin; no implicit migration.
+// Launch viewer ID scopes only local fallback, never authenticates purchases.
+const viewer=new URLSearchParams(root.location?.search||'').get('vk_user_id')||'';
+const scope='berries_vk_'+(/^[0-9]{1,20}$/.test(viewer)?viewer:'guest')+'_';
+const scopedStorage=root.BerriesPlatform?.id==='vk'?{
+ getItem:key=>root.localStorage.getItem(scope+key),
+ setItem:(key,value)=>root.localStorage.setItem(scope+key,value)
+}:root.localStorage;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
-else root.BerriesCampaign={...api,...create(root.localStorage,Date.now,s=>root.BerriesPlatform?.saveProgress?.(s,false))};
+else root.BerriesCampaign={...api,...create(scopedStorage,Date.now,s=>root.BerriesPlatform?.saveProgress?.(s,false))};
 })(typeof window!=='undefined'?window:this);

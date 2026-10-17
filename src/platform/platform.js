@@ -3,7 +3,7 @@
 'use strict';
 const registry=new Map(),config=window.BerriesPlatformConfig||{};
 const platformId=config.platform||'local',supported=['ru'];
-const COOLDOWN=120000,COOLDOWN_KEY='berries_rewarded_last_at';
+const COOLDOWN=120000,COOLDOWN_KEY='berries_'+platformId+'_rewarded_last_at';
 let adapter=null,initPromise=null,adPromise=null,purchasePromise=null;
 let language={detected:'ru',current:'ru',supported:[...supported]};
 let block={reason:'unavailable',remainingMs:0};

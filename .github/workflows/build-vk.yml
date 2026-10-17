@@ -1,0 +1,39 @@
+name: Build VK Mini Apps
+on:
+  push:
+    branches: [ platform/vk-ok ]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare media and vendored VK Bridge
+        run: |
+          python -m pip install --disable-pip-version-check pillow
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          curl -fL --retry 3 "https://unpkg.com/@vkontakte/vk-bridge@2.14.2/dist/browser.min.js" -o vendor/vk-bridge.min.js
+          test "$(stat -c%s vendor/vk-bridge.min.js)" -gt 10000
+      - name: Tests
+        run: |
+          node --check src/platform/vk.js
+          node tests/platform.cjs
+          node tests/vk-platform.cjs
+          node tests/campaign.cjs
+          node tests/i18n.cjs
+          node tests/special-label-lifecycle.cjs
+          node tests/popup-asset-loading.cjs
+          node tests/victory-coins.cjs
+      - name: Build
+        run: python scripts/build_vk_release.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: berries-vk-20261017
+          path: |
+            berries_vk.zip
+            berries_vk_manifest.json
+          if-no-files-found: error
+          retention-days: 30
