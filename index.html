@@ -4,6 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#183d24" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Ягодки" />
+  <link rel="manifest" href="manifest.webmanifest" />
   <title>Безумные ягодки: Лесное королевство</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="assets/map-digits.css" />
@@ -14,6 +18,15 @@
   <main id="game-shell" aria-label="Безумные ягодки">
     <div id="game"></div>
     <div id="rotate-hint" role="status">Поверните устройство горизонтально 🌿</div>
+    <button type="button" id="web-fullscreen-toggle" aria-label="На весь экран" title="На весь экран">⛶</button>
+    <div id="web-fullscreen-help" role="dialog" aria-modal="true" aria-labelledby="web-fullscreen-help-title" hidden>
+      <div class="web-fullscreen-help-card">
+        <h2 id="web-fullscreen-help-title">Игра без панелей браузера</h2>
+        <p>На iPhone в Safari нажмите «Поделиться» → «На экран Домой», затем откройте игру с иконки. В обычной вкладке полный экран доступен не на всех устройствах.</p>
+        <p>Игровое поле остаётся строго 16:9. Поля по краям широких экранов не обрезают игру.</p>
+        <button type="button" id="web-fullscreen-dismiss">Понятно</button>
+      </div>
+    </div>
   </main>
   <script src="src/lifecycle.js"></script>
   <script src="src/platform/platform.js?v=base-20261015"></script>
@@ -47,5 +60,6 @@ for(const event of ['contextmenu','dragstart','selectstart'])field.addEventListe
   burst();
 })();
 </script>
+<script src="src/site/fullscreen.js?v=20261017"></script>
 </body>
 </html>
