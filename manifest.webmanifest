@@ -1,0 +1,12 @@
+{
+  "id": "./",
+  "name": "Безумные ягодки: Лесное королевство",
+  "short_name": "Ягодки",
+  "description": "Сказочная игра три в ряд",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#10261a",
+  "theme_color": "#183d24"
+}
