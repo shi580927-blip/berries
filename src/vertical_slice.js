@@ -173,9 +173,9 @@ function ensurePopupAssets(scene,group){
 window.__berriesEnsurePopupAssets=ensurePopupAssets;
 
 class Sfx{
-  constructor(scene){this.s=scene;this.nodes=new Set();this._muted=localStorage.getItem("berries_sfx_muted")==="1";this.master=2.35;this.last={};this.voices={};scene.events.once('shutdown',()=>{this.stopAll();for(const pool of Object.values(this.voices))for(const sound of pool)sound.destroy()})}
+  constructor(scene){this.s=scene;this.nodes=new Set();this._muted=false;try{this._muted=localStorage.getItem("berries_sfx_muted")==="1"}catch(error){console.warn("[berries] SFX storage unavailable",error)}this.master=2.35;this.last={};this.voices={};scene.events.once('shutdown',()=>{this.stopAll();for(const pool of Object.values(this.voices))for(const sound of pool)sound.destroy()})}
   get muted(){return this._muted}
-  set muted(v){this._muted=!!v;localStorage.setItem("berries_sfx_muted",v?"1":"0");if(v)this.stopAll()}
+  set muted(v){this._muted=!!v;try{localStorage.setItem("berries_sfx_muted",v?"1":"0")}catch(error){console.warn("[berries] SFX mute preference not persisted",error)}if(v)this.stopAll()}
   stopAll(){for(const timer of this.berryTimers||[])timer.remove(false);this.berryTimers?.clear();for(const timer of this.sampleTimers||[])timer.remove(false);this.sampleTimers?.clear();for(const pool of Object.values(this.voices))for(const sound of pool)sound.stop();for(const node of this.nodes){try{node.stop()}catch{}}this.nodes.clear()}
   sample(key,volume=.5,detune=0,seek=0,durationMs=0){
     if(!this.s.cache.audio.exists(key))return false;
