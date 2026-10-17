@@ -1,6 +1,6 @@
 # Прямая версия kingdom1.ru — РСЯ, fullscreen и iPhone
 Проверено16.10.2026. Ветка web/kingdom1 от эталона25836d8fb34b9270206d2ad54534db53ffb5efbb.
-Статус: спецификация и чек-лист. РСЯ НЕ подключена; сайт/PWA/fullscreen-код НЕ развёрнуты. Требуются кабинет/домены/ID блоков и проверка устройства.
+Статус на 17.10.2026: код веб-оболочки fullscreen + PWA manifest добавлен в ветку web/kingdom1, автосборка ZIP завершилась успешно; на SprintHost ещё НЕ опубликован и на реальном iPhone НЕ протестирован. РСЯ НЕ подключена; требуются кабинет/модерация домена/ID блоков и проверка устройства. Build: https://github.com/shi580927-blip/berries/actions/runs/39053976475 .
 Эталон reference/sdk-free-2026-10-16 и исторический RU main не меняются. GamePush — отдельная ветка platform/gamepush.
 
 ## 1. Разделение версий
@@ -12,7 +12,7 @@
 | Исторический Яндекс | Сохранённый RU-корень main | Автоматическую замену этой web-сборкой |
 «Без платформенного SDK» не означает «совсем без стороннего JS»: РСЯ загружает свой рекламный код.
 
-Рекомендуемые адреса по структуре студии (предложение, ещё не опубликовано):
+Адреса по согласованной структуре студии (владелец сообщил о создании поддомена; доступность DNS/HTTPS ещё не подтверждена):
 - kingdom1.ru — сайт Mintyberries Games;
 - kingdom1.ru/games/berries/ — карточка игры;
 - berries.kingdom1.ru/play/ — прямая игра отдельной страницей.
@@ -159,3 +159,10 @@ F04 https://webkit.org/blog/7929/designing-websites-for-iphone-x/
 F05 https://webkit.org/blog/12445/new-webkit-features-in-safari-15-4/
 Y06 https://yandex.ru/support/partner/ru/web/adplatform
 Y07 https://yandex.ru/support/partner/ru/joining/application-form
+
+## 12. Готовая тестовая сборка без рекламы (17.10.2026)
+- Ветка: `web/kingdom1`. Добавлены `src/site/fullscreen.js`, `manifest.webmanifest`, мобильная viewport/safe-area оболочка, кнопка fullscreen и инструкция для iPhone.
+- Отдельная GitHub Actions сборка: https://github.com/shi580927-blip/berries/actions/runs/39053976475 . Статус **success**, артефакт `berries-kingdom1-play` содержит `berries_kingdom1_play.zip` и манифест SHA/размера.
+- Для размещения распаковать **внутренний** `berries_kingdom1_play.zip` прямо в каталог, обслуживающий `/play/`, чтобы файл `/play/index.html` находился в корне сайта `/play/`.
+- Не указывать URL как опубликованный до проверки. Тест iPhone и включение РСЯ остаются открытыми задачами; наличие кода не доказывает их успешное прохождение.
+- VK Play решением владельца **отложен**. Каталог `/vkplay/` не нужен, создавать его сейчас не надо.
