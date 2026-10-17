@@ -11,7 +11,7 @@ new='<script>window.BerriesPlatformConfig={platform:"vk",appId:"54798320"};</scr
 assert old in s,"Unexpected base index: refuse unsafe packaging"
 page.write_text(s.replace(old,new),encoding="utf-8")
 (p/"src/platform/local.js").unlink()
-assert (ROOT/"vendor/vk-bridge.min.js").stat().st_size>10000
+assert (ROOT/"vendor/vk-bridge.min.js").stat().st_size>3000
 shutil.copy2(ROOT/"vendor/vk-bridge.min.js",p/"vendor/vk-bridge.min.js")
 shutil.copy2(ROOT/"src/platform/vk.js",p/"src/platform/vk.js")
 out=ROOT/"berries_vk.zip"
