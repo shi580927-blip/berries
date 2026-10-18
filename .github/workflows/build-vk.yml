@@ -23,6 +23,7 @@ jobs:
           node --check src/platform/vk.js
           node tests/platform.cjs
           node tests/vk-platform.cjs
+          node tests/vk-fullscreen.cjs
           node tests/campaign.cjs
           node tests/i18n.cjs
           node tests/special-label-lifecycle.cjs
@@ -34,7 +35,7 @@ jobs:
           node tests/vk-package.cjs
       - uses: actions/upload-artifact@v4
         with:
-          name: berries-vk-20261017
+          name: berries-vk-20261018-fullscreen
           path: |
             berries_vk.zip
             berries_vk_manifest.json

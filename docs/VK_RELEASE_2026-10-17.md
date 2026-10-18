@@ -22,3 +22,10 @@ STATUS: engineering candidate, not published or approved by moderation.
 - Rewarded ad now checks VKWebAppCheckNativeAds before VKWebAppShowNativeAds, grants only on explicit result=true.
 - Official games overview https://dev.vk.ru/ru/games/overview inaccessible via automated browser; cross-check official VK Bridge library and available monetization docs, but games cabinet still unverified.
 - Payments remain disabled until real platform catalog + signed notifications and idempotent server ledger are configured.
+
+## 18.10.2026 — desktop VK display enhancement
+- The VK host embeds desktop game as an iframe; canvas FIT alone cannot make it fullscreen.
+- Added desktop-only overlay button ⛶, button action uses standard requestFullscreen on game-shell (user gesture), if refused it requests VKWebAppResizeWindow from VK Bridge and shows a limitation notice. Never promises forced fullscreen.
+- Only included in platform/vk-ok ZIP. No changes to base, /play, or the game scenes. Phaser resize handled by existing ResizeObserver.
+- Real browser test required: fullscreen iframe Permissions-Policy depends on VK host; VKWebAppResizeWindow may be capped or ignored. Button may not obtain a true fullscreen experience.
+- Payments: VKWebAppShowOrderBox requires HTTPS server callback handlers get_item and order_status_change; store purchases remain disabled until verified paid event and idempotent grant. Developer linked stats/payments is a payment STATISTICS doc, not an activation control. See official https://github.com/VKCOM/vk-direct-games-example .

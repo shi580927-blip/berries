@@ -17,6 +17,11 @@ page.write_text(rendered,encoding="utf-8")
 assert (ROOT/"vendor/vk-bridge.min.js").stat().st_size>3000
 shutil.copy2(ROOT/"vendor/vk-bridge.min.js",p/"vendor/vk-bridge.min.js")
 shutil.copy2(ROOT/"src/platform/vk.js",p/"src/platform/vk.js")
+shutil.copy2(ROOT/"src/platform/vk-fullscreen.js",p/"src/platform/vk-fullscreen.js")
+rendered=page.read_text(encoding="utf-8")
+anchor='<script src="src/platform/vk.js?v=vk-20261017"></script>'
+assert rendered.count(anchor)==1,"Missing VK adapter script"
+page.write_text(rendered.replace(anchor,anchor+'\\n  <script src="src/platform/vk-fullscreen.js?v=vk-view-20261018"></script>'),encoding="utf-8")
 out=ROOT/"berries_vk.zip"
 files=sorted(x for x in p.rglob("*") if x.is_file())
 with zipfile.ZipFile(out,"w",zipfile.ZIP_DEFLATED,compresslevel=9) as z:
@@ -26,6 +31,7 @@ with zipfile.ZipFile(out) as z:
     assert z.testzip() is None and names.count("index.html")==1
     assert "src/platform/vk.js" in names and "src/platform/local.js" not in names
     assert "vendor/vk-bridge.min.js" in names
+    assert "src/platform/vk-fullscreen.js" in names
     assert not any("yandex" in n.lower() or "gamepush" in n.lower() for n in names)
 assert out.stat().st_size<20_000_000
 result={"name":out.name,"bytes":out.stat().st_size,"sha256":hashlib.sha256(out.read_bytes()).hexdigest(),"files":len(files),"app_id":"54798320","purchase_status":"disabled pending provider verification","vk_webview_qa":"not yet verified"}
