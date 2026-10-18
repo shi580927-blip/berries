@@ -21,7 +21,7 @@ shutil.copy2(ROOT/"src/platform/vk-fullscreen.js",p/"src/platform/vk-fullscreen.
 rendered=page.read_text(encoding="utf-8")
 anchor='<script src="src/platform/vk.js?v=vk-20261017"></script>'
 assert rendered.count(anchor)==1,"Missing VK adapter script"
-page.write_text(rendered.replace(anchor,anchor+'\\n  <script src="src/platform/vk-fullscreen.js?v=vk-view-20261018"></script>'),encoding="utf-8")
+page.write_text(rendered.replace(anchor,anchor+'\n  <script src="src/platform/vk-fullscreen.js?v=vk-view-20261018"></script>'),encoding="utf-8")
 out=ROOT/"berries_vk.zip"
 files=sorted(x for x in p.rglob("*") if x.is_file())
 with zipfile.ZipFile(out,"w",zipfile.ZIP_DEFLATED,compresslevel=9) as z:
