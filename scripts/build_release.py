@@ -31,6 +31,8 @@ RUNTIME_FILES = [
     "src/runtime_stable_v10.js",
     "src/platform/platform.js",
     "src/platform/local.js",
+    "src/platform/web.js",
+    "src/site/web-config.js",
 ]
 
 ASSET_FILES = [
