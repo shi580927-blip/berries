@@ -2,7 +2,7 @@ name: Build kingdom1 PLAY (SDK-free)
 
 on:
   push:
-    branches: [ web/kingdom1 ]
+    branches: [ web/kingdom1, feature/web-monetization ]
     paths:
       - 'index.html'
       - 'styles.css'
@@ -34,6 +34,9 @@ jobs:
       - name: Regression checks
         run: |
           node --check src/site/fullscreen.js
+          node --check src/platform/web.js
+          node --check src/site/web-config.js
+          node tests/web-monetization.cjs
           node tests/campaign.cjs
           node tests/special-label-lifecycle.cjs
           node tests/platform.cjs
@@ -53,6 +56,8 @@ jobs:
           test "$(unzip -Z1 berries_kingdom1_play.zip | grep -cx 'index.html')" -eq 1
           unzip -Z1 berries_kingdom1_play.zip | grep -qx 'manifest.webmanifest'
           unzip -Z1 berries_kingdom1_play.zip | grep -qx 'src/site/fullscreen.js'
+          unzip -Z1 berries_kingdom1_play.zip | grep -qx 'src/platform/web.js'
+          unzip -Z1 berries_kingdom1_play.zip | grep -qx 'src/site/web-config.js'
           ! unzip -Z1 berries_kingdom1_play.zip | grep -Ei '^archive_unused/|^docs/|^tests/|^screenshots.html$'
           ! unzip -Z1 berries_kingdom1_play.zip | grep -Ei '^src/sdk/|gamepush|yandex-sdk'
           unzip -p berries_kingdom1_play.zip index.html | grep -q 'web-fullscreen-toggle'
