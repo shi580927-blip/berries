@@ -24,14 +24,21 @@ const ROYAL_PRODUCTS={
 const iceSlots=[[1,1],[1,6],[3,2],[3,5],[5,2],[5,5],[6,1],[6,6],[0,3],[0,4],[7,3],[7,4]];
 const acSlots=[[2,2],[2,5],[5,2],[5,5],[3,3],[4,4],[3,4]];
 const rootSlots=[[1,2],[1,5],[2,1],[2,6],[5,1],[5,6],[6,2],[6,5],[3,0],[4,7]];
+const FOUR_INTRO_BOARD=Object.freeze(["04122304","30440414","42411423","23112143","01240041","30234400","14132032","44204200"]);
 const goals=(...g)=>g;
 const berry=(id,n)=>['berry',id,n],ice=n=>['ice',null,n],ac=n=>['acorn',null,n],roots=n=>['roots',null,n],score=n=>['score',null,n];
+// Rebalanced 1–10 only. The rest of the campaign is unchanged.
 const rows=[
-[18,5,goals(berry('strawberry',12))],[18,5,goals(berry('raspberry',14))],
-[19,5,goals(berry('blueberry',10),berry('strawberry',10))],[16,5,goals(score(900))],
-[16,6,goals(berry('gooseberry',14))],[16,6,goals(berry('blackberry',18))],
-[15,6,goals(berry('raspberry',16))],[15,6,goals(berry('blueberry',16))],
-[18,6,goals(score(1100))],[18,6,goals(berry('strawberry',12),berry('cloudberry',12))],
+[18,5,goals(berry('strawberry',9))], // 1: welcome
+[19,5,goals(berry('raspberry',10))], // 2: guided four-in-a-row
+[21,5,goals(ice(4)),4], // 3: first ice
+[20,5,goals(ice(7)),7], // 4: more ice
+[18,5,goals(score(850))], // 5: easier cascade-friendly level
+[22,5,goals(ac(2)),0,1,2], // 6: first acorns
+[22,5,goals(ac(4),berry('raspberry',9)),0,1,4], // 7: acorns + berry goal
+[22,5,goals(roots(4)),0,1,0,4], // 8: first roots
+[23,6,goals(ice(4),roots(3)),4,1,0,3], // 9: mixed two goals
+[25,6,goals(ice(6),ac(3),roots(3)),6,1,3,3], // 10: finale
 [20,6,goals(ice(8)),8],[19,6,goals(ice(12)),12],
 [19,6,goals(berry('strawberry',10)),10],[21,6,goals(ice(8)),8,2],
 [20,6,goals(ice(12),score(1000)),12,'mixed'],
@@ -49,7 +56,9 @@ const rows=[
 ];
 const LEVELS=Object.fromEntries(rows.map((row,i)=>{
 const [m,n,g,ic=0,h=1,a=0,r=0,frozenAc=0]=row;
-return [i+1,{locationId:locationForLevel(i+1).id,m,n,g,ice:[...iceSlots.slice(0,ic).map(([y,x],k)=>[y,x,h==='mixed'?(k%3===0?2:1):h]),...acSlots.slice(0,frozenAc).map(([y,x])=>[y,x,1])],ac:acSlots.slice(0,a).map(x=>x.slice()),root:rootSlots.slice(0,r).map(x=>x.slice())}];
+// The level-10 finale uses six separate ice cells; do not cover acorns yet.
+const icePositions=i===9?[...iceSlots.slice(0,4),iceSlots[5],iceSlots[6]]:iceSlots.slice(0,ic);
+return [i+1,{locationId:locationForLevel(i+1).id,m,n,g,...(i===1?{openingBoard:FOUR_INTRO_BOARD,openingSwap:[[2,4],[3,4]]}:{}),ice:[...icePositions.map(([y,x],k)=>[y,x,h==='mixed'?(k%3===0?2:1):h]),...acSlots.slice(0,frozenAc).map(([y,x])=>[y,x,1])],ac:acSlots.slice(0,a).map(x=>x.slice()),root:rootSlots.slice(0,r).map(x=>x.slice())}];
 }));
 const MAX_LEVEL=Math.max(...Object.keys(LEVELS).map(Number));
 function create(storage,now=Date.now,cloud=()=>{}){

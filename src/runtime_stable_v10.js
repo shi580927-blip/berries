@@ -311,6 +311,18 @@ function install(){
     return !!(cell&&!cell.ice&&!cell.block&&this.board?.[q.r]?.[q.c]&&sprite?.active);
   };
   p.findHintMove=function(){
+    // For the untouched level-2 starter board, point to the actual 4-berry
+    // swap instead of a random ordinary triple.
+    if(this.cfg?.openingSwap&&this.moves===this.cfg.m){
+      const [a,b]=this.cfg.openingSwap.map(([r,c])=>({r,c}));
+      if(this.isHintCell(a)&&this.isHintCell(b)){
+        let createsFour=false;
+        this.swapData(a,b);
+        try{createsFour=this.groups().some(group=>group.p.length>=4)}
+        finally{this.swapData(a,b)}
+        if(createsFour)return [a,b];
+      }
+    }
     for(let r=0;r<R;r++)for(let c=0;c<C;c++){
       const a={r,c};if(!this.isHintCell(a))continue;
       for(const [dr,dc] of [[0,1],[1,0]]){
@@ -966,6 +978,14 @@ function install(){
     this.specialInfoText=null;
     this._fxObjects=new Set();this._fxTimes={};
     if(baseCreate.call(this)===false)return;
+    if(this.cfg?.openingSwap){
+      // Non-blocking onboarding: reuse the approved golden-ring hint.
+      this.time.delayedCall(1600,()=>{
+        if(this.scene?.isActive?.()&&this.moves===this.cfg.m&&!this.busy){
+          this.showHint();
+        }
+      });
+    }
     // Load both outcomes while the player plays, never after the final move.
     for(const group of ['win','lose'])window.__berriesEnsurePopupAssets(this,group).catch(error=>console.warn('[Result preload]',error.message));
     this.events.once('shutdown',()=>{clearTimeout(this.hintTimer);clearTimeout(this.hintCleanupTimer);clearTimeout(this.specialInfoTimer);this.specialInfoText=null});
