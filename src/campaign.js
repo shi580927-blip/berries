@@ -56,7 +56,9 @@ const rows=[
 ];
 const LEVELS=Object.fromEntries(rows.map((row,i)=>{
 const [m,n,g,ic=0,h=1,a=0,r=0,frozenAc=0]=row;
-return [i+1,{locationId:locationForLevel(i+1).id,m,n,g,...(i===1?{openingBoard:FOUR_INTRO_BOARD,openingSwap:[[2,4],[3,4]]}:{}),ice:[...iceSlots.slice(0,ic).map(([y,x],k)=>[y,x,h==='mixed'?(k%3===0?2:1):h]),...acSlots.slice(0,frozenAc).map(([y,x])=>[y,x,1])],ac:acSlots.slice(0,a).map(x=>x.slice()),root:rootSlots.slice(0,r).map(x=>x.slice())}];
+// The level-10 finale uses six separate ice cells; do not cover acorns yet.
+const icePositions=i===9?[...iceSlots.slice(0,4),iceSlots[5],iceSlots[6]]:iceSlots.slice(0,ic);
+return [i+1,{locationId:locationForLevel(i+1).id,m,n,g,...(i===1?{openingBoard:FOUR_INTRO_BOARD,openingSwap:[[2,4],[3,4]]}:{}),ice:[...icePositions.map(([y,x],k)=>[y,x,h==='mixed'?(k%3===0?2:1):h]),...acSlots.slice(0,frozenAc).map(([y,x])=>[y,x,1])],ac:acSlots.slice(0,a).map(x=>x.slice()),root:rootSlots.slice(0,r).map(x=>x.slice())}];
 }));
 const MAX_LEVEL=Math.max(...Object.keys(LEVELS).map(Number));
 function create(storage,now=Date.now,cloud=()=>{}){
