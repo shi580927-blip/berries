@@ -2,7 +2,7 @@ name: Build SDK-free base
 
 on:
   push:
-    branches: [ base ]
+    branches: [ base, feature/gameplay-cycle-2-levels-01-10 ]
     paths:
       - 'index.html'
       - 'styles.css'
@@ -34,6 +34,7 @@ jobs:
       - name: Run regression tests
         run: |
           node tests/campaign.cjs
+          node tests/gameplay-cycle-2.cjs
           node tests/special-label-lifecycle.cjs
           node tests/platform.cjs
           node tests/i18n.cjs
