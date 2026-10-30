@@ -12,6 +12,8 @@ on:
       - 'scripts/build_release.py'
       - 'tests/**'
       - '.github/workflows/build-base.yml'
+  pull_request:
+    branches: [ base ]
   workflow_dispatch:
 
 permissions:
