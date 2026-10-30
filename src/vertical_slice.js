@@ -706,7 +706,17 @@ class Play extends Phaser.Scene{
     this.king=fit(this.add.image(1650,750,'king_idle'),330,330);this.kingBaseY=750;this.kingBaseScale=this.king.scaleX;
     const q=this.add.graphics();q.fillStyle(0x302014,.72);q.fillRoundedRect(BX-25,BY-25,C*CELL+50,R*CELL+50,32);q.lineStyle(6,0xd2a45c,.85);q.strokeRoundedRect(BX-25,BY-25,C*CELL+50,R*CELL+50,32);for(let r=0;r<R;r++)for(let c=0;c<C;c++){q.fillStyle((r+c)%2?0x4a6d3c:0x557b43,.68);q.fillRoundedRect(BX+c*CELL+4,BY+r*CELL+4,CELL-8,CELL-8,16)}
   }
-  seed(){const a=TYPES.slice(0,this.cfg.n);for(let r=0;r<R;r++)for(let c=0;c<C;c++){if(this.cell[r][c].block)continue;let id,t=0;do{id=Phaser.Utils.Array.GetRandom(a);t++}while(t<30&&((c>1&&this.board[r][c-1]?.id===id&&this.board[r][c-2]?.id===id)||(r>1&&this.board[r-1][c]?.id===id&&this.board[r-2][c]?.id===id)));this.board[r][c]={id,sp:null}}if(!this.hasMove())this.shuffleBoard()}
+  seed(){
+    // A guaranteed, match-free opening for the level-2 four-berry lesson.
+    // Characters index the existing TYPES sprites; no new assets or mechanics.
+    if(this.cfg.openingBoard){
+      for(let r=0;r<R;r++)for(let c=0;c<C;c++){
+        if(this.cell[r][c].block)continue;
+        this.board[r][c]={id:TYPES[Number(this.cfg.openingBoard[r][c])],sp:null};
+      }
+      return;
+    }
+    const a=TYPES.slice(0,this.cfg.n);for(let r=0;r<R;r++)for(let c=0;c<C;c++){if(this.cell[r][c].block)continue;let id,t=0;do{id=Phaser.Utils.Array.GetRandom(a);t++}while(t<30&&((c>1&&this.board[r][c-1]?.id===id&&this.board[r][c-2]?.id===id)||(r>1&&this.board[r-1][c]?.id===id&&this.board[r-2][c]?.id===id)));this.board[r][c]={id,sp:null}}if(!this.hasMove())this.shuffleBoard()}
   pos(r,c){return{x:BX+c*CELL+CELL/2,y:BY+r*CELL+CELL/2}}
   render(r,c,first=false,fall=false){const ce=this.cell[r][c],p=this.pos(r,c);if(this.spr[r][c])this.spr[r][c].destroy();if(ce.over)ce.over.destroy();this.spr[r][c]=null;ce.over=null;if(ce.block){this.spr[r][c]=fit(this.add.image(p.x,p.y,ce.block),CELL*.84,CELL*.84).setDepth(4).setInteractive({useHandCursor:true}).on('pointerdown',()=>this.tap(r,c))}else if(this.board[r][c]){const it=this.board[r][c],key=it.sp==='bomb'?'bombsp':(it.sp||'b_'+it.id),im=fit(this.add.image(p.x,p.y,key),CELL*BERRY_SIZE,CELL*BERRY_SIZE).setDepth(3).setInteractive({useHandCursor:true});if(it.id==='strawberry'&&!it.sp)im.setAngle(-13);const sx=im.scaleX,sy=im.scaleY,ang=im.angle;im.setData({r,c,sx,sy,ang});im.on('pointerdown',()=>this.tap(r,c));this.spr[r][c]=im;if(first){im.setScale(sx*.25,sy*.25);this.tweens.add({targets:im,scaleX:sx,scaleY:sy,duration:260+r*24,ease:'Back.out'})}else if(fall){const ty=im.y;im.y=BY-100-r*12;im.angle=ang+(Math.random()-.5)*18;this.tweens.add({targets:im,y:ty,angle:ang,duration:300+r*34,ease:'Bounce.out'})}}
     if(ce.ice){ce.over=fit(this.add.image(p.x,p.y,ce.ice>1?'ice2':'ice1'),CELL*.98,CELL*.98).setDepth(6).setAlpha(1);const ring=this.add.circle(p.x,p.y,CELL*.43,0x8cdcff,.08).setStrokeStyle(3,0xcdf4ff,.9).setDepth(5.5);ce.over._ring=ring;ce.over.once('destroy',()=>ring.destroy())}
