@@ -18,6 +18,17 @@
    const baseCreate=p.create,baseRender=p.render,baseFall=p.fallRefill;
    const baseResolve=p.resolve,baseClear=p.clearCells,baseUseBoosterAt=p.useBoosterAt;
    const baseAssert=p.assertBoard;
+   // Load the approved stone atlas only on a level that contains rocks.
+   // Other levels and the first launch remain unaffected.
+   const basePreload=p.preload;
+   p.preload=function preloadGameplay3(){
+     basePreload?.call(this);
+     if(this.cfg?.rocks?.length&&!this.textures.exists('berries_boulder3')){
+       this.load.atlas('berries_boulder3',
+         'assets/blockers/boulder_atlas_game.png',
+         'assets/blockers/boulder_atlas_game.json');
+     }
+   };
    const hasNewGeometry=function(){
      return !!(this.cfg?.dropAcorns||this.cfg?.holes?.length||this.cfg?.rocks?.length);
    };
@@ -48,9 +59,16 @@
        }
        return;
      }
-     // Temporary in-engine stone artwork; separate production PNG/WebP to be approved later.
-     const g=this.add.graphics({x:point.x,y:point.y}).setDepth(4);
+     // User-approved transparent texture atlas, keeping a Graphics fallback for QA.
      const hp=ce.rockHp||1;
+     if(this.textures.exists('berries_boulder3')){
+       const rock=imageFit(this.add.image(point.x,point.y,'berries_boulder3',
+         hp>1?'boulder_hp2':'boulder_hp1'),CELL*.92).setDepth(4);
+       rock.setData({r,c,sx:rock.scaleX,sy:rock.scaleY,ang:0});
+       rebind(this,rock,r,c);this.spr[r][c]=rock;
+       return;
+     }
+     const g=this.add.graphics({x:point.x,y:point.y}).setDepth(4);
      g.fillStyle(0x1c302b,.45);g.fillEllipse(0,18,CELL*.85,CELL*.57);
      g.fillStyle(hp>1?0x6b7b6e:0x83938a,1);g.fillEllipse(0,0,CELL*.87,CELL*.78);
      g.fillStyle(0x9fae91,.7);g.fillEllipse(-17,-15,CELL*.44,CELL*.22);
@@ -210,16 +228,63 @@
      const ce=scene.cell?.[r]?.[c];
      if(ce?.block!=='rock')return false;
      ce.rockHp=Math.max(0,(ce.rockHp||1)-1);
-     const at=scene.pos(r,c);
-     for(let i=0;i<9;i++){
-       const angle=i/9*Math.PI*2;
-       const x=at.x+Math.cos(angle)*(23+Math.random()*23);
-       const y=at.y+Math.sin(angle)*(20+Math.random()*23);
-       const bit=scene.add.circle(at.x,at.y,3+Math.random()*4,i%3===0?0x718a58:0x89958d,.94).setDepth(14);
-       scene.tweens.add({targets:bit,x,y,alpha:0,scale:0,duration:280+Math.random()*180,onComplete:()=>bit.destroy()});
+     const destroyed=ce.rockHp===0,at=scene.pos(r,c);
+     const textured=scene.textures.exists('berries_boulder3');
+     if(destroyed)ce.block=null;
+     scene.render(r,c);
+     // Nonblocking feedback: none of these tweens delays game resolution or combo.
+     if(textured){
+       const hit=scene.add.circle(at.x,at.y,9,0xffe49c,.9).setDepth(15);
+       scene.tweens.add({targets:hit,scale:5,alpha:0,duration:210,onComplete:()=>hit.destroy()});
+       const rock=scene.spr?.[r]?.[c];
+       if(!destroyed&&rock?.active){
+         const sx=rock.scaleX,sy=rock.scaleY;
+         scene.tweens.add({targets:rock,scaleX:sx*1.05,scaleY:sy*.94,
+           angle:{from:-3,to:0},duration:150,ease:'Back.out',
+           onComplete:()=>{if(rock.active)rock.setScale(sx,sy).setAngle(0)}});
+       }
+       if(destroyed){
+         const atlas='berries_boulder3';
+         const overlay=(frame,size,ms,shift=0)=>{
+           const part=scene.add.image(at.x,at.y,atlas,frame).setDepth(15).setAlpha(.97);
+           imageFit(part,size);
+           scene.tweens.add({targets:part,scaleX:part.scaleX*(1+shift),
+             scaleY:part.scaleY*(1+shift),alpha:0,duration:ms,
+             ease:'Sine.out',onComplete:()=>part.destroy()});
+         };
+         overlay('rock_shards_group',CELL*1.18,480,.32);
+         overlay('dust_cloud_group',CELL*1.17,580,.55);
+         overlay('moss_leaves_group',CELL*1.05,540,.47);
+         for(let i=0;i<6;i++){
+           const fragment=scene.add.image(at.x,at.y,atlas,
+             'rock_shard_0'+(i+1)).setDepth(16);
+           imageFit(fragment,CELL*(.12+Math.random()*.13));
+           const angle=(i/6)*Math.PI*2+Math.random()*.2;
+           scene.tweens.add({targets:fragment,
+             x:at.x+Math.cos(angle)*CELL*(.65+Math.random()*.35),
+             y:at.y+Math.sin(angle)*CELL*(.5+Math.random()*.30),
+             angle:Math.random()*200-100,alpha:0,
+             duration:430+Math.random()*200,ease:'Cubic.out',
+             onComplete:()=>fragment.destroy()});
+         }
+       }else{
+         const dust=scene.add.image(at.x,at.y,'berries_boulder3','dust_puff_02').setDepth(15);
+         imageFit(dust,CELL*.44);
+         scene.tweens.add({targets:dust,y:at.y-CELL*.18,scaleX:dust.scaleX*1.5,
+           scaleY:dust.scaleY*1.5,alpha:0,duration:320,onComplete:()=>dust.destroy()});
+       }
+     }else{
+       for(let i=0;i<9;i++){
+         const angle=i/9*Math.PI*2;
+         const x=at.x+Math.cos(angle)*(23+Math.random()*23);
+         const y=at.y+Math.sin(angle)*(20+Math.random()*23);
+         const bit=scene.add.circle(at.x,at.y,3+Math.random()*4,
+           i%3===0?0x718a58:0x89958d,.94).setDepth(14);
+         scene.tweens.add({targets:bit,x,y,alpha:0,scale:0,
+           duration:280+Math.random()*180,onComplete:()=>bit.destroy()});
+       }
      }
-     if(!ce.rockHp)ce.block=null;
-     scene.fx?.crack?.();scene.render(r,c);
+     scene.fx?.crack?.();
      return true;
    }
    p.clearCells=async function clearGameplay3(initial,chain=1){
