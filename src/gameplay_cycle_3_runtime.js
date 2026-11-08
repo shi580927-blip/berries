@@ -245,6 +245,64 @@
      }catch(error){console.error('[berries] berry madness',error);this.drawAll(false,false)}
      finally{if(this._cycle3)this._cycle3.madnessBusy=false}
    };
+   // Temporary code-driven cosmetic variants: special berry rules never change.
+   const baseSpecialFx=p.specialCreateFx;
+   p.specialCreateFx=function themedSpecialFx(at){
+     baseSpecialFx.call(this,at);
+     const color=this.cfg?.zone==='frost_queen'?0xa8edff:
+       this.cfg?.zone==='alchemist'?0xba83e8:0xffd777;
+     const point=this.pos(at.r,at.c);
+     for(let i=0;i<7;i++){
+       const angle=(i/7)*Math.PI*2;
+       const star=this.add.star(point.x,point.y,4,3,8,color,.92).setDepth(14);
+       this.tweens.add({targets:star,x:point.x+Math.cos(angle)*60,
+         y:point.y+Math.sin(angle)*55,scale:0,alpha:0,
+         duration:360,onComplete:()=>star.destroy()});
+     }
+   };
+   const baseWin=p.win;
+   p.win=function winGameplay3(){
+     if(!this.busy&&this.allDone()){
+       try{sessionStorage.setItem('berries_cycle3_last_won',String(this.no))}catch{}
+     }
+     return baseWin.call(this);
+   };
+   const mapScene=window.__berriesGame?.scene?.keys?.Map;
+   const mapProto=mapScene&&Object.getPrototypeOf(mapScene);
+   if(mapProto?.__berriesMapV11&&!mapProto.__berriesCycle3){
+     mapProto.__berriesCycle3=true;
+     const baseMap=mapProto.create;
+     mapProto.create=function mapWithRoyalTrail(){
+       baseMap.call(this);
+       const Trail=window.BerriesRoyalTrail;
+       if(!Trail)return;
+       // Scene decorations are independent of the base map bitmap and level markers.
+       for(const z of Trail.ZONES.slice(1)){
+         const location=z.id==='frost_queen'?{x:400,y:208}:{x:1160,y:206};
+         const sign=this.add.text(location.x,location.y,z.title,{
+           fontFamily:'Trebuchet MS, Arial, sans-serif',fontSize:'25px',fontStyle:'bold',
+           color:z.id==='frost_queen'?'#e4f7ff':'#f0dfff',
+           stroke:'#234032',strokeThickness:5
+         }).setOrigin(.5).setDepth(6);
+         const glow=this.add.ellipse(location.x,location.y,sign.width+38,55,z.accent,.14).setDepth(5);
+         this.tweens.add({targets:glow,alpha:{from:.13,to:.29},duration:1700,yoyo:true,repeat:-1});
+       }
+       let level=0;
+       try{level=Number(sessionStorage.getItem('berries_cycle3_last_won')||0);
+         sessionStorage.removeItem('berries_cycle3_last_won')}catch{}
+       const quip=Trail.levelStory(level);
+       if(quip){
+         const banner=this.add.container(W/2,160).setDepth(65);
+         const plaque=this.add.rectangle(0,0,1100,78,0x1e392d,.92).setStrokeStyle(3,0xe5cc81,.9);
+         const words=this.add.text(0,0,quip,{fontFamily:'Trebuchet MS, Arial, sans-serif',
+           fontSize:'28px',fontStyle:'bold',color:'#fff5dc',align:'center',
+           wordWrap:{width:1000}}).setOrigin(.5);
+         banner.add([plaque,words]);
+         this.tweens.add({targets:banner,alpha:0,delay:2400,duration:350,
+           onComplete:()=>banner.destroy()});
+       }
+     };
+   }
    return true;
  }
  let count=0;
