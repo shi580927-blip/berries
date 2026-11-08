@@ -197,6 +197,8 @@
      const hasSpecial=this._cycle3Fan||[...source].some(k=>{
        const [r,c]=k.split(',').map(Number);return !!this.board?.[r]?.[c]?.sp;
      });
+     // The fan marks exactly one clearing wave, not subsequent natural cascades.
+     if(this._cycle3Fan)this._cycle3Fan=false;
      await baseClear.call(this,initial,chain);
      if(hasSpecial)for(const k of expanded){
        const [r,c]=k.split(',').map(Number);
