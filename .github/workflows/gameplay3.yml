@@ -22,6 +22,7 @@ jobs:
           node tests/campaign.cjs
           node tests/gameplay-cycle-2.cjs
           node tests/gameplay-cycle-3.cjs
+          node tests/royal-trail-assets.cjs
           node tests/platform.cjs
           node tests/i18n.cjs
           node tests/special-label-lifecycle.cjs
