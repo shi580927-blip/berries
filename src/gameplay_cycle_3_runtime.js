@@ -208,14 +208,20 @@
    p.useBoosterAt=async function boosterGameplay3(r,c){
      const id=this.boosterMode;
      if(this.cell?.[r]?.[c]?.block==='void')return;
-     if(id==='hammer'&&this.cell?.[r]?.[c]?.block==='rock'){
+     if(id==='hammer'&&(this.cell?.[r]?.[c]?.block==='rock'||this.cell?.[r]?.[c]?.acorn)){
        if(this.busy||this.inventory.hammer<=0||!Campaign.consume('hammer'))return;
        this.inventory.hammer--;this.boosterMode=null;this.busy=true;
        try{
-         this.boosterHint?.setText('');damageRock(this,r,c);
+         this.boosterHint?.setText('');
+         if(this.cell[r][c].acorn){
+           this.cell[r][c].acorn=false;
+           this.bumpGoal('acorn',null,1);
+           this.fx?.acornCrunch?.();
+           this.render(r,c);
+         }else damageRock(this,r,c);
          await this.fallRefill();await this.resolve();
          this.refreshBoosters();this.updateHud();this.busy=false;this.endCheck();this.scheduleHint();
-       }catch(error){console.error('[berries] rock hammer',error);this.busy=false;this.drawAll();this.updateHud()}
+       }catch(error){console.error('[berries] obstacle hammer',error);this.busy=false;this.drawAll();this.updateHud()}
        return;
      }
      this._cycle3Fan=id==='fan';
