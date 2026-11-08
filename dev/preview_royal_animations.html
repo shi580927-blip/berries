@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Безумные ягодки — анимации Королевской тропы</title>
+<style>
+:root{font-family:system-ui,Arial,sans-serif;color:#fff0d6;background:#1a1330}*{box-sizing:border-box}
+body{margin:0;padding:20px;text-align:center;background:radial-gradient(ellipse at 50% 0%,#493468,#1a1330 70%)}
+h1{font-size:clamp(20px,4vw,34px);margin:4px 0 8px}p{opacity:.75;margin:4px 0 14px}
+main{max-width:1140px;margin:auto}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+figure{border:1px solid #9b7fa2;border-radius:18px;padding:9px;margin:0;background:linear-gradient(#493666,#25203c);overflow:hidden}
+canvas{width:100%;height:auto;aspect-ratio:1;image-rendering:auto}figcaption{font-weight:700;font-size:13px;min-height:2.5em}
+button{border:1px solid #e9c77e;padding:10px 20px;border-radius:22px;background:#765097;color:white;cursor:pointer;font-weight:bold;margin:10px 5px}
+button:hover{background:#9570b2}#error{color:#ffbd91} .hint{font-size:13px;opacity:.7}
+@media(max-width:680px){.grid{grid-template-columns:repeat(2,1fr)}body{padding:8px}}
+</style>
+</head>
+<body><main>
+<h1>Ягодные герои — 8 анимаций</h1>
+<p>Тестовый просмотр настоящего Phaser-атласа. Не входит в игровой релиз.</p>
+<div><button id="toggle">Пауза</button><button id="reset">С начала</button></div>
+<div class="grid" id="grid"></div><p id="error"></p><p class="hint">Открывать через Live Server в VS Code, а не файлом file://</p>
+</main>
+<script>
+(async()=>{
+const id=['princess_greeting','princess_victory','prince_celebrate','fairy_cast','wizard_cast','alchemist_celebrate','cloudberry_queen','king_wave'];
+const names=['Принцесса: приветствие','Принцесса: победа','Синий принц','Лесная фея','Волшебник','Алхимик','Королева Морошка','Король'];
+const root='../assets/characters/royal_trail/';
+const img=new Image();img.src=root+'royal_characters_atlas.webp';
+const [meta,manifest]=await Promise.all([fetch(root+'royal_characters_atlas.json').then(r=>r.json()),fetch(root+'royal_characters_manifest.json').then(r=>r.json())]);
+await img.decode();
+const contexts=id.map((name,i)=>{
+ const fig=document.createElement('figure');const can=document.createElement('canvas');can.width=256;can.height=256;
+ const caption=document.createElement('figcaption');caption.textContent=names[i];fig.append(can,caption);document.getElementById('grid').append(fig);return can.getContext('2d');
+});
+let epoch=performance.now(),frozen=0,paused=false,raf=0;
+function render(now){let t=paused?frozen:now-epoch;
+ contexts.forEach((ctx,i)=>{const frames=id[i],durs=manifest.characters[frames].durations_ms,total=durs.reduce((a,b)=>a+b,0);let time=t%total,k=0;while(k<durs.length-1&&time>=durs[k]){time-=durs[k++];}
+ const f=meta.frames[`${frames}_${String(k).padStart(3,'0')}`].frame;ctx.clearRect(0,0,256,256);ctx.drawImage(img,f.x,f.y,f.w,f.h,0,0,256,256);
+ }); raf=requestAnimationFrame(render);
+}
+raf=requestAnimationFrame(render);
+document.getElementById('toggle').onclick=()=>{if(paused){epoch=performance.now()-frozen;paused=false;}else{frozen=performance.now()-epoch;paused=true;}document.getElementById('toggle').textContent=paused?'Продолжить':'Пауза';};
+document.getElementById('reset').onclick=()=>{epoch=performance.now();frozen=0;};
+})().catch(e=>{document.getElementById('error').textContent='Не удалось загрузить атлас: '+e.message+' (проверьте расположение файлов и Live Server)';console.error(e)});
+</script></body></html>
