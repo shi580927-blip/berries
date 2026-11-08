@@ -1,0 +1,54 @@
+name: Gameplay cycle 3 isolated QA
+on:
+  push:
+    branches: [ feature/gameplay-cycle-3 ]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: |
+          node --check src/gameplay_cycle_3_core.js
+          node --check src/gameplay_cycle_3_runtime.js
+          node --check src/campaign.js
+          node --check src/vertical_slice.js
+          node --check src/runtime_stable_v10.js
+      - name: Run existing and new gameplay regression tests
+        run: |
+          node tests/campaign.cjs
+          node tests/gameplay-cycle-2.cjs
+          node tests/gameplay-cycle-3.cjs
+          node tests/platform.cjs
+          node tests/i18n.cjs
+          node tests/special-label-lifecycle.cjs
+      - name: Provide pinned Phaser for clean checkouts
+        run: |
+          test -f vendor/phaser.min.js || curl -fLsS --retry 3 https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js -o vendor/phaser.min.js
+          test -s vendor/phaser.min.js
+      - name: Install build dependencies
+        run: |
+          python -m pip install --disable-pip-version-check pillow
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+      - name: Package test-only SDK-free build
+        env:
+          BERRIES_RELEASE_NAME: berries_gameplay_cycle_3_test.zip
+        run: python scripts/build_release.py
+      - name: Verify SDK-free packaging policy
+        run: |
+          set -eu
+          unzip -t berries_gameplay_cycle_3_test.zip | tail -1
+          unzip -Z1 berries_gameplay_cycle_3_test.zip | grep -q 'src/gameplay_cycle_3_core.js'
+          unzip -Z1 berries_gameplay_cycle_3_test.zip | grep -q 'src/gameplay_cycle_3_runtime.js'
+          ! unzip -Z1 berries_gameplay_cycle_3_test.zip | grep -E 'src/sdk/|archive_unused/|^screenshots.html'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: berries-gameplay-cycle-3-local-preview
+          path: |
+            berries_gameplay_cycle_3_test.zip
+            berries_build_manifest.json
+          retention-days: 14
