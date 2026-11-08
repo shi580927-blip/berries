@@ -1,6 +1,12 @@
 const assert=require('node:assert/strict');
 const {LEVELS,MAX_LEVEL,KEY,create}=require('../src/campaign.js');
 const G=require('../src/gameplay_cycle_3_core.js');
+const Trail=require('../src/royal_trail.js');
+assert.equal(Trail.zoneForLevel(3).id,'frost_queen');
+assert.equal(Trail.zoneForLevel(9).id,'alchemist');
+assert.equal(Trail.stageForLevel(12),2);
+assert.equal(Trail.pages(75).length,3);
+assert.equal(Trail.pages(75)[2].to,75);
 assert.equal(MAX_LEVEL,30);assert.equal(KEY,'berries_campaign_v1');
 assert.equal(LEVELS[3].zone,'frost_queen');assert.equal(LEVELS[8].zone,'frost_queen');
 assert.equal(LEVELS[9].zone,'alchemist');
