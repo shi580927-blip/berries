@@ -98,6 +98,21 @@
        }).setDepth(35).setOrigin(.5);
        this.tweens.add({targets:title,alpha:0,delay:1350,duration:360,onComplete:()=>title.destroy()});
      }
+     // Tiny idle movements are purely cosmetic: no logical swaps and no timers during cascades.
+     this.time.addEvent({delay:2300,loop:true,callback:()=>{
+       if(this.busy||this.sel||window.BerriesLifecycle.paused)return;
+       const candidates=[];
+       for(let r=0;r<R;r++)for(let c=0;c<C;c++){
+         const sp=this.spr[r][c],ce=this.cell[r][c],it=this.board[r][c];
+         if(it&&!it.sp&&!ce.block&&!ce.ice&&sp?.active&&!this.tweens.isTweening(sp))candidates.push(sp);
+       }
+       if(!candidates.length)return;
+       const s=candidates[Math.floor(Math.random()*candidates.length)];
+       const sx=s.getData('sx')||s.scaleX,sy=s.getData('sy')||s.scaleY,angle=s.getData('ang')||0;
+       this.tweens.add({targets:s,scaleX:sx*1.045,scaleY:sy*.96,
+         angle:angle+(Math.random()>.5?2.5:-2.5),duration:155,yoyo:true,
+         ease:'Sine.inOut',onComplete:()=>{if(s.active)s.setAngle(angle)}});
+     }});
      this.events.once('shutdown',()=>{this._cycle3=null});
      return true;
    };
