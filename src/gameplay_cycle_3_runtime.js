@@ -88,6 +88,21 @@
        if(!this.hasMove())for(let attempt=0;attempt<80&&!this.hasMove();attempt++)this.shuffleBoard();
        this.drawAll(false,false);
      }
+     if(this.cfg.dropAcorns){
+       // Clearly show the destination for acorns, without obstructing bottom-row taps.
+       const exits=[...new Set(this.cfg.ac.map(([,c])=>c))];
+       for(const c of exits){
+         const x=this.pos(R-1,c).x,y=BY+R*CELL+14;
+         const arrow=this.add.triangle(x,y,0,-10,-13,-10,0,12,0xd9b268,.93)
+           .setStrokeStyle(2,0x654820,.9).setDepth(10);
+         this.tweens.add({targets:arrow,alpha:{from:.55,to:1},duration:950,yoyo:true,repeat:-1});
+       }
+       const tip=this.add.text(285,835,'Жёлуди — к стрелкам внизу!',{
+         fontFamily:'Trebuchet MS, Arial, sans-serif',fontSize:'23px',fontStyle:'bold',
+         color:'#fff2c3',stroke:'#4e3729',strokeThickness:5,align:'center',
+         wordWrap:{width:340}}).setOrigin(.5).setDepth(20);
+       this.tweens.add({targets:tip,alpha:0,delay:3700,duration:400,onComplete:()=>tip.destroy()});
+     }
      if(this.cfg.madnessStage){
        const tint=[0xe6a8ef,0xcf8ded,0xba79e9][Math.min(2,this.cfg.madnessStage-1)];
        const outline=this.add.graphics().setDepth(2);
