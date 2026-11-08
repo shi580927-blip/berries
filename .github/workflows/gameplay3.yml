@@ -45,6 +45,12 @@ jobs:
           unzip -Z1 berries_gameplay_cycle_3_test.zip | grep -q 'src/gameplay_cycle_3_core.js'
           unzip -Z1 berries_gameplay_cycle_3_test.zip | grep -q 'src/gameplay_cycle_3_runtime.js'
           ! unzip -Z1 berries_gameplay_cycle_3_test.zip | grep -E 'src/sdk/|archive_unused/|^screenshots.html'
+      - name: Browser smoke in actual Phaser game
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8765 --directory release >/tmp/berries-browser.log 2>&1 &
+          node tests/gameplay3-browser.cjs
       - uses: actions/upload-artifact@v4
         with:
           name: berries-gameplay-cycle-3-local-preview
