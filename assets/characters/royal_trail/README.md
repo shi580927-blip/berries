@@ -8,8 +8,8 @@
 - `royal_characters_atlas.json` — Texture Atlas JSON Hash, совместимый с Phaser 3, ключи `<animation>_000` ... `_007`.
 - `royal_characters_manifest.json` — длительность и размеры кадров, исходные имена GIF и назначение.
 - `CHARACTER_PREVIEW.jpg` — статичный обзор.
-- `royal_characters_original_gifs.zip` — исходные восемь GIF без изменения качества (в папке `art/source_animations/royal_trail/` в GitHub, **не включать в игру**).
-- `preview_royal_animations.html` — тестовый просмотр всех восьми движений через Live Server, **не включать в игровой релиз**.
+- Восемь оригинальных `.gif` — отдельные файлы в папке `art/source_animations/royal_trail/` в GitHub, **не включать в игру**. Для локального скачивания имеется архив `royal_characters_original_gifs.zip`.
+- `dev/preview_royal_animations.html` — тестовый просмотр всех восьми движений через Live Server, **не включать в игровой релиз**.
 
 ## Персонажи
 
