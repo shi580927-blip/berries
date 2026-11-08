@@ -26,6 +26,7 @@ const {chromium}=require('playwright');
      return {no:s.no,acorns:s.cell.flat().filter(c=>c.acorn).length,
        stones:s.cell.flat().filter(c=>c.block==='rock').map(c=>c.rockHp),
        holes:s.cell.flat().filter(c=>c.block==='void').length,
+       rockTexture:s.spr?.[4]?.[3]?.texture?.key||null,
        madness:s.cfg.madnessStage||0,moves:s.moves};
    });
  };
@@ -57,6 +58,7 @@ const {chromium}=require('playwright');
  assert(moveResult.ok,JSON.stringify(moveResult));assert.equal(moveResult.moves,status.moves-1);
  status=await launch(10);
  assert.equal(status.holes,4);assert.deepEqual(status.stones,[2]);assert.equal(status.acorns,3);
+ assert.equal(status.rockTexture,'berries_boulder3','level 10 must render the approved textured boulder');
  const forced=await page.evaluate(async()=>{
    const s=window.__berriesGame.scene.keys.Play;
    s.cell[4][3].rockHp=1;
