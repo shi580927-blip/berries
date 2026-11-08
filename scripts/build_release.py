@@ -28,6 +28,7 @@ RUNTIME_FILES = [
     "src/vertical_slice.js",
     "src/runtime_stable_v10.js",
     "src/gameplay_cycle_3_core.js",
+    "src/royal_trail.js",
     "src/gameplay_cycle_3_runtime.js",
     "src/platform/platform.js",
     "src/platform/local.js",
