@@ -60,6 +60,17 @@ const [m,n,g,ic=0,h=1,a=0,r=0,frozenAc=0]=row;
 const icePositions=i===9?[...iceSlots.slice(0,4),iceSlots[5],iceSlots[6]]:iceSlots.slice(0,ic);
 return [i+1,{locationId:locationForLevel(i+1).id,m,n,g,...(i===1?{openingBoard:FOUR_INTRO_BOARD,openingSwap:[[2,4],[3,4]]}:{}),ice:[...icePositions.map(([y,x],k)=>[y,x,h==='mixed'?(k%3===0?2:1):h]),...acSlots.slice(0,frozenAc).map(([y,x])=>[y,x,1])],ac:acSlots.slice(0,a).map(x=>x.slice()),root:rootSlots.slice(0,r).map(x=>x.slice())}];
 }));
+// Cycle 3 is opt-in per level: the older 11-30 layouts and their goals remain intact.
+// Cosmetic zones are metadata, not entitlements or save-game schema.
+for(const [id,level] of Object.entries(LEVELS)){
+ const n=Number(id);
+ level.zone=n<=2?'royal_path':n<=8?'frost_queen':n<=14?'alchemist':'royal_path';
+ if(n%6===0)level.madnessStage=n/6;
+}
+for(const n of [6,7,10])LEVELS[n].dropAcorns=true;
+LEVELS[8].holes=[[0,0],[0,7],[7,0],[7,7]];
+LEVELS[10].holes=[[0,0],[0,7],[1,0],[1,7]];
+LEVELS[10].rocks=[[4,3,2]];
 const MAX_LEVEL=Math.max(...Object.keys(LEVELS).map(Number));
 function create(storage,now=Date.now,cloud=()=>{}){
 const number=(v,f=0)=>Number.isFinite(Number(v))?Math.max(0,Math.floor(Number(v))):f;
