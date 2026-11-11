@@ -57,7 +57,7 @@ const {chromium}=require('playwright');
  });
  assert(moveResult.ok,JSON.stringify(moveResult));assert.equal(moveResult.moves,status.moves-1);
  status=await launch(10);
- assert.equal(status.holes,4);assert.deepEqual(status.stones,[2]);assert.equal(status.acorns,3);
+ assert.equal(status.holes,0,'level 10 uses a full 8x8 board without inactive corner tiles');assert.deepEqual(status.stones,[2]);assert.equal(status.acorns,3);
  assert.equal(status.rockTexture,'berries_boulder3','level 10 must render the approved textured boulder');
  const forced=await page.evaluate(async()=>{
    const s=window.__berriesGame.scene.keys.Play;
