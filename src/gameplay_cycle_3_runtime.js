@@ -17,7 +17,67 @@
    p.__berriesCycle3=true;
    const baseCreate=p.create,baseRender=p.render,baseFall=p.fallRefill;
    const baseResolve=p.resolve,baseClear=p.clearCells,baseUseBoosterAt=p.useBoosterAt,baseTap=p.tap;
-   const baseAssert=p.assertBoard;
+   const baseAssert=p.assertBoard,baseHud=p.hud,baseSeed=p.seed;
+   // First playable field silhouette: four chamfered corners and no painted dead squares.
+   // The shape stays behind the berries; every live tile remains fully visible.
+   function drawFrostChamfer(scene,g){
+     const left=BX-14,right=BX+C*CELL+14,top=BY-14,bottom=BY+R*CELL+14;
+     const d=CELL+2;
+     const points=[
+       [left+d,top],[right-d,top],[right,top+d],[right,bottom-d],
+       [right-d,bottom],[left+d,bottom],[left,bottom-d],[left,top+d]
+     ];
+     const trace=(dx=0,dy=0)=>{
+       g.beginPath();
+       g.moveTo(points[0][0]+dx,points[0][1]+dy);
+       for(let i=1;i<points.length;i++)g.lineTo(points[i][0]+dx,points[i][1]+dy);
+       g.closePath();
+     };
+     g.clear();
+     // Deliberately no fill in the four removed corners: the landscape shows through.
+     g.fillStyle(0x133b46,.34);trace(0,8);g.fillPath();
+     g.fillStyle(0xf0fbff,.79);trace();g.fillPath();
+     g.lineStyle(14,0x356776,.89);trace();g.strokePath();
+     g.lineStyle(7,0x9fe3f1,.98);trace();g.strokePath();
+     g.lineStyle(2,0xffffff,.80);trace();g.strokePath();
+     const empty=new Set((scene.cfg.holes||[]).map(([r,c])=>stateKey(r,c)));
+     for(let r=0;r<R;r++)for(let c=0;c<C;c++){
+       if(empty.has(stateKey(r,c)))continue;
+       g.fillStyle((r+c)%2?0xe2f4ed:0xf7fff5,.52);
+       g.fillRoundedRect(BX+c*CELL+5,BY+r*CELL+5,CELL-10,CELL-10,15);
+     }
+     // Small frosted accents sit OUTSIDE the live tiles on each bevel.
+     g.lineStyle(3,0xc2f8ff,.68);
+     for(const [x,y] of [
+       [left+d*.48,top+d*.48],[right-d*.48,top+d*.48],
+       [right-d*.48,bottom-d*.48],[left+d*.48,bottom-d*.48]
+     ]){
+       g.lineBetween(x-7,y,x+7,y);
+       g.lineBetween(x,y-7,x,y+7);
+     }
+   }
+   p.hud=function hudGameplay3(...args){
+     if(!this.cfg?.boardShape){
+       return baseHud.apply(this,args);
+     }
+     const existing=new Set(this.children.list);
+     const result=baseHud.apply(this,args);
+     if(this.cfg.boardShape==='frost_chamfer'){
+       const frame=this.children.list.find(o=>!existing.has(o)&&o.type==='Graphics'&&o.depth===1);
+       if(frame){frame.setName('berries_frost_chamfered_board');drawFrostChamfer(this,frame);this._cycle3BoardFrame=frame;}
+     }
+     return result;
+   };
+   p.seed=function seedGameplay3(...args){
+     // Apply holes before the initial berry distribution and its entrance animation.
+     for(const [r,c] of this.cfg?.holes||[]){
+       if(this.cell?.[r]?.[c]){
+         this.cell[r][c].block='void';
+         this.board[r][c]=null;
+       }
+     }
+     return baseSeed.apply(this,args);
+   };
    // Load the approved stone atlas only on a level that contains rocks.
    // Other levels and the first launch remain unaffected.
    const basePreload=p.preload;
@@ -156,8 +216,7 @@
      for(const [r,c] of this.cfg.holes||[]){
        const ce=this.cell?.[r]?.[c];if(!ce)continue;
        ce.block='void';ce.acorn=false;this.board[r][c]=null;
-       const pos=this.pos(r,c);
-       this.add.rectangle(pos.x,pos.y,CELL-8,CELL-8,0x10291d,.94).setDepth(2);
+       // No dark rectangle: the chamfered field surface was drawn by hudGameplay3.
      }
      for(const [r,c,hp] of this.cfg.rocks||[]){
        const ce=this.cell?.[r]?.[c];if(!ce)continue;
