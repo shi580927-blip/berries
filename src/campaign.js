@@ -69,6 +69,7 @@ for(const [id,level] of Object.entries(LEVELS)){
 }
 for(const n of [6,7,10])LEVELS[n].dropAcorns=true;
 LEVELS[8].holes=[[0,0],[0,7],[7,0],[7,7]];
+LEVELS[8].boardShape='frost_chamfer'; // visual bevel only: live berries stay fully exposed
 // Level 10 uses a complete 8x8 board: dark inactive corner cells distract from the boulder.
 LEVELS[10].holes=[];
 LEVELS[10].rocks=[[4,3,2]];
