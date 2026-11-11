@@ -26,6 +26,7 @@ const {chromium}=require('playwright');
      return {no:s.no,acorns:s.cell.flat().filter(c=>c.acorn).length,
        stones:s.cell.flat().filter(c=>c.block==='rock').map(c=>c.rockHp),
        holes:s.cell.flat().filter(c=>c.block==='void').length,
+       boardFrame:s._cycle3BoardFrame?.name||null,
        rockTexture:s.spr?.[4]?.[3]?.texture?.key||null,
        madness:s.cfg.madnessStage||0,moves:s.moves};
    });
@@ -56,6 +57,22 @@ const {chromium}=require('playwright');
    return {moves:s.moves,ok:!!s.assertBoard('browser smoke level6')};
  });
  assert(moveResult.ok,JSON.stringify(moveResult));assert.equal(moveResult.moves,status.moves-1);
+ status=await launch(8);
+ assert.equal(status.holes,4,'level 8 has only four absent corner cells');
+ assert.equal(status.boardFrame,'berries_frost_chamfered_board','level 8 uses the contoured art board');
+ const bevel=await page.evaluate(async()=>{
+   const s=window.__berriesGame.scene.keys.Play;
+   const corners=[[0,0],[0,7],[7,0],[7,7]];
+   const empty=corners.every(([r,c])=>s.cell[r][c].block==='void'&&!s.board[r][c]&&!s.spr[r][c]);
+   const border=s._cycle3BoardFrame;
+   const notCovered=border?.depth===1&&s.spr[0][1]?.depth>border.depth;
+   const pair=s.findHintMove();
+   if(!pair)throw Error('no hint on chamfered field');
+   await s.swap(...pair);
+   return {empty,notCovered,valid:s.assertBoard('chamfered level8 swap'),moves:s.moves};
+ });
+ assert(bevel.empty&&bevel.notCovered&&bevel.valid,'no hidden or covered berries on shape');
+ assert.equal(bevel.moves,status.moves-1,'level 8 shape still allows real swaps');
  status=await launch(10);
  assert.equal(status.holes,0,'level 10 uses a full 8x8 board without inactive corner tiles');assert.deepEqual(status.stones,[2]);assert.equal(status.acorns,3);
  assert.equal(status.rockTexture,'berries_boulder3','level 10 must render the approved textured boulder');
@@ -84,6 +101,6 @@ const {chromium}=require('playwright');
  await page.waitForFunction(()=>window.__berriesGame.scene.keys.Map.scene.isActive(),{timeout:10000});
  assert.equal(errors.length,0,'console/runtime exceptions: '+errors.join('; '));
  assert.equal(errors.length,0,'console/runtime exceptions: '+errors.join('; '));
- console.log('PASS Phaser browser smoke: levels 6,10,12; real swaps; rock special hit; no console errors');
+ console.log('PASS Phaser browser smoke: levels 6,8,10,12; contoured board, real swaps, rock special hit; no console errors');
  await browser.close();
 })().catch(error=>{console.error(error);process.exitCode=1});
