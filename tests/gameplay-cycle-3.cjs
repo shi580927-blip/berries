@@ -15,6 +15,8 @@ assert.equal(LEVELS[6].dropAcorns,true);
 assert.equal(LEVELS[7].dropAcorns,true);
 assert.equal(LEVELS[10].dropAcorns,true);
 assert.equal(LEVELS[16].dropAcorns,undefined,'defer old 11-30 goals');
+assert.equal(LEVELS[8].boardShape,'frost_chamfer','first shaped board has the frost art skin');
+assert.deepEqual(LEVELS[8].holes,[[0,0],[0,7],[7,0],[7,7]],'only the four unused corners are masked');
 assert.deepEqual(LEVELS[10].holes,[],'boulder level must not show ugly inactive corner tiles');
 const used=new Set([...LEVELS[10].ice,...LEVELS[10].root,...LEVELS[10].ac].map(p=>G.key(p[0],p[1])));
 for(const [r,c] of [...LEVELS[10].holes,...LEVELS[10].rocks]){
