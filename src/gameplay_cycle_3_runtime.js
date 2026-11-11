@@ -16,7 +16,7 @@
    if(!p?.__berriesStableV10||p.__berriesCycle3)return false;
    p.__berriesCycle3=true;
    const baseCreate=p.create,baseRender=p.render,baseFall=p.fallRefill;
-   const baseResolve=p.resolve,baseClear=p.clearCells,baseUseBoosterAt=p.useBoosterAt;
+   const baseResolve=p.resolve,baseClear=p.clearCells,baseUseBoosterAt=p.useBoosterAt,baseTap=p.tap;
    const baseAssert=p.assertBoard;
    // Load the approved stone atlas only on a level that contains rocks.
    // Other levels and the first launch remain unaffected.
@@ -39,6 +39,73 @@
      s.removeAllListeners?.('pointerdown');
      s.setInteractive?.({useHandCursor:true});
      s.on?.('pointerdown',()=>scene.tap(r,c));
+   };
+   // Stone sounds are generated locally with WebAudio: no new download at startup.
+   // Separate low impact and granular debris, instead of the tiny generic ice crack.
+   function playStoneSound(scene,destroyed=false){
+     if(scene.fx?.muted||window.BerriesLifecycle?.paused||document.hidden)return true;
+     const ctx=scene.sound?.context;
+     if(!ctx?.createBufferSource||!ctx?.createOscillator)return false;
+     try{
+       scene.fx?.unlock?.();
+       const now=performance.now();
+       if((scene._cycle3RockSoundAt||0)+75>now)return true;
+       scene._cycle3RockSoundAt=now;
+       const t=ctx.currentTime,seconds=destroyed?.34:.20;
+       const oscillator=ctx.createOscillator(),bass=ctx.createGain();
+       oscillator.type='triangle';
+       oscillator.frequency.setValueAtTime(destroyed?130:165,t);
+       oscillator.frequency.exponentialRampToValueAtTime(destroyed?53:78,t+.13);
+       bass.gain.setValueAtTime(.0001,t);
+       bass.gain.exponentialRampToValueAtTime(destroyed?.17:.12,t+.008);
+       bass.gain.exponentialRampToValueAtTime(.0001,t+.19);
+       oscillator.connect(bass).connect(ctx.destination);
+       oscillator.start(t);oscillator.stop(t+.2);
+       const sr=ctx.sampleRate,length=Math.ceil(sr*seconds);
+       const buffer=ctx.createBuffer(1,length,sr),data=buffer.getChannelData(0);
+       for(let i=0;i<length;i++){
+         const k=i/length;
+         const envelope=Math.pow(1-k,destroyed?1.45:2.2);
+         data[i]=(Math.random()*2-1)*envelope;
+       }
+       const noise=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),grit=ctx.createGain();
+       noise.buffer=buffer;
+       filter.type='lowpass';filter.frequency.value=destroyed?1950:1260;
+       grit.gain.setValueAtTime(.0001,t);
+       grit.gain.exponentialRampToValueAtTime(destroyed?.23:.16,t+.006);
+       grit.gain.exponentialRampToValueAtTime(.0001,t+seconds);
+       noise.connect(filter).connect(grit).connect(ctx.destination);
+       noise.start(t);noise.stop(t+seconds);
+       return true;
+     }catch(error){
+       console.warn('[berries] stone sound fallback',error);
+       return false;
+     }
+   }
+   p.tap=function tapGameplay3(r,c){
+     if(!this.busy&&!this.boosterMode&&this.cell?.[r]?.[c]?.block==='rock'){
+       const result=baseTap.call(this,r,c);
+       this.fx?.wood?.();
+       const rock=this.spr?.[r]?.[c];
+       if(rock?.active){
+         const startX=rock.x;
+         this.tweens.add({targets:rock,x:startX+3,duration:55,yoyo:true,repeat:2,
+           onComplete:()=>{if(rock.active)rock.x=startX}});
+       }
+       if(!this._cycle3RockTipShown){
+         this._cycle3RockTipShown=true;
+         const at=this.pos(r,c);
+         const tip=this.add.text(at.x,at.y-CELL*.7,'Спецягода или молоток!',{
+           fontSize:'25px',fontStyle:'bold',color:'#fff3c4',
+           stroke:'#4d2d1d',strokeThickness:5,
+           backgroundColor:'#3c281bd9',padding:{x:12,y:8}
+         }).setOrigin(.5).setDepth(21);
+         this.tweens.add({targets:tip,y:tip.y-18,alpha:0,duration:1450,
+           ease:'Sine.out',onComplete:()=>tip.destroy()});
+       }
+       return result;
+     }
+     return baseTap.call(this,r,c);
    };
    p.render=function renderGameplay3(r,c,first=false,fall=false){
      const ce=this.cell[r][c],point=this.pos(r,c);
@@ -284,7 +351,7 @@
            duration:280+Math.random()*180,onComplete:()=>bit.destroy()});
        }
      }
-     scene.fx?.crack?.();
+     if(!playStoneSound(scene,destroyed))scene.fx?.crack?.();
      return true;
    }
    p.clearCells=async function clearGameplay3(initial,chain=1){
