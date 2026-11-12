@@ -8,6 +8,7 @@ permissions:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - name: Check JavaScript syntax
@@ -57,6 +58,7 @@ jobs:
           python3 -m http.server 8765 --directory release >/tmp/berries-browser.log 2>&1 &
           node tests/gameplay3-browser.cjs
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: berries-gameplay-cycle-3-local-preview
           path: |
