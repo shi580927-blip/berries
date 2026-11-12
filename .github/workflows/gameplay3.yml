@@ -51,7 +51,9 @@ jobs:
           BERRIES_SCREENSHOTS: gameplay3-screenshots
         run: |
           npm install --no-save playwright@1.56.1
-          npx playwright install --with-deps chromium
+          BERRIES_CHROMIUM_PATH="$(command -v google-chrome || command -v chromium)"
+          test -n "$BERRIES_CHROMIUM_PATH"
+          export BERRIES_CHROMIUM_PATH
           python3 -m http.server 8765 --directory release >/tmp/berries-browser.log 2>&1 &
           node tests/gameplay3-browser.cjs
       - uses: actions/upload-artifact@v4
