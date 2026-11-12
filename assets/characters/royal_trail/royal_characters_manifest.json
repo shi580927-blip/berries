@@ -1,0 +1,218 @@
+{
+  "format": "Phaser 3 Texture Atlas JSON Hash",
+  "atlas_image": "royal_characters_atlas.webp",
+  "atlas_json": "royal_characters_atlas.json",
+  "cell": 256,
+  "columns": 8,
+  "rows": 8,
+  "characters": {
+    "princess_greeting": {
+      "source_gif": "ChatGPT GIF 8 нояб. 2026 г., 21_28_38-2.gif",
+      "frames": 8,
+      "durations_ms": [
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180
+      ],
+      "total_duration_ms": 1440,
+      "source_size": [
+        313,
+        627
+      ],
+      "union_bbox": [
+        19,
+        99,
+        305,
+        500
+      ],
+      "fps_approx": 5.56
+    },
+    "princess_victory": {
+      "source_gif": "princess_victory_animation(1).gif",
+      "frames": 8,
+      "durations_ms": [
+        170,
+        170,
+        170,
+        170,
+        170,
+        170,
+        170,
+        170
+      ],
+      "total_duration_ms": 1360,
+      "source_size": [
+        443,
+        443
+      ],
+      "union_bbox": [
+        61,
+        1,
+        393,
+        430
+      ],
+      "fps_approx": 5.88
+    },
+    "prince_celebrate": {
+      "source_gif": "Праздничный прыжок синего принца-4.gif",
+      "frames": 8,
+      "durations_ms": [
+        170,
+        170,
+        170,
+        170,
+        170,
+        170,
+        170,
+        170
+      ],
+      "total_duration_ms": 1360,
+      "source_size": [
+        443,
+        443
+      ],
+      "union_bbox": [
+        27,
+        8,
+        420,
+        410
+      ],
+      "fps_approx": 5.88
+    },
+    "fairy_cast": {
+      "source_gif": "Счастливая фея запускает звёздное заклинание-1.gif",
+      "frames": 8,
+      "durations_ms": [
+        140,
+        140,
+        140,
+        140,
+        140,
+        140,
+        140,
+        140
+      ],
+      "total_duration_ms": 1120,
+      "source_size": [
+        446,
+        444
+      ],
+      "union_bbox": [
+        2,
+        11,
+        411,
+        414
+      ],
+      "fps_approx": 7.14
+    },
+    "wizard_cast": {
+      "source_gif": "Праздничная магия фиолетового волшебника (1).gif",
+      "frames": 8,
+      "durations_ms": [
+        140,
+        140,
+        140,
+        140,
+        140,
+        140,
+        140,
+        140
+      ],
+      "total_duration_ms": 1120,
+      "source_size": [
+        443,
+        443
+      ],
+      "union_bbox": [
+        30,
+        9,
+        412,
+        409
+      ],
+      "fps_approx": 7.14
+    },
+    "alchemist_celebrate": {
+      "source_gif": "Праздничный прыжок алхимика(1).gif",
+      "frames": 8,
+      "durations_ms": [
+        170,
+        170,
+        170,
+        170,
+        170,
+        170,
+        170,
+        170
+      ],
+      "total_duration_ms": 1360,
+      "source_size": [
+        443,
+        443
+      ],
+      "union_bbox": [
+        47,
+        6,
+        404,
+        427
+      ],
+      "fps_approx": 5.88
+    },
+    "cloudberry_queen": {
+      "source_gif": "Морошковая королева_ от строгости к радости-1.gif",
+      "frames": 8,
+      "durations_ms": [
+        160,
+        160,
+        160,
+        160,
+        160,
+        160,
+        160,
+        160
+      ],
+      "total_duration_ms": 1280,
+      "source_size": [
+        443,
+        443
+      ],
+      "union_bbox": [
+        33,
+        3,
+        412,
+        417
+      ],
+      "fps_approx": 6.25
+    },
+    "king_wave": {
+      "source_gif": "Анимированный король-ягода машет рукой(1).gif",
+      "frames": 8,
+      "durations_ms": [
+        170,
+        170,
+        170,
+        170,
+        170,
+        170,
+        170,
+        170
+      ],
+      "total_duration_ms": 1360,
+      "source_size": [
+        443,
+        443
+      ],
+      "union_bbox": [
+        25,
+        7,
+        432,
+        426
+      ],
+      "fps_approx": 5.88
+    }
+  }
+}

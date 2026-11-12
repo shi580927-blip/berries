@@ -18,6 +18,9 @@ RUNTIME_FILES = [
     "index.html",
     "styles.css",
     "assets/map-digits.css",
+    # Copy the atlas and JSON verbatim; resizing would invalidate frame coordinates.
+    "assets/blockers/boulder_atlas_game.png",
+    "assets/blockers/boulder_atlas_game.json",
     "vendor/phaser.min.js",
     "vendor/PHASER_LICENSE.md",
     "src/lifecycle.js",
@@ -27,6 +30,9 @@ RUNTIME_FILES = [
     "src/optimized-images.js",
     "src/vertical_slice.js",
     "src/runtime_stable_v10.js",
+    "src/gameplay_cycle_3_core.js",
+    "src/royal_trail.js",
+    "src/gameplay_cycle_3_runtime.js",
     "src/platform/platform.js",
     "src/platform/local.js",
 ]
