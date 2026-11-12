@@ -1,10 +1,17 @@
 /* Browser smoke for the real Phaser runtime, not a mocked game board. */
 const assert=require('node:assert/strict');
 const {chromium}=require('playwright');
+const fs=require('node:fs');
+const path=require('node:path');
 (async()=>{
- const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-gpu','--use-gl=swiftshader']});
+ const browser=await chromium.launch({headless:true,
+   ...(process.env.BERRIES_CHROMIUM_PATH?{executablePath:process.env.BERRIES_CHROMIUM_PATH}:{}),
+   args:['--no-sandbox','--disable-gpu','--use-gl=swiftshader']});
  const page=await browser.newPage({viewport:{width:1440,height:810}});
  const errors=[];
+ const shots=process.env.BERRIES_SCREENSHOTS;
+ if(shots)fs.mkdirSync(shots,{recursive:true});
+ const shot=async name=>{if(shots)await page.screenshot({path:path.join(shots,name+'.png')})};
  page.on('pageerror',error=>errors.push(error.message));
  page.on('console',msg=>{if(msg.type()==='error')errors.push(msg.text())});
  await page.goto(process.env.BERRIES_TEST_URL||'http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
@@ -60,6 +67,13 @@ const {chromium}=require('playwright');
  status=await launch(8);
  assert.equal(status.holes,4,'level 8 has only four absent corner cells');
  assert.equal(status.boardFrame,'berries_frost_chamfered_board','level 8 uses the contoured art board');
+ await shot('level-8-whole');
+ if(shots){
+   const box=await page.locator('canvas').boundingBox();
+   const scale=box.width/1920;
+   await page.screenshot({path:path.join(shots,'level-8-upper-corner.png'),
+     clip:{x:box.x+565*scale,y:box.y+135*scale,width:245*scale,height:245*scale}});
+ }
  const bevel=await page.evaluate(async()=>{
    const s=window.__berriesGame.scene.keys.Play;
    const corners=[[0,0],[0,7],[7,0],[7,7]];
@@ -73,19 +87,43 @@ const {chromium}=require('playwright');
  });
  assert(bevel.empty&&bevel.notCovered&&bevel.valid,'no hidden or covered berries on shape');
  assert.equal(bevel.moves,status.moves-1,'level 8 shape still allows real swaps');
+ for(const [name,width,height] of [['desktop-1920',1920,1080],['laptop-1366',1366,768],['mobile-wide',844,390],['mobile-compact',667,375]]){
+   await page.setViewportSize({width,height});
+   await page.waitForTimeout(120);
+   const box=await page.locator('canvas').boundingBox();
+   assert(box&&box.x>=-1&&box.y>=-1&&box.x+box.width<=width+1&&box.y+box.height<=height+1,
+     name+' canvas must fit viewport');
+   await shot('level-8-'+name);
+ }
+ await page.setViewportSize({width:1440,height:810});
  status=await launch(10);
  assert.equal(status.holes,0,'level 10 uses a full 8x8 board without inactive corner tiles');assert.deepEqual(status.stones,[2]);assert.equal(status.acorns,3);
  assert.equal(status.rockTexture,'berries_boulder3','level 10 must render the approved textured boulder');
- const forced=await page.evaluate(async()=>{
+ await shot('level-10-intact');
+ const hammer=await page.evaluate(async()=>{
    const s=window.__berriesGame.scene.keys.Play;
-   s.cell[4][3].rockHp=1;
-   const special=s.board[4][2];
-   s.board[4][2]={id:'raspberry',sp:'line_h'};
-   await s.clearCells(new Set(['4,2']),1);
-   await s.fallRefill();
-   return {rockGone:s.cell[4][3].block!=='rock',ok:s.assertBoard('special clears rock')};
+   s.boosterMode='hammer';
+   await s.useBoosterAt(4,3);
+   return {hp:s.cell[4][3].rockHp,frame:s.spr[4][3]?.frame?.name,
+     inventory:s.inventory.hammer,ok:s.assertBoard('hammer first rock hit')};
  });
- assert(forced.rockGone&&forced.ok,'special explosion must remove cracked rock');
+ assert.equal(hammer.hp,1,'one hammer hit must only crack the boulder');
+ assert.equal(hammer.frame,'boulder_hp1');
+ assert(hammer.ok&&hammer.inventory<2,'hammer should be consumed');
+ await shot('level-10-cracked');
+ const special=await page.evaluate(async()=>{
+   const s=window.__berriesGame.scene.keys.Play;
+   // Provision a line berry beside the obstacle, then trigger it through the actual swap path.
+   // This checks movement, expansion, hit, destruction, and subsequent gravity together.
+   s.board[4][1].sp='line_h';s.render(4,1);
+   const moves=s.moves;
+   await s.swap({r:4,c:1},{r:4,c:2});
+   return {rockGone:s.cell[4][3].block!=='rock',hp:s.cell[4][3].rockHp,
+     filled:!!s.board[4][3],moves:s.moves,ok:s.assertBoard('special swap rock destruction')};
+ });
+ assert(special.rockGone&&special.filled&&special.ok,'a swapped line berry must destroy the cracked rock and refill it');
+ assert.equal(special.moves,status.moves-1,'special rock hit spends one move');
+ await shot('level-10-refilled');
  status=await launch(12);assert.equal(status.madness,2);
  const insane=await page.evaluate(async()=>{
    const s=window.__berriesGame.scene.keys.Play,pair=s.findHintMove();
