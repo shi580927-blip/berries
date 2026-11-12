@@ -15,7 +15,10 @@ const path=require('node:path');
  const shot=async name=>{if(shots)await page.screenshot({path:path.join(shots,name+'.png')})};
  page.on('pageerror',error=>errors.push(error.message));
  page.on('response',response=>{if(response.status()>=400)missing.push(response.status()+' '+response.url())});
- page.on('console',msg=>{if(msg.type()==='error')errors.push(msg.text()+' '+msg.location().url)});
+ page.on('console',msg=>{
+   if(msg.type()==='error'&&!msg.location().url.endsWith('/favicon.ico'))
+     errors.push(msg.text()+' '+msg.location().url);
+ });
  await page.goto(process.env.BERRIES_TEST_URL||'http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.__berriesStartupReady===true,{timeout:45000});
  await page.evaluate(()=>{
