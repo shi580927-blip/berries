@@ -28,6 +28,7 @@ const path=require('node:path');
      const sc=window.__berriesGame.scene.keys.Play;
      return sc.scene.isActive()&&sc.no===n&&sc.spr?.length===8&&!!sc._cycle3;
    },n,{timeout:12000});
+   console.log('Phaser level ready:',n);
    return page.evaluate(()=>{
      const s=window.__berriesGame.scene.keys.Play;
      return {no:s.no,acorns:s.cell.flat().filter(c=>c.acorn).length,
@@ -147,4 +148,4 @@ const path=require('node:path');
  assert.equal(errors.length,0,'console/runtime exceptions: '+errors.join('; '));
  console.log('PASS Phaser browser smoke: levels 6,8,10,12; contoured board, real swaps, rock special hit; no console errors');
  await browser.close();
-})().catch(error=>{console.error(error);process.exitCode=1});
+})().catch(error=>{console.error(error);process.exit(1)});
